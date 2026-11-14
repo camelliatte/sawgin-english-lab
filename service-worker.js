@@ -1,1 +1,12 @@
-const CACHE='sawgin-lab-shell-v04-cloud1';const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png','./icon-180.png'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method==='GET'&&new URL(e.request.url).origin===self.location.origin)e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});
+const CACHE='sawgin-lab-shell-v05r-fourbooks-20261114';
+const OWN='sawgin-lab-shell-';
+const ASSETS=['./index.html','./lab-v05r.js','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(OWN)&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{
+ const request=event.request,url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==self.location.origin)return;
+ const shell=request.mode==='navigate'||url.pathname.endsWith('/index.html')||url.pathname.endsWith('/lab-v05r.js')||url.pathname.endsWith('/service-worker.js');
+ if(shell){event.respondWith((async()=>{const cache=await caches.open(CACHE);try{const response=await fetch(request,{cache:'no-cache'});if(response.ok)cache.put(request,response.clone());return response;}catch(error){const cached=await cache.match(request);if(cached)return cached;if(request.mode==='navigate'){const page=await cache.match('./index.html');if(page)return page;}return new Response('Offline asset unavailable',{status:503,headers:{'Content-Type':'text/plain'}});}})());}
+ else if(ASSETS.some(path=>url.pathname.endsWith(path.slice(1)))){event.respondWith(caches.open(CACHE).then(async cache=>await cache.match(request)||fetch(request)));}
+});
