@@ -1,4 +1,4 @@
-const CACHE='sawgin-lab-shell-v05r-fourbooks-20261114';
+const CACHE='sawgin-lab-shell-v05r2-bundle-20261114';
 const OWN='sawgin-lab-shell-';
 const ASSETS=['./index.html','./lab-v05r.js','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
