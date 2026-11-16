@@ -181,66 +181,67 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.7.3 · 저장 및 동기화 안정화')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.7.3.2 · 수동 서버 동기화')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
 function render(){const app=$('app');app.innerHTML=view.page==='journal-edit'?journalEditor():({home,library,pack,review,records,settings}[view.page]||home)();document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===view.page));}
 // Whole-snapshot cloud compatibility remains, with optimistic concurrency and explicit conflict choice.
-function cloudStatus(message){const el=$('cloudIndicator');if(el)el.textContent='CLOUD · '+message}
-function cloudQueue(){if(!cloudUser||!cloudReady||cloudStopped)return;cloudDirty=true;clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudPush(),1100);cloudStatus('저장 대기 중')}
-function syncEqual(a,b){const x=JSON.parse(JSON.stringify(a)),y=JSON.parse(JSON.stringify(b));delete x.cloudOwner;delete y.cloudOwner;return JSON.stringify(x)===JSON.stringify(y)}
-async function readCloud(){return cloudClient.from('lab_profiles').select('preferences,updated_at').eq('user_id',cloudUser.id).maybeSingle()}
-function cloudConflict(remote,version,preferences={},reason='이 기기와 서버의 학습 기록이 달라.'){
- cloudReady=false;cloudStopped=true;cloudPending={remote,version,preferences};if(db.learningReset&&(!remote?.learningReset||remote.learningReset.at<db.learningReset.at))reason+=' 이 기기에서 학습 기록을 초기화했어. 예전 서버 기록을 선택하면 초기화 전 진도가 돌아올 수 있어.';
- cloudModal(`<h2>Choose Your Library.</h2><p>${esc(reason)}</p><p class="sub">자동으로 합치거나 덮어쓰지 않았어. 서버 기록 사용 전에는 이 기기 복구 사본을, 이 기기 기록 업로드 전에는 현재 서버 복구 사본을 남겨.</p><div class="actions"><button class="secondary" data-action="cloud-backup">이 기기 JSON 내려받기</button>${remote?'<button class="primary" onclick="cloudChoose(\'remote\')">서버 기록 사용</button>':''}<button class="secondary" onclick="cloudChoose('local')">이 기기 기록을 서버에 저장</button><button class="smallbtn" onclick="cloudChoose('later')">나중에 결정</button></div>`)
-}
-async function cloudOnLogin(user){if(!user)return;const generation=++cloudGeneration;cloudUser=user;cloudReady=false;cloudStopped=false;clearTimeout(cloudTimer);cloudStatus('서버 기록 확인 중');try{
- const {data,error}=await readCloud();if(generation!==cloudGeneration)return;if(error)throw error;
- const remote=data?.preferences?.cloud_state;cloudBaseVersion=data?.updated_at||null;cloudPreferences=data?.preferences||{};
- if(remote&&!validState(remote))throw Error('서버 기록 형식이 달라. 로컬 기록은 유지했어.');
- if(remote){const normalized=hydrate(JSON.parse(JSON.stringify(remote)));
-  if(hasLocalStudy()||Object.keys(db.journalEntries).length){if(!syncEqual(db,normalized))return cloudConflict(remote,cloudBaseVersion,cloudPreferences);}
-  if(syncEqual(db,normalized)){db.cloudOwner=user.id;cloudReady=true;cloudStopped=false;cloudDirty=false;cloudStatus('동기화 완료 · 기록 동일');render();return;}
-  try{beforeOverwrite('서버 기록 불러오기')}catch(e){throw e;}db=normalized;db.cloudOwner=user.id;lockRewards();localStorage.setItem(KEY,JSON.stringify(db));cloudReady=true;cloudStopped=false;cloudDirty=false;cloudStatus('서버 기록 불러옴');render();
- }else if(db.cloudOwner&&db.cloudOwner!==user.id&&(hasLocalStudy()||Object.keys(db.journalEntries).length)){
-  cloudConflict(null,cloudBaseVersion,cloudPreferences,'이 기기의 기록은 다른 계정에서 사용한 기록이야. 이 계정에 올릴지 직접 선택해줘.');
- }else{db.cloudOwner=user.id;cloudReady=true;cloudDirty=true;cloudStatus('첫 업로드 준비');cloudQueue();render();}
- }catch(e){cloudReady=false;cloudStatus('확인 실패 · Settings에서 재시도');toast(e.message||'서버 기록 확인 실패');}}
-function cloudChoose(choice){
- if(choice==='later'){cloudClose();cloudReady=false;cloudStopped=true;cloudStatus('동기화 보류 · 로컬 저장 중');return;}
- const pending=cloudPending;if(!pending)return;try{
-  flushJournal();
-  if(choice==='remote'){
-   if(!validState(pending.remote))throw Error('서버 기록이 없어.');beforeOverwrite('서버 기록으로 교체');db=hydrate(JSON.parse(JSON.stringify(pending.remote)));db.cloudOwner=cloudUser.id;lockRewards();localStorage.setItem(KEY,JSON.stringify(db));view={page:'home',mode:'vocab',ep:null,idx:0,quiz:false,reveal:false};journalId=null;cloudDirty=false;
-  }else{
-   if(pending.remote)saveRecoverySnapshot('업로드 전 서버 사본',pending.remote);db.cloudOwner=cloudUser.id;cloudDirty=true;localStorage.setItem(KEY,JSON.stringify(db));
-  }
-  cloudBaseVersion=pending.version;cloudPreferences=pending.preferences;cloudPending=null;cloudStopped=false;cloudReady=true;cloudClose();render();if(choice==='local')cloudPush();else cloudStatus('동기화 완료 · 서버 기록 사용 중');
- }catch(e){alert(e.message||'기록을 교체하지 못했어.');}}
-async function cloudPush(){
- if(!cloudReady||!cloudUser||!cloudDirty||cloudBusy||cloudStopped)return;
- if(navigator.onLine===false){cloudStatus('오프라인 · 이 기기에 저장됨');return;}
- const userId=cloudUser.id,generation=cloudGeneration,base=cloudBaseVersion;cloudBusy=true;cloudDirty=false;cloudStatus('동기화 중');
- let succeeded=false;const snapshot=JSON.parse(JSON.stringify(db));const timestamp=new Date(Math.max(Date.now(),base?Date.parse(base)+1:0)).toISOString();
+// v0.7.3.2: local autosave, explicitly requested cloud transfers only.
+function cloudStatus(message){const el=$('cloudIndicator');if(el)el.textContent='CLOUD · '+message;const btn=$('cloudSaveTop');if(btn){btn.disabled=cloudBusy;btn.textContent=cloudBusy?'저장 중…':'서버 저장';}}
+function cloudQueue(){/* Deliberately no automatic network writes. Local save() still runs. */}
+function syncComparable(state){const v=JSON.parse(JSON.stringify(state));delete v.cloudOwner;if(v.settings)delete v.settings.bookMemory;return v;}
+function syncEqual(a,b){return JSON.stringify(syncComparable(a))===JSON.stringify(syncComparable(b))}
+async function readCloud(){if(!cloudUser)throw Error('로그인이 필요해.');return cloudClient.from('lab_profiles').select('preferences,updated_at').eq('user_id',cloudUser.id).maybeSingle()}
+async function cloudOnLogin(user){if(!user)return;cloudUser=user;cloudReady=true;cloudStopped=false;clearTimeout(cloudTimer);cloudStatus('로그인됨 · 수동 동기화');render();}
+function cloudChoose(choice){cloudClose();cloudStatus('수동 동기화 모드');}
+async function cloudPushManual(){
+ if(cloudBusy)return;
+ if(!cloudUser){cloudShowLogin();return;}
+ if(navigator.onLine===false){cloudStatus('오프라인 · 기기에만 저장됨');return;}
+ flushJournal();cloudBusy=true;cloudStatus('서버 확인 중');
  try{
-  const row={user_id:userId,preferences:{...cloudPreferences,cloud_state:snapshot,cloud_updated_at:timestamp},updated_at:timestamp};let result;
-  if(base){result=await cloudClient.from('lab_profiles').update({preferences:row.preferences,updated_at:timestamp}).eq('user_id',userId).eq('updated_at',base).select('updated_at');}
-  else result=await cloudClient.from('lab_profiles').insert(row).select('updated_at');
-  if(generation!==cloudGeneration||cloudUser?.id!==userId)return;
-  if(result.error||!result.data?.length){
-   if(result.error&&result.error.code!=='23505')throw result.error;
-   const latest=await readCloud();if(latest.error)throw latest.error;
-   cloudDirty=true;cloudConflict(latest.data?.preferences?.cloud_state||null,latest.data?.updated_at||null,latest.data?.preferences||{},'다른 기기에서 서버 기록이 바뀌었어. 어떤 기록을 쓸지 선택해줘.');return;
+  let {data,error}=await readCloud();if(error)throw error;
+  let remote=data?.preferences?.cloud_state||null;
+  if(remote&&!validState(remote))throw Error('서버 기록 형식이 올바르지 않아. 덮어쓰지 않았어.');
+  if(remote&&!syncEqual(db,hydrate(JSON.parse(JSON.stringify(remote))))){
+   if(!confirm('서버에 이 기기와 다른 기록이 있어. 서버의 기존 기록을 이 기기 기록으로 교체할까?\n\n확인을 누르면 기존 서버 기록 JSON을 먼저 다운로드해. 취소하면 아무것도 변경하지 않아.')){cloudStatus('서버 저장 취소 · 기기 기록 유지');return;}
+   downloadJSON(remote,'sawgin-server-before-overwrite-'+dateKey()+'.json');
   }
-  cloudBaseVersion=result.data[0].updated_at||timestamp;cloudPreferences=row.preferences;cloudUpdatedAt=timestamp;succeeded=true;cloudStatus('동기화 완료 · '+new Date().toLocaleTimeString('ko-KR'));
- }catch(e){if(generation===cloudGeneration){cloudDirty=true;cloudStatus('동기화 실패 · '+String(e?.message||'서버 오류').slice(0,110)+' · 로컬 기록 유지');}}
- finally{cloudBusy=false;if(cloudDirty&&cloudReady&&!cloudStopped&&generation===cloudGeneration){if(succeeded){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudPush(),1100);cloudStatus('추가 변경 저장 대기 중');}}}
+  const timestamp=new Date(Math.max(Date.now(),data?.updated_at?Date.parse(data.updated_at)+1:0)).toISOString();
+  const snapshot=JSON.parse(JSON.stringify(db));snapshot.cloudOwner=cloudUser.id;
+  const preferences={...(data?.preferences||{}),cloud_state:snapshot,cloud_updated_at:timestamp};
+  let result;
+  if(data){result=await cloudClient.from('lab_profiles').update({preferences,updated_at:timestamp}).eq('user_id',cloudUser.id).eq('updated_at',data.updated_at).select('updated_at');}
+  else{result=await cloudClient.from('lab_profiles').insert({user_id:cloudUser.id,preferences,updated_at:timestamp}).select('updated_at');}
+  if(result.error)throw result.error;
+  if(!result.data?.length)throw Error('다른 기기가 먼저 서버 기록을 변경했어. 저장하지 않았으니 다시 확인해 줘.');
+  cloudBaseVersion=result.data[0].updated_at;cloudPreferences=preferences;cloudUpdatedAt=timestamp;cloudDirty=false;
+  cloudStatus('서버 저장 완료 · '+new Date().toLocaleTimeString('ko-KR'));toast('서버 저장 완료');
+ }catch(e){cloudStatus('서버 저장 실패 · 기기 기록 유지');alert('서버 저장 실패: '+String(e.message||e));}
+ finally{cloudBusy=false;const btn=$('cloudSaveTop');if(btn){btn.disabled=false;btn.textContent='서버 저장';}}
 }
-async function cloudPushManual(){if(!cloudUser)return cloudShowLogin();if(!cloudReady||cloudStopped)return cloudOnLogin(cloudUser);cloudDirty=true;await cloudPush();render();}
-async function cloudPullManual(){if(!cloudUser)return cloudShowLogin();clearTimeout(cloudTimer);await cloudOnLogin(cloudUser)}
-async function cloudSignOut(){if(!confirm('로그아웃할까? 로컬 기록은 이 기기에 남아.'))return;if(cloudDirty&&!confirm('아직 서버에 저장되지 않은 변경이 있어. 그래도 로그아웃할까?'))return;flushJournal();cloudReady=false;cloudStopped=true;cloudUser=null;cloudGeneration++;clearTimeout(cloudTimer);await cloudClient.auth.signOut();cloudStatus('로그아웃 · 로컬 기록 유지');render()}
-function cloudSettingsHTML(){return `<section class="sheet"><h3>Cloud Sync · PC / iPhone</h3><p class="sub">${cloudUser?'로그인됨: '+esc(cloudUser.email||''):'로그인하지 않아도 이 기기에서 공부할 수 있어.'}</p><p class="sub">기록 전체를 저장하는 v0.4 테이블을 이어서 사용해. 다른 기기의 변경이 감지되면 저장을 멈추고 직접 선택하게 해. 충돌 자동 병합은 하지 않아.</p><div class="actions">${cloudUser?'<button class="primary" onclick="cloudPushManual()">지금 동기화 / 재시도</button><button class="secondary" onclick="cloudPullManual()">서버 기록 확인</button><button class="secondary" onclick="cloudSignOut()">로그아웃</button>':'<button class="primary" onclick="cloudShowLogin()">로그인 / 가입</button>'}</div><p class="sub">실제 PC↔아이폰 동기화는 두 기기에서 확인해줘. 오래된 v0.4 앱은 충돌 검사 없이 업로드하므로 모든 기기를 이 버전으로 업데이트해야 해.</p></section>`}
+async function cloudPullManual(){
+ if(cloudBusy)return;if(!cloudUser){cloudShowLogin();return;}
+ cloudBusy=true;cloudStatus('서버 기록 확인 중');
+ try{
+  const {data,error}=await readCloud();if(error)throw error;
+  const remote=data?.preferences?.cloud_state;
+  if(!remote){cloudStatus('서버에 저장된 기록 없음');alert('서버에 저장된 학습 기록이 없어.');return;}
+  if(!validState(remote))throw Error('서버 기록 형식이 올바르지 않아.');
+  const normalized=hydrate(JSON.parse(JSON.stringify(remote)));
+  if(syncEqual(db,normalized)){cloudStatus('기기·서버 기록 동일');toast('이미 같은 기록이야');return;}
+  if(!confirm('서버 기록으로 이 기기의 학습 기록 전체를 교체할까?\n\n확인을 누르면 현재 기기 기록 JSON을 먼저 다운로드해. 자동 병합은 하지 않아.')){cloudStatus('서버 불러오기 취소');return;}
+  flushJournal();backup();
+  const serialized=JSON.stringify(normalized);localStorage.setItem(KEY,serialized);
+  db=normalized;db.cloudOwner=cloudUser.id;cloudBaseVersion=data.updated_at;cloudPreferences=data.preferences||{};
+  view={page:'home',mode:'vocab',ep:null,idx:0,quiz:false,reveal:false};journalId=null;
+  render();cloudStatus('서버 기록 불러오기 완료');toast('서버 기록을 불러왔어');
+ }catch(e){cloudStatus('서버 불러오기 실패 · 기기 기록 유지');alert('서버 불러오기 실패: '+String(e.message||e));}
+ finally{cloudBusy=false;const btn=$('cloudSaveTop');if(btn){btn.disabled=false;btn.textContent='서버 저장';}}
+}
+async function cloudSignOut(){if(!confirm('로그아웃할까? 이 기기 기록은 남아 있어.'))return;flushJournal();cloudUser=null;cloudReady=false;cloudGeneration++;clearTimeout(cloudTimer);await cloudClient.auth.signOut();cloudStatus('로그아웃 · 기기 기록 유지');render();}
+function cloudSettingsHTML(){return `<section class="sheet"><h3>Cloud Sync · PC / iPhone</h3><p class="sub">${cloudUser?'로그인됨: '+esc(cloudUser.email||''):'로그인하지 않아도 이 기기에서 공부할 수 있어.'}</p><p class="sub">기기 기록은 자동 저장돼. 서버 저장과 서버 불러오기는 버튼을 눌렀을 때만 실행해. 자동 충돌 팝업·자동 병합·자동 서버 업로드는 없어.</p><div class="actions">${cloudUser?'<button class="primary" onclick="cloudPushManual()">이 기기 기록을 서버에 저장</button><button class="secondary" onclick="cloudPullManual()">서버 기록 불러오기</button><button class="secondary" onclick="cloudSignOut()">로그아웃</button>':'<button class="primary" onclick="cloudShowLogin()">로그인 / 가입</button>'}</div><p class="sub">기기를 바꿀 때는 이전 기기에서 서버 저장 완료를 확인하고, 다음 기기에서 서버 기록을 불러와 줘. 두 기기 기록은 자동으로 합쳐지지 않아.</p></section>`}
 async function cloudPasswordAuth(signup){if(!cloudClient)return cloudAuthMessage('로그인 라이브러리를 불러오지 못했어. 인터넷 연결 후 다시 열어줘.');const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;if(!email||password.length<8)return cloudAuthMessage('이메일과 8자 이상 비밀번호를 입력해.');try{const redirect=new URL('./',location.href).href;const {data,error}=signup?await cloudClient.auth.signUp({email,password,options:{emailRedirectTo:redirect}}):await cloudClient.auth.signInWithPassword({email,password});if(error)throw error;if(data.session){cloudClose();await cloudOnLogin(data.user)}else cloudAuthMessage('가입 확인 이메일을 보냈어. 인증 후 로그인해.')}catch(e){cloudAuthMessage(e.message)}}
 async function cloudEmailOtp(){if(!cloudClient)return cloudAuthMessage('로그인 연결을 확인해줘.');const email=$('cloudEmail').value.trim();if(!email)return cloudAuthMessage('이메일을 입력해줘.');try{const {error}=await cloudClient.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:new URL('./',location.href).href}});if(error)throw error;cloudModal(`<h2>Email Verification.</h2><p>${esc(email)}로 보낸 메일의 코드 또는 인증 링크를 확인해. 코드 길이는 프로젝트 설정에 따라 달라.</p><input id="cloudOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="인증 코드"><input type="hidden" id="cloudOtpEmail" value="${attr(email)}"><button class="primary" data-action="verify-otp">인증하기</button><p id="cloudAuthMessage" role="status"></p><button class="secondary" onclick="cloudShowLogin()">돌아가기</button>`)}catch(e){cloudAuthMessage(e.message)}}
 async function cloudVerifyOtp(email){try{const {data,error}=await cloudClient.auth.verifyOtp({email,token:$('cloudOtp').value.trim(),type:'email'});if(error)throw error;cloudClose();await cloudOnLogin(data.user)}catch(e){cloudAuthMessage(e.message)}}
@@ -315,7 +316,7 @@ document.addEventListener('dragstart',ev=>{const el=ev.target.closest('[data-pac
 document.addEventListener('dragover',ev=>{if(dragPack&&ev.target.closest('[data-pack]'))ev.preventDefault()});
 document.addEventListener('drop',ev=>{const el=ev.target.closest('[data-pack]');if(dragPack&&el){ev.preventDefault();swapPack(dragPack,el.dataset.pack);dragPack=null}});
 document.addEventListener('dragend',()=>{dragPack=null;document.querySelectorAll('.dragging').forEach(e=>e.classList.remove('dragging'))});
-window.addEventListener('online',()=>{if(cloudDirty&&cloudReady&&!cloudStopped)cloudPush()});
+window.addEventListener('online',()=>{if(cloudUser)cloudStatus('온라인 · 수동 동기화');});
 window.addEventListener('pagehide',()=>{rememberLocation();flushJournal()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushJournal()});
 function start05(){try{initialMigration();render();cloudInit();if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('./service-worker.js').then(reg=>{reg.update();}).catch(()=>{});}}catch(e){$('app').innerHTML='<div class="warning"><h2>기존 기록을 보호하려고 시작을 멈췄어.</h2><p>'+esc(e.message)+'</p><button class="secondary" onclick="backup()">현재 기록 백업</button></div>';}}
