@@ -25,11 +25,30 @@ function hydrate(s){
  s.settings.bookMemory??={};s.settings.manualOrder??={};s.schemaVersion=5;
  return s;
 }
-function beforeOverwrite(reason){
- const key='sawgin-recovery-v05r-'+Date.now()+'-'+uid().slice(0,4);
- try{localStorage.setItem(key,JSON.stringify({reason,at:new Date().toISOString(),data:db}));}catch(e){throw Error('자동 복구 사본을 저장하지 못했어. Settings에서 JSON을 내려받고 저장 공간을 확보해줘.');}
- return key;
+const RECOVERY_PREFIX='sawgin-recovery-v05r-';
+const RECOVERY_LIMIT=3;
+function recoveryKeys(){return Object.keys(localStorage).filter(k=>k.startsWith(RECOVERY_PREFIX)).sort().reverse();}
+function trimRecoveries(keep=RECOVERY_LIMIT){const keys=recoveryKeys();for(const k of keys.slice(keep))localStorage.removeItem(k);return Math.max(0,keys.length-keep);}
+function saveRecoverySnapshot(reason,data){
+ const key=RECOVERY_PREFIX+Date.now()+'-'+uid().slice(0,4);
+ const value=JSON.stringify({reason,at:new Date().toISOString(),data});
+ // Preserve the newest snapshots. Under quota pressure, remove the oldest
+ // recovery snapshots one at a time, never the active study database.
+ let keys=recoveryKeys().reverse();
+ while(true){
+  try{localStorage.setItem(key,value);break;}
+  catch(e){if(e?.name!=='QuotaExceededError'||!keys.length)throw Error('복구 사본을 저장할 공간이 없어. JSON 백업을 보관한 뒤 오래된 복구 사본을 정리해줘.');localStorage.removeItem(keys.shift());}
+ }
+ trimRecoveries();return key;
 }
+function beforeOverwrite(reason){return saveRecoverySnapshot(reason,db);}
+function cleanOldRecoveries(){
+ const count=Math.max(0,recoveryKeys().length-RECOVERY_LIMIT);
+ if(!count)return toast('정리할 오래된 복구 사본이 없어.');
+ if(!confirm('최신 '+RECOVERY_LIMIT+'개를 남기고 오래된 복구 사본 '+count+'개를 삭제할까? 현재 학습 기록과 별도 JSON 백업은 유지돼.'))return;
+ trimRecoveries();render();toast('오래된 복구 사본 '+count+'개를 정리했어.');
+}
+
 function initialMigration(){
  const raw=localStorage.getItem(KEY);
  if(raw&&!localStorage.getItem('sawgin-before-v05r')){localStorage.setItem('sawgin-before-v05r',raw);}
@@ -161,8 +180,8 @@ function submitJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(!e?.draft.trim())return toast('먼저 글을 써 줘.');if(e.submissions.at(-1)?.text!==e.draft)submitJournal();const s=e.submissions.at(-1);copy(correctionPrompt([{id:s.id,type:e.kind,prompt:e.prompt||e.title||'자유 글쓰기',answer:s.text}]))}
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
-function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.7.2 · 클립보드 스튜디오 · 리넨 책갈피')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.7.3 · 저장 및 동기화 안정화')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -170,7 +189,7 @@ function render(){const app=$('app');app.innerHTML=view.page==='journal-edit'?jo
 // Whole-snapshot cloud compatibility remains, with optimistic concurrency and explicit conflict choice.
 function cloudStatus(message){const el=$('cloudIndicator');if(el)el.textContent='CLOUD · '+message}
 function cloudQueue(){if(!cloudUser||!cloudReady||cloudStopped)return;cloudDirty=true;clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudPush(),1100);cloudStatus('저장 대기 중')}
-function syncEqual(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function syncEqual(a,b){const x=JSON.parse(JSON.stringify(a)),y=JSON.parse(JSON.stringify(b));delete x.cloudOwner;delete y.cloudOwner;return JSON.stringify(x)===JSON.stringify(y)}
 async function readCloud(){return cloudClient.from('lab_profiles').select('preferences,updated_at').eq('user_id',cloudUser.id).maybeSingle()}
 function cloudConflict(remote,version,preferences={},reason='이 기기와 서버의 학습 기록이 달라.'){
  cloudReady=false;cloudStopped=true;cloudPending={remote,version,preferences};if(db.learningReset&&(!remote?.learningReset||remote.learningReset.at<db.learningReset.at))reason+=' 이 기기에서 학습 기록을 초기화했어. 예전 서버 기록을 선택하면 초기화 전 진도가 돌아올 수 있어.';
@@ -182,6 +201,7 @@ async function cloudOnLogin(user){if(!user)return;const generation=++cloudGenera
  if(remote&&!validState(remote))throw Error('서버 기록 형식이 달라. 로컬 기록은 유지했어.');
  if(remote){const normalized=hydrate(JSON.parse(JSON.stringify(remote)));
   if(hasLocalStudy()||Object.keys(db.journalEntries).length){if(!syncEqual(db,normalized))return cloudConflict(remote,cloudBaseVersion,cloudPreferences);}
+  if(syncEqual(db,normalized)){db.cloudOwner=user.id;cloudReady=true;cloudStopped=false;cloudDirty=false;cloudStatus('동기화 완료 · 기록 동일');render();return;}
   try{beforeOverwrite('서버 기록 불러오기')}catch(e){throw e;}db=normalized;db.cloudOwner=user.id;lockRewards();localStorage.setItem(KEY,JSON.stringify(db));cloudReady=true;cloudStopped=false;cloudDirty=false;cloudStatus('서버 기록 불러옴');render();
  }else if(db.cloudOwner&&db.cloudOwner!==user.id&&(hasLocalStudy()||Object.keys(db.journalEntries).length)){
   cloudConflict(null,cloudBaseVersion,cloudPreferences,'이 기기의 기록은 다른 계정에서 사용한 기록이야. 이 계정에 올릴지 직접 선택해줘.');
@@ -194,9 +214,9 @@ function cloudChoose(choice){
   if(choice==='remote'){
    if(!validState(pending.remote))throw Error('서버 기록이 없어.');beforeOverwrite('서버 기록으로 교체');db=hydrate(JSON.parse(JSON.stringify(pending.remote)));db.cloudOwner=cloudUser.id;lockRewards();localStorage.setItem(KEY,JSON.stringify(db));view={page:'home',mode:'vocab',ep:null,idx:0,quiz:false,reveal:false};journalId=null;cloudDirty=false;
   }else{
-   if(pending.remote)localStorage.setItem('sawgin-recovery-v05r-'+Date.now()+'-'+uid().slice(0,4),JSON.stringify({reason:'업로드 전 서버 사본',at:new Date().toISOString(),data:pending.remote}));db.cloudOwner=cloudUser.id;cloudDirty=true;localStorage.setItem(KEY,JSON.stringify(db));
+   if(pending.remote)saveRecoverySnapshot('업로드 전 서버 사본',pending.remote);db.cloudOwner=cloudUser.id;cloudDirty=true;localStorage.setItem(KEY,JSON.stringify(db));
   }
-  cloudBaseVersion=pending.version;cloudPreferences=pending.preferences;cloudPending=null;cloudStopped=false;cloudReady=true;cloudClose();render();if(choice==='local')cloudPush();else cloudStatus('서버 기록 사용 중');
+  cloudBaseVersion=pending.version;cloudPreferences=pending.preferences;cloudPending=null;cloudStopped=false;cloudReady=true;cloudClose();render();if(choice==='local')cloudPush();else cloudStatus('동기화 완료 · 서버 기록 사용 중');
  }catch(e){alert(e.message||'기록을 교체하지 못했어.');}}
 async function cloudPush(){
  if(!cloudReady||!cloudUser||!cloudDirty||cloudBusy||cloudStopped)return;
@@ -214,7 +234,7 @@ async function cloudPush(){
    cloudDirty=true;cloudConflict(latest.data?.preferences?.cloud_state||null,latest.data?.updated_at||null,latest.data?.preferences||{},'다른 기기에서 서버 기록이 바뀌었어. 어떤 기록을 쓸지 선택해줘.');return;
   }
   cloudBaseVersion=result.data[0].updated_at||timestamp;cloudPreferences=row.preferences;cloudUpdatedAt=timestamp;succeeded=true;cloudStatus('동기화 완료 · '+new Date().toLocaleTimeString('ko-KR'));
- }catch(e){if(generation===cloudGeneration){cloudDirty=true;cloudStatus('동기화 실패 · 로컬 저장 유지 · 재시도 필요');}}
+ }catch(e){if(generation===cloudGeneration){cloudDirty=true;cloudStatus('동기화 실패 · '+String(e?.message||'서버 오류').slice(0,110)+' · 로컬 기록 유지');}}
  finally{cloudBusy=false;if(cloudDirty&&cloudReady&&!cloudStopped&&generation===cloudGeneration){if(succeeded){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudPush(),1100);cloudStatus('추가 변경 저장 대기 중');}}}
 }
 async function cloudPushManual(){if(!cloudUser)return cloudShowLogin();if(!cloudReady||cloudStopped)return cloudOnLogin(cloudUser);cloudDirty=true;await cloudPush();render();}
