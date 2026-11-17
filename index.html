@@ -160,7 +160,17 @@ body{background:#E6E1D9}.shell{background:var(--paper)}
 .journal-manage{margin:10px 0;border-top:1px solid var(--line)}.journal-manage>summary{cursor:pointer;padding:14px 4px;font:13px Arial,sans-serif;color:var(--soil)}
 .hint-in{margin-top:10px;border-top:1px dashed var(--line)}.hint-in summary{cursor:pointer;padding:8px 0;font:12px Arial,sans-serif;color:var(--soil)}
 .ep-delete{margin-left:auto;color:var(--wine);border-color:var(--wine)}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">REVIEW</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.8.5 · STUDY-FIRST HOME</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+
+/* v0.8.7 · guide paired lines */
+.example .ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.pair{padding:6px 0}.pair+.pair{border-top:1px dotted #d8cfc1}
+.pair-en{display:flex;align-items:flex-start;gap:6px;font-size:17px;line-height:1.4}.pair-no{flex:none;min-width:18px;font:italic 14px Georgia,serif;color:#8a6a5a;padding-top:2px}.pair-text{flex:1;min-width:0}
+.pair-ko{margin:2px 0 0 24px;font-size:13.5px;line-height:1.5;color:#78695b}
+.pair-en:not(:has(.pair-no))+.pair-ko{margin-left:0}
+.say-btn{flex:none;min-height:0;width:32px;height:30px;padding:0;border:1px solid var(--line);background:var(--paper,#fbf8f1);border-radius:15px;font-size:13px;line-height:1}
+.say-all{min-height:0;padding:5px 10px;font:12px Arial,sans-serif;border:1px solid var(--line);background:var(--paper,#fbf8f1);border-radius:14px;white-space:nowrap}
+.src-note{font-size:12px;opacity:.85}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">REVIEW</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.8.7 · STUDY-FIRST HOME</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
