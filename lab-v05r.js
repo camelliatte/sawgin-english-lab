@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.3 · Journal 목차 · 첨삭 바로 붙여넣기')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.5 · 빈 에피소드 삭제')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -940,6 +940,38 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]'
  else if(a==='toc-jump'){document.getElementById(b.dataset.target)?.scrollIntoView({behavior:'smooth',block:'start'});}
 });
 document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset.change==='journal-episode'){journalEpisode=t.value;db.settings.bookMemory.journal={...(db.settings.bookMemory.journal||{}),episode:t.value};save();render();}});
+
+
+/* v0.8.4 · episode lists show only episodes that still have packs (the registry itself is kept) */
+function episodesWithPacks(mode){const set=new Set();for(const m of mode?[mode]:Object.keys(db.packs))for(const p of Object.values(db.packs[m]||{}))if(p.episode)set.add(p.episode);return set;}
+const episodeOptions083=episodeOptions;
+episodeOptions=function(selected='',all=true){
+ const keep=all?episodesWithPacks(view.mode):episodesWithPacks();
+ if(selected)keep.add(selected);
+ const html=episodeOptions083(selected,all);
+ return html.replace(/<option value="([^"]+)"[^>]*>[\s\S]*?<\/option>/g,(m,id)=>keep.has(id.replace(/&quot;/g,'"').replace(/&amp;/g,'&'))?m:'');
+};
+const render084=render;
+render=function(){if(view.filterEpisode&&!episodesWithPacks(view.mode).has(view.filterEpisode))view.filterEpisode='';return render084();};
+
+
+/* v0.8.5 · delete an episode record once no book holds a pack for it */
+const episodeSettings084=episodeSettings;
+episodeSettings=function(){
+ const used=episodesWithPacks();
+ return episodeSettings084().replace(/(data-action="episode-move" data-episode="([^"]*)" data-dir="1">↓<\/button>)/g,(m,btn,ep)=>used.has(ep.replace(/&quot;/g,'"').replace(/&amp;/g,'&'))?m:btn+`<button class="smallbtn ep-delete" data-action="episode-delete" data-episode="${ep}">에피소드 삭제</button>`);
+};
+function deleteEpisode(ep){
+ if(!db.episodes[ep]||episodesWithPacks().has(ep))return toast('팩이 남아 있는 에피소드는 지울 수 없어');
+ const tagged=Object.values(db.journalEntries||{}).filter(e=>(e.episodes||[]).includes(ep)).length;
+ if(!confirm(`${ep} 에피소드 기록을 삭제할까?${tagged?`\nJournal 글 ${tagged}개에서 이 태그만 빠지고 글은 남아.`:''}`))return;
+ try{beforeOverwrite('에피소드 삭제');delete db.episodes[ep];
+  for(const e of Object.values(db.journalEntries||{}))if((e.episodes||[]).includes(ep))e.episodes=e.episodes.filter(x=>x!==ep);
+  for(const m of Object.keys(db.settings.bookMemory||{}))if(db.settings.bookMemory[m]?.episode===ep)delete db.settings.bookMemory[m].episode;
+  if(view.filterEpisode===ep)view.filterEpisode='';if(journalEpisode===ep)journalEpisode=null;
+  save();render();toast('에피소드를 삭제했어. 복구 사본은 Settings에 있어.');}catch(e){alert(e.message)}
+}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="episode-delete"]');if(b)deleteEpisode(b.dataset.episode);});
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};
