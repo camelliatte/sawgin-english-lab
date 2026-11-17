@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.1 · 바로 학습하는 홈 · Pocket Cards')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.2 · Journal 정리 · 첨삭 바로 붙여넣기')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -828,6 +828,73 @@ let clipSeq=0;
 function binderClip(){const id='bc'+(++clipSeq);return `<span class="bundle-clip binder" aria-hidden="true"><svg viewBox="0 0 56 64" width="56" height="64"><defs><linearGradient id="${id}w" x1="0" x2="1"><stop offset="0" stop-color="#7f7b74"/><stop offset=".45" stop-color="#ece8e0"/><stop offset=".6" stop-color="#cfcac1"/><stop offset="1" stop-color="#6f6b64"/></linearGradient><linearGradient id="${id}s" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".22" stop-color="#fff" stop-opacity=".12"/><stop offset=".7" stop-color="#000" stop-opacity=".05"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></linearGradient></defs><path d="M19 37 C17.5 27 15.5 17 16 9.5 C16.4 4.5 19 3 23 3 L33 3 C37 3 39.6 4.5 40 9.5 C40.5 17 38.5 27 37 37" fill="none" stroke="url(#${id}w)" stroke-width="2.6" stroke-linecap="round"/><path d="M21.5 37 C20.5 30 19.5 24 21 21 C22.5 18.5 33.5 18.5 35 21 C36.5 24 35.5 30 34.5 37" fill="none" stroke="url(#${id}w)" stroke-width="2.2" stroke-linecap="round"/><path d="M9 36 L47 36 L52 59 Q52.4 62 49.5 62 L6.5 62 Q3.6 62 4 59 Z" fill="currentColor"/><path d="M9 36 L47 36 L52 59 Q52.4 62 49.5 62 L6.5 62 Q3.6 62 4 59 Z" fill="url(#${id}s)"/><rect x="8" y="33.5" width="40" height="5" rx="2.5" fill="currentColor"/><rect x="8" y="33.5" width="40" height="5" rx="2.5" fill="url(#${id}s)"/><path d="M11 35 H45" stroke="#fff" stroke-opacity=".45" stroke-width="1"/><path d="M6 60.5 H50" stroke="#000" stroke-opacity=".25" stroke-width="1"/></svg></span>`;}
 const reviewCabinets08=reviewCabinets;
 reviewCabinets=function(){return reviewCabinets08().replace(/<span class="bundle-clip" aria-hidden="true"><i><\/i><\/span>/g,()=>binderClip());};
+
+
+/* v0.8.2 · one entry per prompt, journal return path, inline feedback paste, review-set switching. */
+let journalReturn=null,pastePanel=false;
+const REVIEW_FILTER_LABELS={all:'전체 다시 풀기',wrong:'틀렸던 것',bookmarks:'책갈피한 것',feedback:'첨삭받은 것'};
+/* Review folder: show locked buttons as locked, and offer to switch sets. */
+const reviewFolderDetail081=reviewFolderDetail;
+reviewFolderDetail=function(){
+ let out=reviewFolderDetail081();const mode=view.mode,key=view.ep,session=reviewData().sessions[reviewKey(mode,key)];if(!session||!db.packs[mode]?.[key])return out;
+ out=out.replace(/<button class="(primary|secondary)" data-v6="review-start" data-filter="(\w+)" disabled>/g,(m,cls,f)=>{const n=reviewIndices(mode,key,f).length,allowed=f!=='all'||reviewCompleted(mode,key);return n&&allowed?`<button class="${cls} locked-start" data-v6="review-switch" data-filter="${f}">`:m;});
+ const done=Object.keys(session.results).length;
+ return out.replace('<p class="sub">전체는 학습 완료 후에 열려.',`<p class="lock-note">진행 중인 세트(${done}/${session.ids.length})가 있어서 다른 복습은 잠겨 있어. 눌러서 바꾸거나, 위에서 이어하기·취소를 골라.</p><p class="sub">전체는 학습 완료 후에 열려.`);
+};
+function switchReviewSet(filter){const mode=view.mode,key=view.ep,r=reviewData(),sk=reviewKey(mode,key),s=r.sessions[sk];if(!s)return beginReview(filter);const done=Object.keys(s.results).length;if(!confirm(`진행 중인 세트(${done}/${s.ids.length})를 취소하고 ‘${REVIEW_FILTER_LABELS[filter]||filter}’로 새로 시작할까? 이미 푼 문항 기록은 남아.`))return;if(s.bookmarkRunId&&r.bookmarkRun?.id===s.bookmarkRunId)delete r.bookmarkRun;delete r.sessions[sk];save();beginReview(filter);}
+/* Feedback: accept a whole ChatGPT reply and pick out the JSON array. */
+function extractFeedbackJSON(raw){const s=String(raw||'').trim();if(!s)return s;const blocks=[...s.matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)].map(m=>m[1].trim()).filter(b=>b.startsWith('['));if(blocks.length)return blocks.at(-1);if(s.startsWith('['))return s;const a=s.indexOf('[{'),b=s.lastIndexOf(']');return a>=0&&b>a?s.slice(a,b+1):s;}
+const importFeedback081=importFeedback;
+importFeedback=function(){const el=$('feedbackinput');if(el)el.value=extractFeedbackJSON(el.value);importFeedback081();};
+function feedbackPasteHTML(hint){return `<div class="feedback-paste"><label class="fieldlabel" for="feedbackinput">CHATGPT 첨삭 붙여넣기</label><textarea class="textarea-small" id="feedbackinput" placeholder="ChatGPT 답을 통째로 붙여 넣어도 돼. 안의 JSON만 골라서 반영해."></textarea><div class="actions"><button class="primary" onclick="importFeedback()">첨삭 반영</button>${hint?`<span class="sub">${hint}</span>`:''}</div></div>`;}
+/* Journal editor: short labels, paste right here, return to where the writing started. */
+const journalEditor081=journalEditor;
+journalEditor=function(){
+ const e=db.journalEntries[journalId];let out=journalEditor081();if(!e)return out;
+ out=out.replace('data-action="save-entry">초안 저장</button>','data-action="save-entry">임시저장</button>').replace('data-action="submit-entry">학습 제출 · 버전 남기기</button>','data-action="submit-entry">제출</button>').replace('data-action="export-entry">첨삭용 복사</button>',`data-action="export-entry">첨삭용 복사</button><button class="secondary" data-action="paste-toggle" aria-expanded="${pastePanel}">첨삭 붙여넣기</button>`);
+ if(pastePanel){const i=out.indexOf('</div>',out.indexOf('data-action="paste-toggle"'));if(i>0)out=out.slice(0,i+6)+feedbackPasteHTML('최근 제출본에 연결돼.')+out.slice(i+6);}
+ const back=journalReturn&&db.packs[journalReturn.mode]?.[journalReturn.ep]?(journalReturn.mode==='guide'?'← Guide':'← 글감 목록'):'← Journal';
+ return out.replace('data-action="back-journal">← Journal</button>',`data-action="back-journal">${back}</button>`);
+};
+/* One entry per prompt: essays per topic, diary prompts per date. */
+function entryKind(kind){return kind==='diary'?'diary':'essay';}
+function findEntryFor(source,kind){if(!source)return null;const today=dateKey();return Object.values(db.journalEntries).filter(e=>e.source===source&&(entryKind(kind)!=='diary'||e.date===today)).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0]||null;}
+const createEntry081=createEntry;
+createEntry=function(opts={}){
+ const o={...opts};const from={page:view.page,mode:view.mode,ep:view.ep,idx:view.mode==='guide'?lessonIdx:view.idx};
+ if(!o.source&&view.page==='pack'&&view.mode==='guide'){const it=db.packs.guide[view.ep]?.items[lessonIdx];if(it)o.source='lesson:'+it.id;}
+ journalReturn=view.page==='pack'&&(view.mode==='journal'||view.mode==='guide')?from:null;pastePanel=false;
+ const found=findEntryFor(o.source,o.kind);
+ if(found){flushJournal();journalId=found.id;journalTab=entryKind(found.kind);view={page:'journal-edit',mode:'journal',ep:null,idx:0};render();scrollTo(0,0);toast('이 글감으로 쓴 글을 열었어.');return;}
+ createEntry081(o);
+};
+function pruneEmptyEntry(id){const e=db.journalEntries[id];if(e&&!plain(e.draft).trim()&&!(e.submissions||[]).length&&!(e.archivedSubmissions||[]).length){delete db.journalEntries[id];return true;}return false;}
+function leaveJournalEditor(){if(view.page!=='journal-edit')return;flushJournal();if(journalId&&pruneEmptyEntry(journalId)){journalId=null;save();}}
+const navigate081=navigate;
+navigate=function(page,mode,ep){leaveJournalEditor();navigate081(page,mode,ep);};
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action],[data-v6]');if(!b||b.disabled)return;
+ if(b.dataset.action==='back-journal'){ev.stopPropagation();ev.preventDefault();const back=journalReturn;journalReturn=null;pastePanel=false;leaveJournalEditor();if(back&&db.packs[back.mode]?.[back.ep]){navigate('pack',back.mode,back.ep);if(back.mode==='guide'){lessonIdx=Math.min(back.idx||0,db.packs.guide[back.ep].items.length-1);rememberLocation();}render();scrollTo(0,0);}else navigate('library','journal');return;}
+ if(b.dataset.action==='edit-entry'){journalReturn=null;pastePanel=false;}
+ if(b.dataset.action==='paste-toggle'){ev.stopPropagation();flushJournal();pastePanel=!pastePanel;render();if(pastePanel)$('feedbackinput')?.focus();return;}
+ if(b.dataset.v6==='review-switch'){ev.stopPropagation();switchReviewSet(b.dataset.filter);return;}
+},true);
+/* Journal home: latest entry first, the rest folded; previews marked when cut; duplicate topics flagged. */
+function journalPreview(t){const s=plain(t).replace(/\s+/g,' ').trim();return s.length>100?s.slice(0,100)+'…':s;}
+function journalCard(e,dup){return `<div class="journalcard"><span class="eyebrow">${esc(e.date)} · ${(e.submissions||[]).length?'SUBMITTED':'DRAFT'}</span><h3>${esc(e.title||'제목 없는 글')}</h3>${dup>1?`<span class="pill dup-pill">같은 주제 글 ${dup}개</span>`:''}<p class="sub">${esc(journalPreview(e.draft))}</p><div class="tagline">${(e.episodes||[]).map(ep=>`<span class="pill">${esc(ep)}</span>`).join('')}</div><button class="smallbtn" data-action="edit-entry" data-entry="${attr(e.id)}">이어 쓰기 →</button></div>`;}
+const journalHome081=journalHome;
+journalHome=function(){
+ const out=journalHome081(),start=out.indexOf('</h3>',out.indexOf('<h3>'))+5,end=out.indexOf('<section class="sheet"><h3>에피소드에서 이어지는 글감</h3>');if(start<5||end<0)return out;
+ const entries=Object.values(db.journalEntries).filter(e=>e.kind===journalTab&&(!journalFilter||e.episodes?.includes(journalFilter))).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+ const dupKey=e=>e.source?e.source+(entryKind(e.kind)==='diary'?'|'+e.date:''):null,counts={};for(const e of Object.values(db.journalEntries)){const k=dupKey(e);if(k)counts[k]=(counts[k]||0)+1;}
+ const [latest,...rest]=entries,list=latest?`<p class="eyebrow latest-label">최근에 쓴 글</p>${journalCard(latest,counts[dupKey(latest)])}${rest.length?`<details class="journal-older"><summary>지난 글 ${rest.length}개 보기</summary>${rest.map(e=>journalCard(e,counts[dupKey(e)])).join('')}</details>`:''}`:'<div class="empty">아직 쓴 글이 없어. 짧게 시작해 봐.</div>';
+ return out.slice(0,start)+list+out.slice(end);
+};
+/* Practice pack: paste feedback next to the copy button. */
+const pack081=pack;
+pack=function(){const out=pack081();if(view.mode!=='writing'||view.quiz||view.page!=='pack')return out;const i=out.indexOf('<div class="panel">');return i<0?out:out.slice(0,i)+`<details class="sheet paste-sheet"${pastePanel?' open':''}><summary>ChatGPT 첨삭 붙여넣기</summary>${feedbackPasteHTML('ID가 맞는 문제 아래에 바로 표시돼.')}</details>`+out.slice(i);};
+/* Clean out empty drafts left by earlier versions (never ones with text or submissions). */
+const migration081=initialMigration;
+initialMigration=function(){migration081();let n=0;for(const id of Object.keys(db.journalEntries||{}))if(pruneEmptyEntry(id))n++;if(n)localStorage.setItem(KEY,JSON.stringify(db));};
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};
