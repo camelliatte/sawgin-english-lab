@@ -125,19 +125,72 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
 .studio-clamp:before{content:'';position:absolute;left:calc(50% - 14px);top:-31px;width:28px;height:38px;border:4px double #89897F;border-radius:17px 17px 3px 3px;background:linear-gradient(90deg,#B3B2A7,#E1DDD1,#95958C)}
 .studio-clamp:after{content:'';position:absolute;left:calc(50% - 5px);top:-24px;width:10px;height:10px;border:2px solid #77786F;border-radius:50%;background:var(--bg)}
 .studio-paper>.sub{padding-bottom:24px;margin-bottom:25px}.studio-paper>.card{box-shadow:none;background:transparent;border:0;border-top:1px solid var(--line2);padding:21px 0;margin:0;border-radius:0}.studio-paper>.studio-source{border-top:0;padding-top:0;padding-bottom:24px}
-.studio-paper>#list{margin-top:12px}.studio-paper #stage{background:var(--soft)!important;border:1px solid var(--line);border-left:4px solid var(--cur,var(--line2));min-height:190px}
-.studio-paper .spk{background:var(--soft);min-width:0}.studio-paper .spk select{min-width:0}.studio-paper .row{flex-wrap:wrap}.studio-paper .row .txt{min-width:0;overflow-wrap:anywhere;flex:1}.studio-paper .row .tag{min-width:55px}.studio-paper .sliders>div{max-width:100%;flex-wrap:wrap}
+.studio-paper>#list{margin-top:12px}:is(.studio-paper,.studio-desk) #stage{background:var(--soft)!important;border:1px solid var(--line);border-left:4px solid var(--cur,var(--line2));min-height:190px}
+:is(.studio-paper,.studio-desk) .spk{background:var(--soft);min-width:0}:is(.studio-paper,.studio-desk) .spk select{min-width:0}:is(.studio-paper,.studio-desk) .row{flex-wrap:wrap}:is(.studio-paper,.studio-desk) .row .txt{min-width:0;overflow-wrap:anywhere;flex:1}:is(.studio-paper,.studio-desk) .row .tag{min-width:55px}:is(.studio-paper,.studio-desk) .sliders>div{max-width:100%;flex-wrap:wrap}
 .studio-version{text-align:right;font:10px var(--sans);letter-spacing:.1em;color:var(--muted);margin:24px 0 0}button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #849FA9;outline-offset:3px}
-@media(max-width:600px){main{padding:20px 12px 95px}.studio-top{margin-bottom:54px}.studio-board{margin:0 3px 22px;padding:8px;box-shadow:4px 6px 0 var(--shadow)}.studio-paper{padding:66px 15px 24px}.studio-clamp{width:124px;height:34px;top:-15px}.studio-paper .spk{grid-template-columns:auto minmax(0,1fr);gap:9px}.studio-paper .spk label{grid-column:1/-1}.studio-paper .tools .grp{min-width:0;width:100%}.studio-paper .tools select{min-width:0;max-width:100%;flex:1 1 110px}.studio-paper #stage{padding:25px 12px}.studio-paper .studio-source select{font-size:16px}.studio-paper h1{font-size:36px}}
+@media(max-width:600px){main{padding:20px 12px 95px}.studio-top{margin-bottom:54px}.studio-board{margin:0 3px 22px;padding:8px;box-shadow:4px 6px 0 var(--shadow)}.studio-paper{padding:66px 15px 24px}.studio-clamp{width:124px;height:34px;top:-15px}:is(.studio-paper,.studio-desk) .spk{grid-template-columns:auto minmax(0,1fr);gap:9px}:is(.studio-paper,.studio-desk) .spk label{grid-column:1/-1}:is(.studio-paper,.studio-desk) .tools .grp{min-width:0;width:100%}:is(.studio-paper,.studio-desk) .tools select{min-width:0;max-width:100%;flex:1 1 110px}:is(.studio-paper,.studio-desk) #stage{padding:25px 12px}:is(.studio-paper,.studio-desk) .studio-source select{font-size:16px}:is(.studio-paper,.studio-desk) h1{font-size:36px}}
+
+/* v0.8.6 · fixed controls, scrolling script */
+.studio-clip{position:absolute;z-index:2;left:50%;top:-47px;transform:translateX(-50%);width:156px;line-height:0;pointer-events:none}.studio-clip svg{width:100%;height:auto;display:block}
+.studio-board .studio-clamp{display:none}
+:is(.studio-paper,.studio-desk) .card{box-shadow:none;background:transparent;border:0;border-top:1px solid var(--line2);padding:16px 0;margin:0;border-radius:0}
+.studio-desk .desk-head .sub{padding-bottom:10px;margin-bottom:0}
+.studio-set{border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.studio-set>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer}.studio-set>summary::-webkit-details-marker{display:none}
+.set-sum{flex:1;min-width:0;font:12.5px var(--sans);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-btn{flex:none;font:12px var(--sans);color:var(--soil);border:1px solid var(--line2);padding:5px 9px;border-radius:2px;background:var(--card)}
+.studio-set[open] .set-btn{background:var(--soil);color:var(--bg);border-color:var(--soil)}
+.set-body>.card:first-child{border-top:0;padding-top:4px}
+.set-guide>summary{cursor:pointer;font:12px var(--sans);color:var(--soil)}
+.studio-player{border-top:0!important}
+.mini{display:none}
+.mobile-only{display:none}
+@media(max-width:959px){
+ .mobile-only{display:flex}
+ body.has-mini main{padding-bottom:calc(var(--miniH,130px) + 24px)}
+ .studio-player #stage,.studio-player>.ctrl,.studio-player #koNote{display:none!important}
+ .studio-player{padding:0!important}
+ #sayRes.show{position:fixed;left:12px;right:12px;bottom:calc(var(--miniH,130px) + 10px);z-index:4;background:var(--card);border:1px solid var(--line2);box-shadow:0 6px 18px #23181533;padding:12px;margin:0}
+ .studio-paper .row{scroll-margin-bottom:calc(var(--miniH,130px) + 10px)}
+ .fab{bottom:calc(var(--miniH,130px) + 10px);right:8px;gap:6px}
+ .fab button{font-size:11px;padding:5px 9px;min-height:0;box-shadow:2px 2px 0 var(--shadow);opacity:.94}
+ .mini{display:block;position:fixed;left:3px;right:3px;bottom:0;z-index:4;background:#8D7965;border-top:1px solid #786552;box-shadow:0 -6px 12px #23181533;padding:10px 14px calc(14px + env(safe-area-inset-bottom))}
+ .mini-now{display:flex;align-items:baseline;gap:8px;width:100%;margin:0 0 8px;padding:0;border:0;background:none;box-shadow:none;color:#fbf8f1;text-align:left;min-height:0}
+ #miniWho{flex:none;font:10px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#f5efc6}
+ #miniTxt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:15px var(--serif)}
+ .mini-prog{height:3px;background:#786552;border-radius:2px;margin-bottom:10px}.mini-prog i{display:block;height:3px;width:0;background:#f5efc6;border-radius:2px;transition:width .2s}
+ .mini-btns{display:flex;gap:8px;align-items:center}
+ .mini-btns button{width:44px;height:44px;min-height:0;padding:0;border:1px solid #786552;background:#fbf8f1;color:#231815;border-radius:50%;font-size:14px;box-shadow:none}
+ .mini-btns .mini-play{flex:1;width:auto;border-radius:22px;border-color:#3a231d;background:#4a2e27;color:#f4f0e8;font:15px var(--sans)}
+ .mini-btns .mini-say{background:#f1e4e0;color:#4d0e12}.mini-btns .mini-say.on{background:#4d0e12;color:#f5efc6}
+}
+@media(min-width:960px){
+ main{max-width:1100px;padding-bottom:24px}
+ .studio-layout{display:grid;grid-template-columns:380px minmax(0,1fr);gap:28px;align-items:start;margin-top:8px}
+ .studio-desk{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--card);border:1px solid var(--line);box-shadow:4px 5px 0 var(--shadow);padding:18px 20px;border-radius:3px}
+ .studio-desk h1{font-size:34px}
+ .studio-board{position:sticky;top:60px;height:calc(100vh - 84px);margin:44px 7px 0;box-sizing:border-box}
+ .studio-paper{height:100%;box-sizing:border-box;overflow:auto;padding-top:64px}
+ .studio-clip{width:190px;top:-57px}
+ .studio-desk #stage{min-height:150px;padding:20px 14px}
+ .studio-desk #stage .big{font-size:26px}
+ .studio-desk #stage .next{margin-top:12px;font-size:.92rem}
+ .fab{display:none}
+}
 </style></head>
 <body>
 <main>
   <header class="studio-top"><a class="studio-logo" href="./">S&amp;G <span>/ ENGLISH LAB</span></a><nav class="studio-nav-bar" aria-label="상단 메뉴"><a href="./">HOME</a><a href="./?studio=review">REVIEW</a><a href="./?studio=records">RECORDS</a><a href="./?studio=settings">SETTINGS</a><a href="./?studio=settings" title="학습 기록 서버 저장은 Settings에서 실행">저장</a></nav></header>
-  <section class="studio-board" aria-label="스크립트 연습 클립보드"><span class="studio-clamp" aria-hidden="true"></span><div class="studio-paper">
+  <div class="studio-layout">
+  <aside class="studio-desk" id="studioDesk" aria-label="연습 조작">
+  <div class="desk-head">
   <p class="eyebrow">S&amp;G · English Lab — Script Studio</p>
   <h1>Script Studio.</h1>
   <p class="sub">대사를 듣고, 따라 말하고, 문장을 몸에 붙여 봐. 줄을 누르면 거기서부터 시작해.</p>
-
+  </div>
+  <details class="studio-set" id="studioSet">
+    <summary><span class="set-sum" id="setSummary"></span><span class="set-btn">⚙ 설정</span></summary>
+    <div class="set-body">
   <section class="card studio-source"><label for="studioSource">연습 자료</label><div class="ctrl"><select id="studioSource" aria-label="연습 자료"><option value="direct">직접 입력한 문장</option></select><button id="reloadPacks">목록 새로고침</button><a class="studio-settings" href="./?studio=settings">Settings · 대사팩 관리 →</a></div><p class="hint" id="sourceNote"></p></section>
   <details class="card" id="editBox">
     <summary>Script · 스크립트 입력 / 수정</summary>
@@ -145,13 +198,30 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
     <p class="hint">한 줄에 한 대사씩, <b>이름: 대사</b> 형식으로 써주세요. (예: <code>Emma: Hello!</code>) 이름이 없는 줄은 앞 사람 대사에 이어붙여요. 영어만 넣어도 돼요. 번역을 함께 보려면 대사 아랫줄에 <b>번역: 한국어 뜻</b> 또는 <b>직역: 한국어 뜻</b>을 적어주세요. AI 자동 번역은 사용하지 않아요.</p>
     <div class="ctrl" style="margin-top:10px"><button class="primary" id="apply">적용</button></div>
   </details>
-
   <div class="card">
     <div class="speakers" id="speakers"></div>
     <p class="hint" id="voiceNote"></p>
   </div>
-
-  <div class="card">
+  <div class="card set-play">
+    <div class="sliders">
+      <div>속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
+      <div>줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
+      <div><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="shadow"> 따라 말하기 (줄마다 대사 길이만큼 멈춤)</label></div>
+    </div>
+    <div class="tools">
+      <div class="grp"><label><input type="checkbox" id="loop"> 🔁 구간 반복</label><select id="loopA"></select>~<select id="loopB"></select></div>
+      <div class="grp"><label><input type="checkbox" id="blank"> ✏️ 빈칸 모드</label><button id="reshuffle">빈칸 바꾸기</button><button id="reveal">정답 보기</button></div>
+    </div>
+    <div class="ctrl mobile-only set-extra"><button id="stopM">■ 처음으로</button><button id="toggleKoM">뜻 보기</button></div>
+    <p class="hint" style="margin-top:8px">💡 단어를 누르면 발음을 듣고, 저장된 설명이 있으면 볼 수 있어요. 빈칸 모드에선 빈칸을 누르면 정답이 보여요.</p>
+  </div>
+  <details class="card set-guide"><summary>사용 안내 · YouGlish · 말해보기</summary>
+    <div class="ctrl" style="margin-top:10px"><a id="ygLink" class="yg" target="_blank" rel="noopener" href="https://youglish.com">🎬 YouGlish 🇬🇧</a></div>
+    <p class="hint" id="recNote">🎬 대사에서 2~4단어를 드래그하면 그 표현만 YouGlish(영국 발음 영상)에서 찾아요. 문장 전체는 결과가 거의 없어요.<br>🎙 말해보기(R 키)를 누르고 현재 대사를 말하면, 다 말하고 잠깐 멈출 때 알아들은 말과 일치율을 보여줘요. 처음 한 번은 마이크 허용을 물어봐요.<br>📒 점수는 이 기기에 남아요. 이 기기에서 홈(서재)을 한 번 열면 학습 기록에 합쳐지고, 서버 저장에 포함돼요. 녹음은 저장하지 않아요.</p>
+  </details>
+    </div>
+  </details>
+  <div class="card studio-player" id="studioPlayer">
     <div id="stage"><div class="big" style="color:var(--muted);font-size:1.2rem">▶ 재생을 눌러 시작하세요</div></div>
     <div class="ctrl" style="justify-content:center;margin-top:10px">
       <button id="prev" title="이전 줄">⏮</button>
@@ -162,28 +232,63 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
     </div>
     <div class="ctrl recbar">
       <button id="sayBtn" title="현재 대사를 소리 내어 말하면 알아듣고 채점해요 (R 키)">🎙 말해보기</button>
-      <a id="ygLink" class="yg" target="_blank" rel="noopener" href="https://youglish.com">🎬 YouGlish 🇬🇧</a>
     </div>
-    <p class="hint" id="recNote" style="text-align:center">🎬 대사에서 2~4단어를 드래그하면 그 표현만 YouGlish(영국 발음 영상)에서 찾아요. 문장 전체는 결과가 거의 없어요.<br>🎙 말해보기(R 키)를 누르고 현재 대사를 말하면, 다 말하고 잠깐 멈출 때 알아들은 말과 일치율을 보여줘요. 처음 한 번은 마이크 허용을 물어봐요.<br>📒 점수는 이 기기에 남아요. 이 기기에서 홈(서재)을 한 번 열면 학습 기록에 합쳐지고, 서버 저장에 포함돼요. 녹음은 저장하지 않아요.</p>
     <div id="sayRes"></div>
     <p class="hint" id="koNote" style="text-align:center"></p>
-    <div class="sliders">
-      <div>속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
-      <div>줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
-      <div><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="shadow"> 따라 말하기 (줄마다 대사 길이만큼 멈춤)</label></div>
-    </div>
-    <div class="tools">
-      <div class="grp"><label><input type="checkbox" id="loop"> 🔁 구간 반복</label><select id="loopA"></select>~<select id="loopB"></select></div>
-      <div class="grp"><label><input type="checkbox" id="blank"> ✏️ 빈칸 모드</label><button id="reshuffle">빈칸 바꾸기</button><button id="reveal">정답 보기</button></div>
-    </div>
-    <p class="hint" style="margin-top:8px">💡 단어를 누르면 발음을 듣고, 저장된 설명이 있으면 볼 수 있어요. 빈칸 모드에선 빈칸을 누르면 정답이 보여요.</p>
   </div>
-
+  </aside>
+  <section class="studio-board" aria-label="스크립트 연습 클립보드"><div class="studio-clip" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 92">
+  <defs>
+    <linearGradient id="cPlate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f2ec"/><stop offset=".18" stop-color="#d9d6cc"/><stop offset=".5" stop-color="#a9a79d"/><stop offset=".78" stop-color="#cfccc2"/><stop offset="1" stop-color="#7d7c74"/>
+    </linearGradient>
+    <linearGradient id="cPlateSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00000030"/><stop offset=".08" stop-color="#0000"/><stop offset=".92" stop-color="#0000"/><stop offset="1" stop-color="#00000030"/>
+    </linearGradient>
+    <linearGradient id="cRoll" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6f6e67"/><stop offset=".22" stop-color="#e9e7df"/><stop offset=".42" stop-color="#ffffff"/><stop offset=".62" stop-color="#b5b3a9"/><stop offset="1" stop-color="#5e5d57"/>
+    </linearGradient>
+    <linearGradient id="cLever" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8b8a82"/><stop offset=".2" stop-color="#e8e6de"/><stop offset=".45" stop-color="#c3c1b7"/><stop offset=".7" stop-color="#f3f1ea"/><stop offset="1" stop-color="#7b7a72"/>
+    </linearGradient>
+    <radialGradient id="cRivet" cx=".38" cy=".35" r=".7">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#c9c6bb"/><stop offset="1" stop-color="#66655e"/>
+    </radialGradient>
+    <pattern id="cBrush" width="200" height="3" patternUnits="userSpaceOnUse"><rect width="200" height="1" fill="#ffffff22"/><rect y="1.5" width="200" height=".6" fill="#00000014"/></pattern>
+    <filter id="cSh" x="-20%" y="-20%" width="140%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>
+  <!-- soft shadow on board/paper -->
+  <path d="M14 60 H186 Q190 60 189 66 L184 82 H16 L11 66 Q10 60 14 60Z" fill="#23181555" filter="url(#cSh)" transform="translate(2 4)"/>
+  <!-- lever (behind roll), with punched hole -->
+  <g>
+    <path fill-rule="evenodd" d="M70 46 C70 22 74 4 100 4 C126 4 130 22 130 46 Z M94.5 11 H105.5 A6.5 6.5 0 0 1 105.5 24 H94.5 A6.5 6.5 0 0 1 94.5 11 Z" fill="url(#cLever)" stroke="#6e6d66" stroke-width="1"/>
+    <path d="M76 44 C76 24 80 9 100 9 C120 9 124 24 124 44" fill="none" stroke="#ffffff80" stroke-width="1"/>
+  </g>
+  <rect x="88" y="11" width="24" height="13" rx="6.5" fill="none" stroke="#5e5d57" stroke-width="1.2"/>
+  <path d="M89.5 13.5 Q100 10.5 110.5 13.5" fill="none" stroke="#00000035" stroke-width="1.5"/>
+  <!-- base plate, slight trapezoid -->
+  <path d="M10 52 Q10 46 16 46 H184 Q190 46 190 52 L186 76 Q185 80 180 80 H20 Q15 80 14 76 Z" fill="url(#cPlate)" stroke="#6b6a63" stroke-width="1"/>
+  <path d="M10 52 Q10 46 16 46 H184 Q190 46 190 52 L186 76 Q185 80 180 80 H20 Q15 80 14 76 Z" fill="url(#cPlateSide)"/>
+  <path d="M10 52 Q10 46 16 46 H184 Q190 46 190 52 L186 76 Q185 80 180 80 H20 Q15 80 14 76 Z" fill="url(#cBrush)"/>
+  <path d="M17 48.5 H183" stroke="#ffffffcc" stroke-width="1"/>
+  <!-- jaw lip -->
+  <path d="M20 80 H180 L176 85 Q175 87 171 87 H29 Q25 87 24 85 Z" fill="#8f8d84" stroke="#5f5e58" stroke-width=".8"/>
+  <path d="M26 82.5 H174" stroke="#d6d3c9" stroke-width=".8"/>
+  <!-- spring roll -->
+  <rect x="60" y="38" width="80" height="14" rx="7" fill="url(#cRoll)" stroke="#5e5d57" stroke-width="1"/>
+  <g stroke="#00000022" stroke-width="1"><path d="M70 39 V51"/><path d="M80 39 V51"/><path d="M90 39 V51"/><path d="M100 39 V51"/><path d="M110 39 V51"/><path d="M120 39 V51"/><path d="M130 39 V51"/></g>
+  <!-- rivets -->
+  <g stroke="#55544e" stroke-width=".8"><circle cx="27" cy="63" r="5" fill="url(#cRivet)"/><circle cx="173" cy="63" r="5" fill="url(#cRivet)"/></g>
+  <g fill="#ffffffaa"><circle cx="25.5" cy="61.5" r="1.4"/><circle cx="171.5" cy="61.5" r="1.4"/></g>
+</svg></div><div class="studio-paper" id="studioPaper">
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v0.8.1</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v0.8.6</p></div></section>
+  </div>
 </main>
 
-<div class="fab"><button id="goTop" title="맨 위 컨트롤로">⬆ 컨트롤</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
+<div class="mini" id="mini" role="region" aria-label="재생 바"><button class="mini-now" id="miniNow" title="지금 대사로 이동"><span id="miniWho"></span><span id="miniTxt"></span></button><div class="mini-prog" aria-hidden="true"><i id="miniBar"></i></div><div class="mini-btns"><button id="mPrev" aria-label="이전 줄">⏮</button><button id="mPlay" class="mini-play">▶ 재생</button><button id="mNext" aria-label="다음 줄">⏭</button><button id="mSay" class="mini-say" aria-label="말해보기">🎙</button></div></div>
+
+<div class="fab"><button id="goTop" title="맨 위 설정으로">↑ 설정</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
 
 <div id="dict" aria-live="polite"><div class="inner" id="dictInner"></div></div>
 
@@ -620,7 +725,25 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   window.addEventListener('storage',e=>{if(e.key===LAB_KEY){loadSources();$('sourceNote').textContent='대사팩 보관함이 바뀌었어. ‘목록 새로고침’을 누르면 최신 내용을 불러와.';}});
   window.addEventListener('pagehide',()=>{if(currentSource==='direct')store.set('dkScript',txt.value);stopAll(false);if(listening)stopListen();});
 
+
+  // ---------- v0.8.6 · desk placement, settings summary, mini player ----------
+  const mqWide=window.matchMedia('(min-width:960px)'),desk=$('studioDesk'),paper=$('studioPaper'),layout=document.querySelector('.studio-layout'),mini=$('mini'),setBox=$('studioSet');
+  function setMiniH(){document.documentElement.style.setProperty('--miniH',(mini.offsetHeight||130)+'px');}
+  function placeDesk(){if(mqWide.matches){if(desk.parentNode!==layout)layout.prepend(desk);document.body.classList.remove('has-mini');}else{if(desk.parentNode!==paper)paper.prepend(desk);document.body.classList.add('has-mini');}setMiniH();}
+  (mqWide.addEventListener?mqWide.addEventListener('change',placeDesk):mqWide.addListener(placeDesk));window.addEventListener('resize',setMiniH);
+  const SET_KEY='sawgin-studio-settings-open';setBox.open=store.get(SET_KEY)===true;setBox.addEventListener('toggle',()=>store.set(SET_KEY,setBox.open));
+  function updateSummary(){const sel=$('studioSource'),src=sel.selectedOptions[0]?sel.selectedOptions[0].text:'',mine=speakers.filter(s=>cfg[s]&&cfg[s].mute);
+    $('setSummary').textContent=[src,(+$('rate').value).toFixed(2).replace(/0$/,'')+'×','쉼 '+$('gap').value+'초',mine.length?'내가 읽기: '+mine.join(', '):''].filter(Boolean).join(' · ');}
+  function updateMini(){const n=lines.length,l=lines[cur];$('miniWho').textContent=l?(l.who||'화자')+' · '+(cur+1)+'/'+n:'';$('miniTxt').textContent=l?l.text:'스크립트를 입력해 주세요';$('miniBar').style.width=n?((cur+1)/n*100)+'%':'0';$('mPlay').textContent=$('play').textContent;$('mSay').classList.toggle('on',listening);$('toggleKoM').textContent=$('toggleKo').textContent;}
+  new MutationObserver(updateMini).observe(stage,{childList:true});
+  new MutationObserver(updateMini).observe($('play'),{childList:true,characterData:true,subtree:true});
+  new MutationObserver(updateMini).observe($('sayBtn'),{childList:true,characterData:true,subtree:true,attributes:true});
+  $('mPrev').onclick=()=>$('prev').click();$('mNext').onclick=()=>$('next').click();$('mPlay').onclick=()=>$('play').click();$('mSay').onclick=()=>$('sayBtn').click();
+  $('stopM').onclick=()=>$('stop').click();$('toggleKoM').onclick=()=>{$('toggleKo').click();updateMini();};
+  $('miniNow').onclick=scrollCur;$('goTop').onclick=()=>{setBox.open=true;setBox.scrollIntoView({block:'start',behavior:'smooth'});};
+  document.addEventListener('change',()=>setTimeout(updateSummary));document.addEventListener('input',e=>{if(e.target.type==='range')updateSummary();});
   loadSources();loadSource(typeof storedSource==='string'?storedSource:'direct',true);
+  placeDesk();updateSummary();updateMini();
   if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
 })();
 </script>
