@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.7.3.3 · 수동 서버 동기화')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8 · 바로 학습하는 홈 · Pocket Cards')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -605,6 +605,208 @@ function applyScriptPacks(){if(!studioImport)return;try{beforeOverwrite('대사�
 function deleteScriptPacks(){const ids=[...scriptSelection].filter(id=>db.scriptPacks[id]);if(!ids.length||!confirm(ids.length+'개 대사팩을 삭제할까? 기존 문제집·학습 기록·직접 입력 문장은 유지돼. 동기화하면 다른 기기의 보관함에도 반영돼.'))return;try{beforeOverwrite('대사팩 삭제');const staged=hydrate(JSON.parse(JSON.stringify(db)));ids.forEach(id=>delete staged.scriptPacks[id]);staged.scriptPackRevision=Date.now();localStorage.setItem(KEY,JSON.stringify(staged));db=staged;scriptSelection.clear();cloudQueue();render();toast('선택한 대사팩을 삭제했어.');}catch(e){alert(e.message);}}
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-studio]');if(!b||b.disabled)return;const a=b.dataset.studio;if(a==='apply')applyScriptPacks();else if(a==='cancel'){studioImport=null;cloudClose();}else if(a==='delete')deleteScriptPacks();else if(a==='broken-export'){const p=db.scriptPacksBroken?.[b.dataset.id];if(p)downloadJSON(p.raw,'broken-dialogue-'+b.dataset.id+'.txt');}else if(a==='broken-delete'){const id=b.dataset.id;if(db.scriptPacksBroken?.[id]&&confirm('손상된 대사팩 원본 '+id+'을 삭제할까?')){beforeOverwrite('손상 대사팩 삭제');delete db.scriptPacksBroken[id];save();render();}}else if(a==='export'){const p=db.scriptPacks[b.dataset.id];if(p){const blob=new Blob(['# '+String(p.title).replace(/[\r\n]/g,' ')+'\n- studio-pack: '+p.id+'\n'+(p.version?'- version: '+String(p.version).replace(/[\r\n]/g,' ')+'\n':'')+'\n'+ScriptPacks.toText(p.lines)],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='dialogue-'+p.id+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}});
 document.addEventListener('change',ev=>{const id=ev.target.dataset.scriptSelect;if(id){ev.target.checked?scriptSelection.add(id):scriptSelection.delete(id);render();}});
+
+
+/* v0.8 · study-first home, Pocket Cards, Studio records, new seals, save state. Additive data only; storage key and item IDs unchanged. */
+const V08_STUDIO_LOG_KEY='sawgin-studio-log-v1',V08_BACKUP_KEY='sawgin-last-backup-v1',V08_SYNC_ERR_KEY='sawgin-last-sync-error-v1',V08_MIGRATED_KEY='sawgin-v08-migrated';
+let v08Ready=false,recordsTab='study',saveUITimer=null,transientUntil=0;
+const hydrate071=hydrate;
+hydrate=function(s){s=hydrate071(s);for(const k of ['episodeOpens','comebacks','pocketResults'])if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]={};if(!Array.isArray(s.studioLog))s.studioLog=[];s.schemaVersion=7;return s;};
+const migration071=initialMigration;
+initialMigration=function(){if(!localStorage.getItem(V08_MIGRATED_KEY)&&localStorage.getItem(KEY)){try{saveRecoverySnapshot('v0.8 업데이트 전',JSON.parse(localStorage.getItem(KEY)));}catch(e){}}migration071();try{localStorage.setItem(V08_MIGRATED_KEY,new Date().toISOString());}catch{}mergeStudioLog(true);};
+
+/* ---------- Script Studio log (written by script-studio.html on this device, merged here so it syncs) ---------- */
+function readStudioLog(){try{const a=JSON.parse(localStorage.getItem(V08_STUDIO_LOG_KEY)||'[]');return Array.isArray(a)?a:[];}catch{return [];}}
+function mergeStudioLog(doSave=true){
+ if(!Array.isArray(db.studioLog))db.studioLog=[];
+ const resetAt=Number(db.learningReset?.at)||0,have=new Set(db.studioLog.map(e=>e.id));let n=0;
+ for(const e of readStudioLog()){
+  if(!e||typeof e.id!=='string'||have.has(e.id)||!(Number(e.at)>resetAt))continue;
+  const row={id:e.id.slice(0,40),at:Number(e.at),date:String(e.date||''),pack:String(e.pack||'direct').slice(0,140),packTitle:String(e.packTitle||'').slice(0,140),line:String(e.line||'').slice(0,300),score:Math.max(0,Math.min(100,Math.round(Number(e.score)||0)))};
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||!row.line)continue;
+  db.studioLog.push(row);have.add(row.id);const a=db.activity[row.date]??={writing:0,vocab:0};a.studio=(a.studio||0)+1;n++;
+ }
+ if(n){db.studioLog.sort((a,b)=>a.at-b.at);if(db.studioLog.length>2000)db.studioLog=db.studioLog.slice(-2000);lockRewards();if(doSave)save();}
+ return n;
+}
+window.addEventListener('storage',e=>{if(e.key===V08_STUDIO_LOG_KEY&&v08Ready&&mergeStudioLog(true))render();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&v08Ready&&mergeStudioLog(true))render();});
+
+/* ---------- seals ---------- */
+const SEALS=[
+ ['first-writing','First Page','첫 영작 답안 제출','F'],['first-vocab','First Word','첫 단어 시험 응시','A'],['five-words','Word Collector','단어 5개 정답','W'],['first-feedback','The Editor','첫 첨삭 기록','E'],['first-episode','Archivist','단어 또는 Practice 한 팩 완료','▤'],
+ ['platform-one','Platform One','한 에피소드 네 권 모두 열기','P'],['irregular-regular','Irregular Regular','불규칙동사 10개 3단 정답','I'],['clean-sheet','Clean Sheet','단어 세트 전부 정답 (5개 이상)','✦'],['comeback','Comeback','틀렸던 단어 10개 다시 맞히기','C'],['red-pen','Red Pen','revise 받은 문장을 고쳐 correct','R'],
+ ['second-draft','Second Draft','Journal 한 글에 두 번째 제출본','II'],['echo','Echo','Studio 말해보기 90% 이상','e'],['bookworm','Bookworm','Guide 한 팩 전부 읽기','B'],['slip-collector','Slip Collector','책갈피 20개','S'],['sealed-letter','봉인된 편지','조건 비공개','?']
+];
+const SEAL_SECRET={'sealed-letter':'같은 날 단어·영작·쉐도잉을 모두 하기'};
+function sealDate(v){return v&&typeof v==='object'&&/^\d{4}-\d{2}-\d{2}$/.test(v.at||'')?v.at:'';}
+function earnSeal(key){if(!db.achievements[key]){db.achievements[key]={at:dateKey(),ts:Date.now()};announceSeal([key]);return true;}return false;}
+function announceSeal(keys){if(!v08Ready||!keys.length)return;const names=keys.map(k=>SEALS.find(s=>s[0]===k)?.[1]).filter(Boolean);if(names.length)setTimeout(()=>toast('새 봉인 · '+names.join(', ')),900);}
+const lockRewards071=lockRewards;
+lockRewards=function(){
+ const before=new Set(Object.keys(db.achievements||{}));lockRewards071();
+ const A=db.achievements,d=dateKey(),give=k=>{A[k]??={at:d,ts:Date.now()};};
+ if(Object.values(db.episodeOpens||{}).some(o=>o&&['vocab','guide','writing','journal'].every(m=>o[m])))give('platform-one');
+ let verbs=0;for(const p of Object.values(db.packs.vocab||{}))for(const x of p.items||[])if(isVerb(x)&&db.xpAwards['vocab:'+x.id])verbs++;if(verbs>=10)give('irregular-regular');
+ if(Object.keys(db.comebacks||{}).length>=10)give('comeback');
+ if(Object.values(db.journalEntries||{}).some(e=>(e.submissions||[]).length>=2))give('second-draft');
+ if((db.studioLog||[]).some(e=>e.score>=90))give('echo');
+ if(Object.values(db.packs.guide||{}).some(p=>p.items?.length&&p.items.every(x=>db.guideRead[x.id])))give('bookworm');
+ if(Object.values(db.reviewFlags||{}).filter(Boolean).length>=20)give('slip-collector');
+ if(Object.values(db.activity||{}).some(a=>a&&a.vocab>0&&a.writing>0&&a.studio>0))give('sealed-letter');
+ announceSeal(Object.keys(A).filter(k=>!before.has(k)));
+};
+const gradeVocab071=gradeVocab;
+gradeVocab=function(){const x=currentItem(),prev=x?db.vocabResults[x.id]?.correct:undefined,already=x&&view.graded?.id===x.id;gradeVocab071();if(x&&!already&&prev===false&&db.vocabResults[x.id]?.correct===true&&view.graded?.id===x.id){db.comebacks[x.id]??=dateKey();lockRewards();save();}};
+const quizNext071=quizNext;
+quizNext=function(){const ending=sessionPos()>=sessionOrder().length-1;quizNext071();if(ending&&view.done&&view.session&&!view.session.wrong&&view.session.right>=5){earnSeal('clean-sheet');save();}};
+const importFeedback071=importFeedback;
+importFeedback=function(){const prior={};for(const [id,f] of Object.entries(db.feedback||{}))prior[id]=f?.verdict;importFeedback071();if(Object.entries(db.feedback||{}).some(([id,f])=>prior[id]==='revise'&&f?.verdict==='correct')){earnSeal('red-pen');save();}};
+const navigate071=navigate;
+navigate=function(page,mode,ep){navigate071(page,mode,ep);if(page==='pack'&&ep){const m=view.mode,p=db.packs[m]?.[ep];if(p){const o=db.episodeOpens[p.episode]??={};if(!o[m]){o[m]=dateKey();lockRewards();save();}}}};
+
+/* ---------- levels ---------- */
+function oxfordTitle(level){return level>=15?'Master':level>=10?'Don':level>=6?'Fellow':level>=3?'Scholar':'Fresher';}
+function nextOxford(level){return level<3?['Scholar',3]:level<6?['Fellow',6]:level<10?['Don',10]:level<15?['Master',15]:null;}
+function xpForLevel(target){let level=1,threshold=100;while(level<target){level++;threshold+=level*100;}return threshold-level*100;}
+
+/* ---------- save state ---------- */
+function v08Ago(iso){if(!iso)return '기록 없음';const t=new Date(iso);if(isNaN(t))return '기록 없음';const today=new Date();today.setHours(0,0,0,0);const day=new Date(t);day.setHours(0,0,0,0);const diff=Math.round((today-day)/864e5);return diff<=0?'오늘 '+t.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):diff===1?'어제':diff+'일 전';}
+function saveState(){if(!cloudUser)return {login:false};const base=getSyncBase();let dirty=true;try{dirty=!base||syncHash(db)!==base.localHash;}catch{}return {login:true,dirty,at:base?.at||null};}
+function lastBackupAt(){try{return localStorage.getItem(V08_BACKUP_KEY)||null;}catch{return null;}}
+function lastSyncError(){try{return JSON.parse(localStorage.getItem(V08_SYNC_ERR_KEY)||'null');}catch{return null;}}
+function refreshSaveUI(){
+ if(cloudBusy||Date.now()<transientUntil)return;const st=saveState(),btn=$('cloudSaveTop'),ind=$('cloudIndicator'),dirty=st.login&&st.dirty;
+ if(btn){btn.disabled=false;btn.innerHTML='저장'+(dirty?' <span class="save-dot" aria-hidden="true"></span>':'');btn.classList.toggle('dirty',dirty);btn.title=dirty?'서버에 저장 안 한 변경 있음':'이 기기 기록을 서버에 저장';}
+ if(ind){ind.classList.toggle('dirty',dirty);ind.innerHTML=!st.login?'로컬 모드 · 서버 저장은 Settings에서 로그인':dirty?'<span class="save-dot" aria-hidden="true"></span>서버에 저장 안 한 변경 있음 · 마지막 저장 '+esc(v08Ago(st.at)):'✓ 서버와 같아 · 마지막 저장 '+esc(v08Ago(st.at));}
+}
+cloudStatus=function(message){const el=$('cloudIndicator'),btn=$('cloudSaveTop');if(el){el.classList.remove('dirty');el.textContent='CLOUD · '+message;}if(btn){btn.disabled=cloudBusy;if(cloudBusy)btn.textContent='저장 중…';}transientUntil=cloudBusy?Infinity:Date.now()+2500;clearTimeout(saveUITimer);if(!cloudBusy)saveUITimer=setTimeout(()=>{transientUntil=0;refreshSaveUI();},2600);};
+const cloudPushManual071=cloudPushManual;
+cloudPushManual=async function(){await cloudPushManual071();const text=$('cloudIndicator')?.textContent||'';try{if(/서버 저장 실패/.test(text))localStorage.setItem(V08_SYNC_ERR_KEY,JSON.stringify({at:new Date().toISOString()}));else if(/서버 저장 완료|이미 서버와 같아/.test(text))localStorage.removeItem(V08_SYNC_ERR_KEY);}catch{}if(view.page==='settings')render();};
+const cloudPullManual071=cloudPullManual;
+cloudPullManual=async function(){await cloudPullManual071();mergeStudioLog(true);render();};
+const backup071=backup;
+backup=function(){backup071();try{localStorage.setItem(V08_BACKUP_KEY,new Date().toISOString());}catch{}if(view.page==='settings')render();};
+const cloudSettingsHTML071=cloudSettingsHTML;
+cloudSettingsHTML=function(){
+ const st=saveState(),err=lastSyncError();
+ const rows=`<div class="save-rows"><div><span>마지막 서버 저장</span><b>${st.login?esc(v08Ago(st.at)):'로그인 필요'}</b></div><div><span>저장 안 한 변경</span><b class="${st.login&&st.dirty?'warn':''}">${!st.login?'—':st.dirty?'있음':'없음'}</b></div><div><span>마지막 JSON 백업</span><b>${esc(v08Ago(lastBackupAt()))}</b></div></div>`;
+ const fail=err?`<section class="sync-fail" role="status"><b>서버 저장 실패 · ${esc(v08Ago(err.at))}</b><p>무료 Supabase 프로젝트는 1주일 동안 쓰지 않으면 일시정지돼. Supabase 대시보드에서 이 프로젝트의 <b>Restore</b>를 누른 뒤 다시 저장해 줘. 인터넷 연결이 끊긴 경우에도 실패할 수 있어. 이 기기 기록은 그대로 안전해.</p><div class="actions"><a class="secondary" href="https://supabase.com/dashboard/projects" target="_blank" rel="noopener">대시보드 열기</a><button class="primary" onclick="cloudPushManual()">다시 시도</button></div></section>`:'';
+ return cloudSettingsHTML071().replace('<div class="actions">',rows+'<div class="actions">')+fail;
+};
+
+/* ---------- home ---------- */
+function resumeFolder(){
+ let best=null;for(const [mode,m] of Object.entries(db.settings.bookMemory||{})){const p=db.packs[mode]?.[m?.pack];if(p&&BOOKS[mode]&&(!best||(m.at||0)>(best.m.at||0)))best={mode,m,p};}
+ if(!best){const first=Object.keys(db.packs.vocab||{})[0];return `<button class="kraft-folder" data-action="book" data-mode="vocab"><span class="kraft-tab" aria-hidden="true"><i>START</i><i>No.1</i></span><span class="eyebrow">VOLUME I · VOCABULARY</span><strong>${first?'첫 학습팩 열기':'학습팩을 가져와서 시작해'}</strong><span class="kraft-row"><span>${first?'단어부터 시작해 봐':'Settings에서 통합 MD 가져오기'}</span><span class="kraft-go">열기 →</span></span></button>`;}
+ const [d,t]=count(best.mode,best.m.pack),pos=(best.m.idx||0)+1,where=best.mode==='guide'?pos+'번째 설명':best.mode==='journal'?'글감 목록':best.m.quiz?pos+'번 문제부터':'문제 목록';
+ return `<button class="kraft-folder" data-action="open-book-pack" data-mode="${best.mode}" data-pack="${attr(best.m.pack)}"><span class="kraft-tab" aria-hidden="true"><i>CONTINUE</i><i>No.1</i></span><span class="eyebrow">${esc(BOOKS[best.mode].toUpperCase())} · ${esc(best.p.episode)}</span><strong>${esc(best.p.title)}</strong>${best.mode==='journal'?'':`<span class="kraft-bar"><span style="width:${t?d/t*100:0}%"></span></span>`}<span class="kraft-row"><span>${esc(where)}${best.mode==='journal'?'':' · '+d+' / '+t}</span><span class="kraft-go">이어하기 →</span></span></button>`;
+}
+function slipCandidates(){const out=[];for(const [key,p] of Object.entries(db.packs.vocab||{}))p.items.forEach((x,i)=>{const r=db.vocabResults[x.id];if(r?.correct===false||db.reviewFlags[x.id])out.push({key,p,x,i,wrong:r?.correct===false});});return out;}
+function todaySlip(){const c=slipCandidates();if(!c.length)return '';const day=dateKey(),h=[...day].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,7),s=c[h%c.length],x=s.x;return `<button class="oxford-slip" data-action="slip-open" data-pack="${attr(s.key)}" data-index="${s.i}"><span class="slip-tape" aria-hidden="true"></span><span class="slip-margin" aria-hidden="true"><i></i><i></i></span><span class="slip-body"><span class="eyebrow">TODAY'S SLIP · ${s.wrong?'지난번에 틀린 단어':'책갈피한 단어'}</span><span class="slip-word">${esc(isVerb(x)?verbForms(x)[0]:x['정답'])} <small>· ${esc(x['뜻'])}</small></span></span><span class="slip-go">풀기 →</span></button>`;}
+const SHELF=[
+ {mode:'vocab',label:'Vocabulary',html:'<span class="bk-vol">VOL. I</span><span class="bk-stack"><i class="bk-the">the</i><span class="bk-big">VOCAB</span><span class="bk-big">ULARY</span><i class="bk-note">a book of kept words</i></span><span class="bk-foot">SAW &amp; GIN · LIBRARY</span>'},
+ {mode:'guide',label:'Writing Guide',html:'<span class="bk-centre"><span class="bk-guide">writing guide</span><span class="bk-rule"></span><span class="bk-small">EVERYDAY GUIDE · VOL. II</span></span>'},
+ {mode:'writing',label:'Practice',html:'<span class="bk-plate"><span class="bk-small">NOTEBOOK · VOL. III</span><i class="bk-practice">Practice</i><span class="bk-line"></span><span class="bk-small left">MAKE · TRY</span></span>'},
+ {mode:'journal',label:'Writing Journal',html:'<span class="bk-frame"><i>writing</i><span>JOURNAL</span></span><span class="bk-bottom">VOL. IV</span>'},
+ {mode:'pocket',label:'Pocket Cards',html:'<span class="bk-pocket"><span>POCKET</span><i>cards</i></span><span class="bk-foot spread"><span>ONE-HAND EDITION</span><span>V</span></span>'},
+ {mode:'studio',label:'Script Studio',html:'<span class="bk-label"><span>SCRIPT</span><span>STUDIO</span><span class="bk-hr"></span><span class="bk-small">DESIGN NO.6</span><span class="bk-hr"></span><span class="bk-small">SPEAK ALOUD</span></span>'}
+];
+function shelfHTML(){return `<div class="shelf-label eyebrow">THE SHELF · 6 VOLUMES</div><div class="shelf">${SHELF.map(b=>b.mode==='studio'?`<a class="hardback hb-studio" href="./script-studio.html" aria-label="${b.label} 열기">${b.html}<span class="ribbon" aria-hidden="true"></span></a>`:`<button class="hardback hb-${b.mode}" ${b.mode==='pocket'?'data-action="pocket-home"':`data-action="book" data-mode="${b.mode}"`} aria-label="${b.label} 열기">${b.html}<span class="ribbon" aria-hidden="true"></span></button>`).join('')}</div>`;}
+calendar=function(){const now=new Date(),shown=new Date(now.getFullYear(),now.getMonth()+calendarOffset,1),y=shown.getFullYear(),m=shown.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();let cells='';for(let i=0;i<first;i++)cells+='<span></span>';for(let d=1;d<=days;d++){const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,a=db.activity[key],done=a&&((a.writing||0)+(a.vocab||0)+(a.studio||0))>0;cells+=`<div class="day ${done?'done':''} ${calendarOffset===0&&d===now.getDate()?'today':''}" title="${esc(key)} · 단어 ${a?.vocab||0} · 영작 ${a?.writing||0} · 쉐도잉 ${a?.studio||0}">${d}</div>`}return `<div class="week">${['M','T','W','T','F','S','S'].map(d=>`<span class="weeklabel">${d}</span>`).join('')}${cells}</div>`};
+function recentSeals(n=3){return SEALS.filter(s=>db.achievements[s[0]]).map(s=>({s,at:sealDate(db.achievements[s[0]])})).sort((a,b)=>b.at.localeCompare(a.at)||(Number(db.achievements[b.s[0]]?.ts)||0)-(Number(db.achievements[a.s[0]]?.ts)||0)).slice(0,n);}
+function membershipV8(){
+ const a=levelInfo(),title=oxfordTitle(a.level),next=nextOxford(a.level),pct=Math.max(0,Math.min(100,100*(a.xp-a.previous)/(a.threshold-a.previous))),got=SEALS.filter(s=>db.achievements[s[0]]).length,recent=recentSeals();
+ const nextText=next?`${next[0]}까지 ${Math.max(0,xpForLevel(next[1])-a.xp).toLocaleString()} XP`:'최고 칭호';
+ return `<section class="member-card"><div class="member-head"><h3>Library Membership.</h3><span class="member-badge">L${a.level} · ${title}</span></div><div class="member-xp"><span>${a.xp.toLocaleString()} XP</span><span>${esc(nextText)}</span></div><div class="member-bar"><span style="width:${pct}%"></span></div><div class="member-sub"><span class="eyebrow">최근 받은 봉인</span><button class="linkbtn" data-action="seal-sheet">전체 ${got} / ${SEALS.length} →</button></div>${recent.length?`<div class="seal-recent">${recent.map(({s,at})=>`<button class="seal-tile" data-action="seal-sheet"><span class="wax-mini" aria-hidden="true">${esc(s[3])}</span><b>${esc(s[1])}</b><small>${esc(at?at.slice(5):'획득')}</small></button>`).join('')}</div>`:'<p class="sub">첫 단어 시험이나 첫 영작을 제출하면 봉인이 찍혀.</p>'}</section>`;
+}
+home=function(){return `<div class="eyebrow">PERSONAL LANGUAGE ARCHIVE</div><h1>My Learning Library.</h1>${resumeFolder()}${todaySlip()}${shelfHTML()}<section class="panel cal-panel"><div class="panelhead"><h3>Study Calendar.</h3><div class="cal-nav"><button onclick="changeMonth(-1)" aria-label="이전 달">‹</button><span>${new Date(new Date().getFullYear(),new Date().getMonth()+calendarOffset,1).toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</span><button onclick="changeMonth(1)" aria-label="다음 달">›</button></div></div>${calendar()}</section>${membershipV8()}`;};
+function openSealSheet(){
+ closeSealSheet();const got=SEALS.filter(s=>db.achievements[s[0]]).length;
+ const rows=SEALS.map(s=>{const v=db.achievements[s[0]],on=!!v,secret=s[0] in SEAL_SECRET;return `<div class="seal-row${on?' on':''}"><span class="${on?'wax-mini':'wax-empty'}" aria-hidden="true">${esc(s[3])}</span><span class="seal-text"><b>${esc(s[1])}</b><small>${esc(on&&secret?SEAL_SECRET[s[0]]:s[2])}</small></span><span class="seal-when">${on?esc(sealDate(v)||'획득'):'미획득'}</span></div>`;}).join('');
+ const el=document.createElement('div');el.id='sealSheet';el.className='seal-overlay';el.innerHTML=`<section class="seal-sheet" role="dialog" aria-modal="true" aria-label="업적 전체"><span class="sheet-grip" aria-hidden="true"></span><div class="sheet-head"><div><span class="eyebrow">ACHIEVEMENT CABINET</span><strong>봉인 ${got} / ${SEALS.length}</strong></div><button class="sheet-close" data-action="seal-close" aria-label="닫기">✕</button></div><div class="seal-list">${rows}</div></section>`;
+ el.addEventListener('click',e=>{if(e.target===el)closeSealSheet();});document.body.appendChild(el);el.querySelector('.sheet-close')?.focus();
+}
+function closeSealSheet(){document.getElementById('sealSheet')?.remove();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSealSheet();});
+
+/* ---------- records: study / shadowing tabs ---------- */
+const records071=records;
+function recordTabs(){return `<div class="record-tabs" role="tablist" aria-label="기록 종류"><button role="tab" aria-selected="${recordsTab==='study'}" data-action="records-tab" data-tab="study">단어 · 영작</button><button role="tab" aria-selected="${recordsTab==='shadow'}" data-action="records-tab" data-tab="shadow">쉐도잉</button></div>`;}
+function shadowRecords(){
+ const log=db.studioLog||[],best={};for(const e of log){const k=e.pack+'||'+e.line;if(!best[k]||e.score>best[k].score)best[k]=e;}
+ const lines=Object.values(best),top=lines.slice().sort((a,b)=>b.score-a.score||b.at-a.at)[0],days=new Set(log.map(e=>e.date));
+ const packs={};for(const e of lines){const p=packs[e.pack]??={title:e.packTitle||(e.pack==='direct'?'직접 입력한 문장':e.pack),n:0,sum:0};p.n++;p.sum+=e.score;}
+ const byDate={};for(const e of log){const d=byDate[e.date]??={tries:0,lines:new Set(),best:0};d.tries++;d.lines.add(e.pack+'||'+e.line);d.best=Math.max(d.best,e.score);}
+ if(!log.length)return `<div class="empty">아직 쉐도잉 기록이 없어.<small>Script Studio에서 🎙 말해보기를 하면 점수가 여기에 쌓여. 녹음은 저장하지 않아.</small></div><p><a class="secondary studio-link" href="./script-studio.html">Script Studio 열기 →</a></p>`;
+ return `<section class="shadow-best"><div class="best-stamp"><strong>${top.score}%</strong><small>BEST</small></div><div><p class="best-line">“${esc(top.line)}”</p><p class="sub">${esc(top.packTitle||'직접 입력한 문장')} · ${esc(top.date)}</p></div></section><div class="stats shadow-stats"><div class="stat"><strong>${days.size}</strong><small>연습한 날</small></div><div class="stat"><strong>${log.length}</strong><small>말해보기</small></div><div class="stat"><strong>${lines.filter(e=>e.score>=90).length}</strong><small>90% 넘은 대사</small></div></div><section class="sheet"><h3>대사팩별 최고점</h3>${Object.values(packs).map(p=>`<div class="shadow-row"><span>${esc(p.title)}</span><span>${p.n}줄 · 평균 ${Math.round(p.sum/p.n)}%</span></div>`).join('')}</section><section class="sheet"><h3>날짜별 쉐도잉</h3>${Object.entries(byDate).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,30).map(([d,v])=>`<div class="shadow-row"><span>${esc(d)}</span><span>${v.lines.size}줄 · ${v.tries}회 · 최고 ${v.best}%</span></div>`).join('')}</section><p class="sub">점수만 남기고 녹음은 저장하지 않아. 쉐도잉한 날도 학습 달력에 찍혀.</p>`;
+}
+records=function(){if(recordsTab==='shadow')return `${header('Learning Ledger.','Script Studio에서 말해보기한 기록')}${recordTabs()}${shadowRecords()}`;const out=records071(),i=out.indexOf('<div class="stats">');return i<0?recordTabs()+out:out.slice(0,i)+recordTabs()+out.slice(i);};
+
+/* ---------- reset: clear the new learning fields too ---------- */
+const resetLearningRecords071=resetLearningRecords;
+resetLearningRecords=function(){const before=db.learningReset?.id;resetLearningRecords071();if(db.learningReset?.id&&db.learningReset.id!==before){db.episodeOpens={};db.comebacks={};db.pocketResults={};db.studioLog=[];save();render();}};
+
+/* ---------- Pocket Cards (VOLUME V): recognition practice from existing vocabulary MD ---------- */
+const POCKET_MODES={choice:'고르기',card:'카드',listen:'듣기'};
+function pocketAnswer(x){return isVerb(x)?verbForms(x)[0]:x['정답'];}
+function pocketOptions(p,x){
+ const answer=pocketAnswer(x),norm=v=>normAnswer(v),seen=new Set([norm(answer)]),pick=[];
+ const add=v=>{v=plain(v).trim();if(v&&!seen.has(norm(v))&&pick.length<3){seen.add(norm(v));pick.push(v);}};
+ (x['오답 보기']||'').split('|').forEach(add);
+ const others=shuffled(p.items.filter(y=>y.id!==x.id));others.filter(y=>y['품사']&&y['품사']===x['품사']).forEach(y=>add(pocketAnswer(y)));others.forEach(y=>add(pocketAnswer(y)));
+ return shuffled([answer,...pick]);
+}
+function pocketHome(){
+ const keys=packList('vocab'),mode=db.settings.pocketMode||'choice';
+ return `<div class="eyebrow">VOLUME V · ONE-HAND EDITION</div><h1>Pocket Cards.</h1><p class="sub">이동 중에 엄지로 고르고 넘기는 단어 연습이야. 기존 단어 MD를 그대로 써.</p><div class="pocket-modes" role="tablist" aria-label="풀이 방식">${Object.entries(POCKET_MODES).map(([k,l])=>`<button role="tab" aria-selected="${mode===k}" data-action="pocket-mode-pref" data-pmode="${k}">${l}</button>`).join('')}</div>${keys.length?`<div class="pocket-list">${keys.map(k=>{const p=db.packs.vocab[k];return `<button class="pocket-pack" data-action="pocket-start" data-pack="${attr(k)}"><span class="eyebrow">${esc(p.episode)}</span><strong>${esc(p.title)}</strong><small>${p.items.length}개 · ${esc(POCKET_MODES[mode])} 시작 →</small></button>`;}).join('')}</div>`:'<div class="empty">단어 학습팩이 없어.<small>Settings에서 통합 MD를 가져오면 바로 쓸 수 있어.</small></div>'}<p class="sub">‘쓰기’는 Vocabulary 책의 단어 시험으로 열려. 이 책의 결과는 진도·복습 일정에 섞지 않고 따로 기록하고, 학습 달력에는 표시돼.</p>`;
+}
+function pocketStart(key,pmode,order){const p=db.packs.vocab[key];if(!p)return;const pm=pmode||db.settings.pocketMode||'choice';const o=order&&order.length?order:shuffled(p.items.map((_,i)=>i));if(pm!=='card'&&new Set(p.items.map(x=>normAnswer(pocketAnswer(x)))).size<2)return toast('보기를 만들려면 서로 다른 단어가 2개 이상 필요해.');view={page:'pocket',mode:'vocab',ep:key,pmode:pm,order:o,pos:0,picked:null,flipped:false,opts:null,done:false,session:{right:0,wrong:0,wrongIdx:[]}};pocketPrepare();render();scrollTo(0,0);if(pm==='listen')pocketSpeak();}
+function pocketItem(){const p=db.packs.vocab[view.ep];return p?.items[view.order[view.pos]];}
+function pocketPrepare(){const p=db.packs.vocab[view.ep],x=pocketItem();view.picked=null;view.flipped=false;view.opts=x&&view.pmode!=='card'?pocketOptions(p,x):null;}
+function pocketSpeak(){const x=pocketItem();if(x)speak(x['발음 단어']||pocketAnswer(x),'en-GB');}
+function pocketRecord(ok){const x=pocketItem();if(!x)return;const r=db.pocketResults[x.id]||{attempts:0};r.attempts++;r.correct=ok;r.last=dateKey();r.mode=view.pmode;db.pocketResults[x.id]=r;activity('vocab');if(ok)view.session.right++;else{view.session.wrong++;view.session.wrongIdx.push(view.order[view.pos]);}save();}
+function pocketPick(i){if(view.picked!==null||!view.opts)return;const x=pocketItem(),ok=normAnswer(view.opts[i])===normAnswer(pocketAnswer(x));view.picked=i;pocketRecord(ok);render();}
+function pocketCard(ok){pocketRecord(ok);pocketNext();}
+function pocketNext(){if(view.pos>=view.order.length-1){view.done=true;if(view.pmode!=='card'&&!view.session.wrong&&view.session.right>=5){earnSeal('clean-sheet');save();}render();scrollTo(0,0);return;}view.pos++;pocketPrepare();render();if(view.pmode==='listen')pocketSpeak();}
+function pocketSession(){
+ const p=db.packs.vocab[view.ep];if(!p)return pocketHome();
+ const tabs=`<div class="pocket-modes" role="tablist" aria-label="풀이 방식"><button role="tab" aria-selected="false" data-action="pocket-write">쓰기</button>${Object.entries(POCKET_MODES).map(([k,l])=>`<button role="tab" aria-selected="${view.pmode===k}" data-action="pocket-mode" data-pmode="${k}">${l}</button>`).join('')}</div>`;
+ const top=`<div class="pocket-top"><button class="smallbtn" data-action="pocket-home">← 목록</button><span class="pocket-src"><span class="eyebrow">VOLUME V · POCKET CARDS</span><span>${esc(p.title)}</span></span></div>${tabs}`;
+ if(view.done){const s=view.session,n=s.right+s.wrong,wrong=[...new Set(s.wrongIdx)];return `${top}<article class="sheet summary"><div class="eyebrow">SET COMPLETE · ${esc(POCKET_MODES[view.pmode])}</div><div class="big">${s.right} / ${n}</div><p class="sub">${wrong.length?(view.pmode==='card'?`다시 볼 카드 ${wrong.length}장`:`틀린 ${wrong.length}개`):'전부 알았어!'}</p><div class="actions center">${wrong.length?`<button class="primary" data-action="pocket-retry">다시 볼 것만 (${wrong.length})</button>`:''}<button class="${wrong.length?'secondary':'primary'}" data-action="pocket-again">섞어서 다시</button><button class="secondary" data-action="pocket-home">목록으로</button></div></article>`;}
+ const x=pocketItem(),n=view.order.length,answered=view.picked!==null,answer=pocketAnswer(x);
+ const head=`<div class="pocket-progress"><span>VOCABULARY · ${esc(x['난이도']||'B1–B2')}</span><span>${view.pos+1} / ${n}</span></div><div class="bar thin"><div class="fill blue" style="width:${(view.pos+(answered?1:0))/n*100}%"></div></div>`;
+ if(view.pmode==='card'){return `${top}${head}<button class="pocket-card${view.flipped?' flipped':''}" data-action="pocket-flip" aria-label="카드 뒤집기">${view.flipped?`<span class="eyebrow">ANSWER</span><strong>${esc(isVerb(x)?verbForms(x).join(' · '):answer)}</strong><span class="pc-mean">${esc(x['뜻'])}</span>${x['예문 또는 결합']?`<i>${esc(x['예문 또는 결합'])}</i>`:''}`:`<span class="eyebrow">무슨 표현일까?</span><strong>${esc(x['뜻'])}</strong>${x['품사']?`<small>${esc(x['품사'])}</small>`:''}<span class="pc-hint">눌러서 뒤집기</span>`}</button>${view.flipped?`<div class="row tts">${ipa(x)}</div>`:''}<div class="pocket-thumb two">${view.flipped?`<button class="secondary" data-action="pocket-card" data-ok="0">다시 볼래</button><button class="primary" data-action="pocket-card" data-ok="1">알았어 →</button>`:`<button class="primary" data-action="pocket-flip">뒤집기</button>`}</div>`;}
+ const listen=view.pmode==='listen',okIdx=view.opts.findIndex(o=>normAnswer(o)===normAnswer(answer));
+ const prompt=listen?`<span class="eyebrow">들리는 표현은?</span><button class="secondary pocket-replay" data-action="pocket-replay">🔊 다시 듣기</button>${answered?`<span class="pq-mean">${esc(x['뜻'])}</span>`:''}`:`<span class="eyebrow">이 뜻에 맞는 표현은?</span><strong>${esc(x['뜻'])}</strong>${x['품사']?`<small>${esc(x['품사'])}</small>`:''}`;
+ const result=answered?`<div class="pocket-result ${view.picked===okIdx?'ok':'bad'}">${view.picked===okIdx?'정답! ':'다시 볼 단어 · 정답은 '}<b>${esc(answer)}</b></div>`:'';
+ return `${top}${head}<section class="pocket-q">${prompt}</section>${result}<div class="pocket-options">${view.opts.map((o,i)=>{const cls=!answered?'':i===okIdx?' right':i===view.picked?' wrong':' dim';return `<button class="pocket-opt${cls}" data-action="pocket-pick" data-i="${i}" ${answered?'aria-disabled="true"':''}><span>${i+1}</span>${esc(o)}</button>`;}).join('')}</div><div class="pocket-thumb two"><button class="secondary" data-action="pocket-giveup" ${answered?'disabled':''}>모르겠어 · 정답 보기</button><button class="primary" data-action="pocket-next" ${answered?'':'disabled'}>${view.pos>=n-1?'결과 보기':'다음 →'}</button></div>`;
+}
+function pocketPage(){return view.ep?pocketSession():pocketHome();}
+const render071=render;
+render=function(){if(view.page==='pocket'){$('app').innerHTML=pocketPage();document.querySelectorAll('[data-nav]').forEach(b=>b.classList.remove('active'));refreshSaveUI();return;}render071();refreshSaveUI();};
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b||b.disabled)return;const a=b.dataset.action;
+ if(a==='slip-open'){openRelatedAt('vocab',b.dataset.pack,Number(b.dataset.index));view.order=null;view.graded=null;view.done=false;render();scrollTo(0,0);focusQuiz();}
+ else if(a==='seal-sheet')openSealSheet();
+ else if(a==='seal-close')closeSealSheet();
+ else if(a==='records-tab'){recordsTab=b.dataset.tab==='shadow'?'shadow':'study';render();}
+ else if(a==='pocket-home'){flushJournal();rememberLocation();view={page:'pocket',mode:'vocab',ep:null};render();scrollTo(0,0);}
+ else if(a==='pocket-mode-pref'){db.settings.pocketMode=b.dataset.pmode;save();render();}
+ else if(a==='pocket-start')pocketStart(b.dataset.pack);
+ else if(a==='pocket-mode'){db.settings.pocketMode=b.dataset.pmode;save();pocketStart(view.ep,b.dataset.pmode);}
+ else if(a==='pocket-write'){const key=view.ep;navigate('pack','vocab',key);startQuiz('shuffle');}
+ else if(a==='pocket-pick'){pocketPick(Number(b.dataset.i));}
+ else if(a==='pocket-giveup'){if(view.picked===null){view.picked=-1;pocketRecord(false);render();}}
+ else if(a==='pocket-next'){if(view.picked!==null)pocketNext();}
+ else if(a==='pocket-flip'){view.flipped=!view.flipped;render();}
+ else if(a==='pocket-card'){pocketCard(b.dataset.ok==='1');}
+ else if(a==='pocket-replay')pocketSpeak();
+ else if(a==='pocket-retry'){pocketStart(view.ep,view.pmode,[...new Set(view.session.wrongIdx)]);}
+ else if(a==='pocket-again')pocketStart(view.ep,view.pmode);
+});
+document.addEventListener('keydown',ev=>{if(view.page!=='pocket'||!view.ep||view.done||ev.isComposing||/^(INPUT|TEXTAREA|SELECT)$/.test(ev.target.tagName))return;if(view.pmode!=='card'&&/^[1-4]$/.test(ev.key)&&view.picked===null&&view.opts?.[Number(ev.key)-1]){ev.preventDefault();pocketPick(Number(ev.key)-1);}else if(ev.key==='Enter'&&view.pmode!=='card'&&view.picked!==null){ev.preventDefault();pocketNext();}else if(view.pmode==='card'&&(ev.key===' '||ev.key==='Enter')){ev.preventDefault();view.flipped=!view.flipped;render();}});
+const start071=start05;
+start05=function(){start071();v08Ready=true;refreshSaveUI();};
 
 start05();
 {const target=new URLSearchParams(location.search).get('studio');if(['home','review','records','settings'].includes(target)){navigate(target);history.replaceState(null,'',location.pathname);if(target==='settings')document.getElementById('scriptPackSettings')?.scrollIntoView();}}

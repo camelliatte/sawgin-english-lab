@@ -132,7 +132,7 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
 </style></head>
 <body>
 <main>
-  <header class="studio-top"><a class="studio-logo" href="./">S&amp;G <span>/ ENGLISH LAB</span></a><nav class="studio-nav-bar" aria-label="상단 메뉴"><a href="./">HOME</a><a href="./?studio=review">REVIEW</a><a class="active" href="./script-studio.html" aria-current="page">SCRIPT STUDIO</a><a href="./?studio=records">RECORDS</a><a href="./?studio=settings">SETTINGS</a><a href="./?studio=settings" title="학습 기록 서버 저장은 Settings에서 실행">서버 저장</a></nav></header>
+  <header class="studio-top"><a class="studio-logo" href="./">S&amp;G <span>/ ENGLISH LAB</span></a><nav class="studio-nav-bar" aria-label="상단 메뉴"><a href="./">HOME</a><a href="./?studio=review">REVIEW</a><a href="./?studio=records">RECORDS</a><a href="./?studio=settings">SETTINGS</a><a href="./?studio=settings" title="학습 기록 서버 저장은 Settings에서 실행">저장</a></nav></header>
   <section class="studio-board" aria-label="스크립트 연습 클립보드"><span class="studio-clamp" aria-hidden="true"></span><div class="studio-paper">
   <p class="eyebrow">S&amp;G · English Lab — Script Studio</p>
   <h1>Script Studio.</h1>
@@ -180,7 +180,7 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
   </div>
 
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v0.7.2</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v0.8</p></div></section>
 </main>
 
 <div class="fab"><button id="goTop" title="맨 위 컨트롤로">⬆ 컨트롤</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
@@ -557,6 +557,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     if(!said || !l){ showSay(`<div class="heard">${esc(SAY_ERR[reason]||'아무 말도 못 알아들었어요. 다시 해볼까요?')}</div>`); return; }
     const r=compare(l.text, said);
     const prev=best[l.text]; if(prev==null || r.score>prev){ best[l.text]=r.score; store.set('dkBest',best); }
+    logPractice(l.text, r.score);
     const tag=prev==null?'':(r.score>prev?` <span class="up">최고 기록! (이전 ${prev}%)</span>`:` <span class="bs">최고 ${prev}%</span>`);
     shownFor=sayLine;
     showSay(`<span class="score ${r.score>=90?'good':r.score>=60?'mid':'low'}">${r.score}%</span>${tag}<div class="words">${r.a.map((w,k)=>`<span class="${r.hit[k]?'w-ok':'w-miss'}">${esc(w)}</span>`).join(' ')}</div><div class="heard">알아들은 말: ${esc(said)}</div>`);
@@ -600,6 +601,9 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     if(s && /[A-Za-z]/.test(s) && s.length<=60 && !/[가-힣]/.test(s)){ selActive=true; a.href=ygUrl(s); a.textContent='🎬 "'+s+'" 실제 발음'; }
   });
 
+  // v0.8: practice scores (numbers only, never audio) go to a device log that the main app merges and syncs.
+  const STUDIO_LOG_KEY='sawgin-studio-log-v1';
+  function logPractice(text, score){try{const d=new Date(),date=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null;const log=store.get(STUDIO_LOG_KEY);const list=Array.isArray(log)?log:[];list.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),at:Date.now(),date,pack:p?currentSource.slice(5):'direct',packTitle:p?String(p.title||currentSource.slice(5)):'직접 입력한 문장',line:String(text).slice(0,300),score:Math.round(score)});store.set(STUDIO_LOG_KEY,list.slice(-1000));}catch(e){}}
   const LAB_KEY='sawgin-lab-v01';
   let currentSource='direct',catalog={};
   const storedSource=store.get('dkStudioSource');
