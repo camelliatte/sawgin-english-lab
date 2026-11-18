@@ -213,7 +213,53 @@ body{background:#E6E1D9}.shell{background:var(--paper)}
 .vc-icons input{position:absolute;opacity:0;pointer-events:none}.vc-icons label:has(input:checked) span{background:#4d0e12;border-color:#4d0e12;color:#f5efc6}
 .vc-icons [aria-expanded=true] span{background:#3e4d57;color:#f4f0e8;border-color:#3e4d57}
 .vc-more{background:#efe9de;border-top:1px solid #ddd3c3;padding:8px 16px 12px;max-height:38vh;overflow:auto}.vc-more>div{display:flex;gap:10px;padding:5px 0;font-size:13px;line-height:1.5}.vc-more b{flex:none;width:54px;font:9px Arial,sans-serif;letter-spacing:.14em;color:#8a6a5a;padding-top:3px}.vc-more span{flex:1}.vc-more p{margin:0 0 4px}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">REVIEW</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.8.9 · STUDY-FIRST HOME</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+:root{--noise-bg:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* v0.9.0 · color-archive folders */
+.folder-stack.arch{display:block;gap:0;margin:46px 0 22px;isolation:isolate}
+.arch-folder{position:relative;margin:0;padding:12px 16px 76px;border-radius:4px 10px 6px 6px;background:var(--noise-bg) ,var(--folder-bg);color:var(--folder-ink);box-shadow:inset 0 1px 0 #ffffff30,0 -6px 12px #23181524}
+.arch-folder+.arch-folder{margin-top:-46px}.arch-folder:last-of-type{padding-bottom:40px}
+.arch-folder::before{content:'';position:absolute;left:16px;right:16px;top:6px;height:1px;background:currentColor;opacity:.16}
+.arch-folder.lifted{transform:translateY(-6px);box-shadow:inset 0 1px 0 #ffffff30,0 -10px 18px #23181545}
+.arch-tab{position:absolute;top:-27px;left:calc((100% - 132px) * var(--tab-slot) / 4);width:132px;height:30px;overflow:visible;pointer-events:none}.arch-tab path{fill:var(--folder-bg)}.arch-tab .arch-tab-hi{fill:none;stroke:#ffffff26;stroke-width:1}
+.arch-tab-label{position:absolute;top:-21px;left:calc((100% - 132px) * var(--tab-slot) / 4);width:132px;text-align:center;font:bold 10px Arial,sans-serif;letter-spacing:.14em;pointer-events:none}
+.arch-strip{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;min-height:44px;cursor:pointer;color:inherit}
+.arch-strip:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.arch-title{flex:1;min-width:0;font:17px Georgia,'Noto Serif KR',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lifted .arch-title{font-size:19px}
+.arch-prog{font:11px Arial,sans-serif;opacity:.8}.arch-go{font:14px Arial,sans-serif}
+.arch-continue{all:unset;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;width:100%;padding:4px 0 6px;cursor:pointer;color:inherit;font:11px Arial,sans-serif}
+.arch-badge{border:1px solid currentColor;border-radius:2px;padding:2px 6px;letter-spacing:.08em}
+.arch-bar{flex:1 0 100%;height:3px;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent)}.arch-bar b{display:block;height:3px;border-radius:2px;background:currentColor;opacity:.8}
+.arch-drawer{position:relative;z-index:200;height:12px;margin-top:-2px;background:#CCB89F;border-radius:0 0 4px 4px;box-shadow:0 6px 10px #2318152a,inset 0 2px 0 #b8a386}
+.arch-note{text-align:center;font:10px Arial,sans-serif;letter-spacing:.12em;color:#8a6a5a;margin:12px 0 0}
+/* v0.9.0 · pocket key-ring */
+.pk-shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px 18px;margin:14px 0}
+.pk-bundle{all:unset;box-sizing:border-box;position:relative;display:block;height:250px;cursor:pointer}
+.pk-bundle:focus-visible{outline:2px solid var(--soil);outline-offset:4px}
+.pk-ring{position:absolute;left:0;top:0;width:96px;height:104px;overflow:visible;pointer-events:none}.pk-ring.back{z-index:1}.pk-ring.front{z-index:3}
+.pk-edge{position:absolute;left:4px;right:-4px;top:50px;height:160px;z-index:2;background:#e9e1cf;border-radius:10px;box-shadow:0 1px 0 #d6cbb7,0 2px 0 #e9e1cf,0 3px 0 #d6cbb7,0 4px 0 #e9e1cf,0 5px 0 #d6cbb7,0 6px 0 #e9e1cf,0 7px 0 #cfc3ad,0 10px 9px #2318152e}
+.pk-cover{position:absolute;left:0;right:0;top:40px;height:164px;z-index:2;border-radius:10px;background:var(--noise-bg),var(--pk-c);box-shadow:inset 0 0 0 1px #0000001a;padding:12px;box-sizing:border-box;display:flex;flex-direction:column}
+.pk-hole{position:absolute;left:21px;top:13px;width:11px;height:11px;border-radius:50%;background:var(--paper,#f4f0e8);box-shadow:inset 0 1px 2px #00000066}
+.pk-spec{margin-top:auto;display:flex;flex-direction:column;align-items:flex-end;text-align:right;font:8.5px 'Courier New',monospace;line-height:1.55;letter-spacing:.05em;color:var(--pk-ink)}.pk-spec b{font:bold 10px Arial,sans-serif;letter-spacing:.2em;margin-bottom:4px}
+.pk-label{position:absolute;left:0;right:0;top:222px;font:12px Arial,sans-serif;color:var(--soil);line-height:1.4}.pk-label i{font-style:normal;color:#8a6a5a}
+.pk-stage{position:relative;height:300px;margin:4px 0 0}
+.pk-stage .pk-ring{width:120px;height:130px}
+.pk-sheet{position:absolute;left:0;right:0;top:50px;height:226px;border-radius:12px;z-index:2}.pk-sheet.s2{left:7px;right:-6px;top:60px;background:var(--pk-c);transform:rotate(-2.4deg)}.pk-sheet.s1{left:3px;right:-3px;top:55px;background:#e9e1cf;box-shadow:0 1px 0 #d6cbb7,0 2px 0 #e9e1cf,0 3px 0 #d6cbb7,0 4px 0 #e9e1cf,0 5px 0 #d6cbb7,0 6px 0 #cfc3ad}
+.pk-card{position:absolute;left:0;right:0;top:50px;height:226px;z-index:2;border-radius:12px;background:#fbf6e8;box-shadow:0 2px 0 #e2d8c4,0 10px 18px #2318152a;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:pan-x;transition:transform .2s;user-select:none}
+.pk-card .pk-hole{left:26px;top:16px;width:14px;height:14px}
+.pk-card .pocket-q{min-height:0;padding:10px 20px;width:100%;box-sizing:border-box}
+.pk-card .pocket-card{all:unset;box-sizing:border-box;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:22px 26px;cursor:pointer}
+.pk-card .pocket-card strong{font-size:clamp(24px,5vw,32px);font-weight:normal;overflow-wrap:anywhere}.pk-card .pocket-card i{font-size:14px;color:#4a2e27}.pk-card .pc-hint{font:9px Arial,sans-serif;letter-spacing:.2em;color:#b8ab98}
+.pk-no{position:absolute;right:14px;bottom:10px;font:9px 'Courier New',monospace;color:#b8ab98}
+.pk-swipe{text-align:center;font:10px Arial,sans-serif;letter-spacing:.12em;color:#8a6a5a;min-height:14px;margin:4px 0 8px}
+/* v0.9.0 · slip snip */
+.slip-snip{position:absolute;left:14px;top:20px;z-index:2;display:flex;align-items:center;gap:6px;min-width:44px;min-height:40px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+.slip-snip svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.slip-cut{display:block;width:30px;border-top:1.5px dashed currentColor;opacity:.45}
+.bookmark-slip .slip-top{padding-left:64px}
+.bookmark-slip.snipping{transition:transform .2s,opacity .2s;transform:translateY(-24px) rotate(-2deg);opacity:0}
+.snipbar{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);z-index:60;display:flex;align-items:center;gap:14px;padding:10px 12px 10px 16px;background:#231815;color:#f4f0e8;border-radius:4px;font:13px Arial,sans-serif;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 6px 16px #23181540}
+.snipbar.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}.snipbar button{min-height:36px;padding:0 12px;border:1px solid #f5efc6;background:transparent;color:#f5efc6;border-radius:3px}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">REVIEW</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.0 · STUDY-FIRST HOME</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;

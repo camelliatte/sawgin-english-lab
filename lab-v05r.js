@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.9 · 단어장 목록 · 단어 카드')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.9.0 · 컬러 아카이브 폴더 · 포켓 링 카드 · 책갈피 가위')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -1106,6 +1106,65 @@ function vEnd(){if(!vdrag)return;const {c,dx,lock}=vdrag;vdrag=null;if(lock!=='x
 document.addEventListener('pointerup',vEnd);document.addEventListener('pointercancel',vEnd);
 document.addEventListener('click',ev=>{if(vcardDragged&&ev.target.closest('.vcard')){ev.stopPropagation();ev.preventDefault();}},true);
 const navigate088=navigate;navigate=function(...a){vcardIdx=null;vcardMore=false;return navigate088(...a);};
+
+
+/* v0.9.0 · Color-archive folders · Pocket key-ring cards · snip a bookmark slip */
+const NOISE_BG="url(\"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E\")";
+const FOLDER_TAB_PATH='M0 30 C8 30 9 22 12 14 C15 5 18 2 26 2 L106 2 C114 2 117 5 120 14 C123 22 124 30 132 30 Z';
+const episodeFolder089=episodeFolder,folderStack089=folderStack;
+function liftedKey(mode,keys){const k=db.settings.bookMemory?.[mode]?.pack;return keys.includes(k)?k:keys[0];}
+function archFolder(mode,key,i,lifted){const p=db.packs[mode][key],[done,all]=count(mode,key),look=folderAppearance(mode,key),open=mode==='journal'?'open-promptpack':'open-pack',tab=p.episode.replace(/^S\d+_/,'').replace(/_/g,'-');
+ const prog=mode==='journal'?all+'개 글감':done+' / '+all;
+ return `<article class="arch-folder${lifted?' lifted':''}" style="--folder-bg:${look.hex};--folder-ink:${look.text};--tab-slot:${i%5};z-index:${i+1}" data-pack="${attr(key)}" data-folder-mode="${mode}">
+ <svg class="arch-tab" viewBox="0 0 132 30" aria-hidden="true"><path d="${FOLDER_TAB_PATH}"/><path class="arch-tab-hi" d="M14 13 C17 5 19 3 26 3 L106 3 C113 3 115 5 118 13"/></svg><span class="arch-tab-label">${esc(tab)}</span>
+ <button class="arch-strip" data-action="${open}" data-pack="${attr(key)}" aria-label="${attr(p.title)} 열기"><span class="arch-title">${esc(p.title)}</span><span class="arch-prog">${prog}</span><span class="arch-go" aria-hidden="true">→</span></button>
+ ${lifted?`<button class="arch-continue" data-action="${open}" data-pack="${attr(key)}" tabindex="-1" aria-hidden="true"><span class="arch-badge">${db.settings.bookMemory?.[mode]?.pack===key?'이어하기':'시작하기'}</span><span>${esc(epLabel(p.episode))}${p.version?' · '+esc(p.version):''}</span><span class="arch-bar"><b style="width:${all?done/all*100:0}%"></b></span></button>`:''}
+ </article>`;}
+folderStack=function(mode,keys,sort){
+ if(editPacks||sort==='manual'||!keys.length)return folderStack089(mode,keys,sort);
+ const lift=liftedKey(mode,keys);
+ return `<div class="folder-stack arch" data-folder-stack="${mode}">${keys.map((k,i)=>archFolder(mode,k,i,k===lift)).join('')}<div class="arch-drawer" aria-hidden="true"></div><p class="arch-note">폴더를 누르면 바로 열려 · 올라온 폴더는 마지막으로 연 팩</p></div>`;
+};
+/* ---------- Pocket Cards: key-ring ---------- */
+const PK_COVERS=['#400C0F','#56431F','#ABBBC3','#774223','#C2B087','#D8D8B4'];
+function pkCover(key){const keys=packList('vocab'),i=Math.max(0,keys.indexOf(key)),hex=PK_COVERS[i%PK_COVERS.length],light=folderTextColor(hex)!=='#231815';return {hex,ink:light?'#D9BD84':'#4A2E27'};}
+function pkRingSVG(front,id){return front?`<svg class="pk-ring front" viewBox="0 0 120 130" aria-hidden="true"><defs><linearGradient id="${id}f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f8e85"/><stop offset=".45" stop-color="#f4f3ee"/><stop offset=".7" stop-color="#bebcb2"/><stop offset="1" stop-color="#85847b"/></linearGradient><clipPath id="${id}c"><rect x="33" y="40" width="40" height="40"/></clipPath></defs><g transform="rotate(-18 33 73)"><g clip-path="url(#${id}c)"><ellipse cx="34" cy="43" rx="17" ry="32" fill="none" stroke="#23181533" stroke-width="5"/><ellipse cx="33" cy="41" rx="17" ry="32" fill="none" stroke="url(#${id}f)" stroke-width="4.4"/></g></g></svg>`:`<svg class="pk-ring back" viewBox="0 0 120 130" aria-hidden="true"><defs><linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f8e85"/><stop offset=".45" stop-color="#e9e8e2"/><stop offset=".7" stop-color="#b3b1a7"/><stop offset="1" stop-color="#85847b"/></linearGradient></defs><g transform="rotate(-18 33 73)"><ellipse cx="33" cy="41" rx="17" ry="32" fill="none" stroke="url(#${id}b)" stroke-width="4.4"/></g></svg>`;}
+const pocketHome089=pocketHome;
+pocketHome=function(){
+ let out=pocketHome089();const keys=packList('vocab'),mode=db.settings.pocketMode||'choice';if(!keys.length)return out;
+ const list=`<div class="pk-shelf">${keys.map((k,i)=>{const p=db.packs.vocab[k],c=pkCover(k);return `<button class="pk-bundle" data-action="pocket-start" data-pack="${attr(k)}" style="--pk-c:${c.hex};--pk-ink:${c.ink}" aria-label="${attr(p.title)} · ${p.items.length}장 · ${attr(POCKET_MODES[mode])} 시작">${pkRingSVG(false,'pb'+i)}<span class="pk-edge"></span><span class="pk-cover"><span class="pk-hole"></span><span class="pk-spec"><b>POCKET CARDS</b><span>TYPE&nbsp;&nbsp;WORD CARD</span><span>STOCK NO. ${esc(p.episode)}</span><span>SIZE&nbsp;&nbsp;${p.items.length} SHEETS</span></span></span>${pkRingSVG(true,'pb'+i)}<span class="pk-label">${esc(p.title)} <i>· ${esc(POCKET_MODES[mode])} →</i></span></button>`;}).join('')}</div>`;
+ return out.replace(/<div class="pocket-list">[\s\S]*?<\/button><\/div>/,list);
+};
+function pkWrap(inner){const c=pkCover(view.ep),no=String(view.pos+1).padStart(2,'0');return `<div class="pk-stage" style="--pk-c:${c.hex}">${pkRingSVG(false,'ps')}<span class="pk-sheet s2"></span><span class="pk-sheet s1"></span><div class="pk-card" id="pkcard"><span class="pk-hole"></span>${inner}<span class="pk-no">No. ${no}</span></div>${pkRingSVG(true,'ps')}</div><p class="pk-swipe" aria-hidden="true">${view.pmode==='card'?(view.flipped?'↑ 위로 밀면 알았어 · 다음':'탭해서 뒤집기 · ↑ 위로 밀어도 돼'):(view.picked!==null?'↑ 위로 밀면 다음':'')}</p>`;}
+const pocketSession089=pocketSession;
+pocketSession=function(){let out=pocketSession089();if(!view.ep||view.done)return out;
+ if(view.pmode==='card')return out.replace(/<button class="pocket-card[\s\S]*?<\/button>/,m=>pkWrap(m));
+ return out.replace(/<section class="pocket-q">[\s\S]*?<\/section>/,m=>pkWrap(m));};
+function pkSwipeUp(){if(view.page!=='pocket'||!view.ep||view.done)return false;
+ if(view.pmode==='card'){if(!view.flipped){view.flipped=true;render();return true;}pocketCard(true);return true;}
+ if(view.picked!==null){pocketNext();return true;}return false;}
+let pkDrag=null,pkDragged=false;
+document.addEventListener('pointerdown',ev=>{const c=ev.target.closest('#pkcard');if(!c||ev.button>0)return;pkDrag={x:ev.clientX,y:ev.clientY,c,dy:0,lock:null};pkDragged=false;});
+document.addEventListener('pointermove',ev=>{if(!pkDrag)return;const dx=ev.clientX-pkDrag.x,dy=ev.clientY-pkDrag.y;if(pkDrag.lock==null&&(Math.abs(dx)>8||Math.abs(dy)>8))pkDrag.lock=Math.abs(dy)>Math.abs(dx)?'y':'x';if(pkDrag.lock!=='y')return;pkDrag.dy=Math.min(0,dy);pkDragged=true;pkDrag.c.style.transition='none';pkDrag.c.style.transform=`translateY(${pkDrag.dy}px) rotate(${pkDrag.dy/60}deg)`;});
+function pkEnd(){if(!pkDrag)return;const {c,dy,lock}=pkDrag;pkDrag=null;if(lock!=='y')return;
+ if(dy<-70&&(view.pmode==='card'||view.picked!==null)){c.style.transition='transform .18s, opacity .18s';c.style.transform='translateY(-120%) rotate(-6deg)';c.style.opacity='0';setTimeout(()=>{pkSwipeUp();},170);}
+ else{c.style.transition='';c.style.transform='';}
+ setTimeout(()=>{pkDragged=false;},60);}
+document.addEventListener('pointerup',pkEnd);document.addEventListener('pointercancel',pkEnd);
+document.addEventListener('click',ev=>{if(pkDragged&&ev.target.closest('#pkcard')){ev.stopPropagation();ev.preventDefault();}},true);
+/* ---------- Bookmark slip: snip one ---------- */
+const slipCard089=slipCard;
+slipCard=function(row){let out=slipCard089(row);if(slipEdit)return out;const {x}=row;
+ return out.replace('<div class="slip-top">',`<button class="slip-snip" data-action="slip-snip" data-id="${attr(x.id)}" aria-label="책갈피에서 빼기"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.6 7.6 20 17M8.6 16.4 20 7"/></svg><span class="slip-cut" aria-hidden="true"></span></button><div class="slip-top">`);};
+let snipUndo=null,snipTimer=null;
+function snipBar(text){let bar=document.getElementById('snipbar');if(!bar){bar=document.createElement('div');bar.id='snipbar';bar.className='snipbar';document.body.appendChild(bar);}
+ bar.innerHTML=`<span>${esc(text)}</span><button data-action="slip-undo">되돌리기</button>`;bar.classList.add('show');clearTimeout(snipTimer);snipTimer=setTimeout(()=>{bar.classList.remove('show');snipUndo=null;},5000);}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;
+ if(a==='slip-snip'){ev.stopPropagation();const id=b.dataset.id,meta=bookmarkMetadata()[id]?{...bookmarkMetadata()[id]}:null;const art=b.closest('.bookmark-slip');
+  const go=()=>{markReview(id,false);delete bookmarkMetadata()[id];slipSelection.delete(id);save();render();snipUndo={id,meta};snipBar('책갈피에서 뺐어.');};
+  if(art){art.classList.add('snipping');setTimeout(go,200);}else go();}
+ else if(a==='slip-undo'){ev.stopPropagation();if(!snipUndo)return;const {id,meta}=snipUndo;snipUndo=null;markReview(id,true);if(meta)bookmarkMetadata()[id]=meta;save();render();document.getElementById('snipbar')?.classList.remove('show');toast('다시 책갈피에 꽂았어.');}
+},true);
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};
