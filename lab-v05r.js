@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.7 · Guide 핵심 문장 듣기')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.8.8 · 에세이 단계 첨삭 · 재작성')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -913,7 +913,8 @@ journalHome=function(){
  const rows=prompts.map((r,i)=>{const e=findEntryFor(r.x.id,'essay');return {r,e,k:entryStatus(e),no:String(i+1).padStart(2,'0')};});
  const todo=rows.filter(o=>o.k==='todo'||o.k==='writing').map(o=>tocRow(o.no,o.r.x['제목']||o.r.x.localId,o.k,`data-action="toc-open" data-pack="${attr(o.r.key)}" data-item="${attr(o.r.x.id)}"`));
  const done=rows.filter(o=>o.k==='check'||o.k==='stamp').map(o=>tocRow(o.no,o.r.x['제목']||o.r.x.localId,o.k,`data-action="toc-open" data-pack="${attr(o.r.key)}" data-item="${attr(o.r.x.id)}"`));
- const mine=Object.values(db.journalEntries||{}).filter(e=>!ids.has(e.source)).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(e=>tocRow((e.date||'').slice(5).replace('-','.'),e.title||'제목 없는 글',entryStatus(e),`data-action="edit-entry" data-entry="${attr(e.id)}"`));
+ const epSet=new Set(eps),looseList=Object.values(db.journalEntries||{}).filter(e=>!ids.has(e.source)&&!(e.episodes||[]).some(x=>epSet.has(x))).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+ const mine=Object.values(db.journalEntries||{}).filter(e=>!ids.has(e.source)&&(!ep||(e.episodes||[]).includes(ep))).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(e=>tocRow((e.date||'').slice(5).replace('-','.'),e.title||'제목 없는 글',entryStatus(e),`data-action="edit-entry" data-entry="${attr(e.id)}"`));
  const options=eps.map(x=>`<option value="${attr(x)}" ${x===ep?'selected':''}>${esc(epLabel(x)===x?x:epLabel(x))}</option>`).join('');
  const today=new Date();
  return `${header('Writing Journal.','글감을 고르면 바로 쓰기 화면이 열려.')}<div class="journal-bar"><button class="primary" data-action="new-entry">+ 자유 글</button>${eps.length?`<label class="journal-ep"><span class="sr-only">에피소드</span><select data-change="journal-episode">${options}</select></label>`:''}</div>
@@ -921,7 +922,8 @@ journalHome=function(){
  <div class="pad-meta"><span>${today.toLocaleDateString('en-GB',{month:'short',year:'numeric'})}${ep?' · '+esc(ep):''}</span><i>${done.length} / ${prompts.length} done</i></div>
  <div class="pad-title"><strong>THE [CONTENTS]</strong><span>What I'm writing, finishing &amp; getting corrected</span></div>
  ${ep?tocSection('todo','TO WRITE','TODO','tab-todo',todo,'이 에피소드 글감은 다 썼어!')+tocSection('done','DONE','DONE','tab-done',done,'아직 제출한 글이 없어.'):'<p class="toc-empty">글감 팩이 없어. 아래 ‘글감 팩 관리’에서 가져오거나 자유 글을 써 봐.</p>'}
- ${tocSection('mine','MY PAGES','MINE','tab-mine',mine,'자유 글과 Guide에서 쓴 글이 여기 모여.')}
+ ${tocSection('mine','MY PAGES','MINE','tab-mine',mine,'이 에피소드의 자유 글과 Guide 글이 여기 모여.')}
+ ${ep&&looseList.length?`<details class="toc-loose"><summary>에피소드 없는 글 (${looseList.length})</summary>${looseList.map(e=>tocRow((e.date||'').slice(5).replace('-','.'),e.title||'제목 없는 글',entryStatus(e),`data-action="edit-entry" data-entry="${attr(e.id)}"`)).join('')}</details>`:''}
  </section></div>${journalManageHTML()}`;
 };
 const promptPack082=promptPack;
@@ -989,6 +991,61 @@ function speakAll(list){if(!window.speechSynthesis||!window.SpeechSynthesisUtter
  window.speechSynthesis.cancel();list.forEach(t=>{const u=new window.SpeechSynthesisUtterance(t);u.lang='en-GB';if(voice)u.voice=voice;u.rate=.85;window.speechSynthesis.speak(u);});}
 document.addEventListener('click',ev=>{const b=ev.target.closest('.say-btn,.say-all');if(!b)return;ev.preventDefault();
  if(b.classList.contains('say-btn'))speak(b.dataset.say,'en-GB');else{try{speakAll(JSON.parse(b.dataset.sayAll));}catch{}}});
+
+
+/* v0.8.8 · Journal: staged-correction copy (short / full rules), rewrite kept with the corrected submission, MY PAGES per episode, folded explanations */
+const ESSAY_RULES=`너는 영국식 영어(en-GB) 에세이 첨삭 코치야. 나는 한국어 화자이고 수준은 A2–B1이야. 설명은 한국어, 예문은 영국식 일상 구어체로 해. 이 규칙을 이 대화 끝까지 따라 줘.
+
+[첨삭 방향]
+- 내 원래 의미와 표현 수준을 최대한 유지해.
+- 어순, 시제, 동사 형태를 가장 먼저 점검해.
+- 문법 오류와 선택적인 자연스러움 개선을 구분해서 말해.
+- 짧고 정확한 문장을 불필요하게 긴 복문으로 바꾸지 마.
+- 맞는 미국식 표현은 오류로 판정하지 마.
+
+[진행 규칙]
+- 한 번에 한 단계만 진행해. 단계가 끝나면 멈추고 내 답을 기다려.
+- 모든 답장의 첫 줄에 현재 단계를 [1/5 힌트]처럼 표시해.
+- 모든 답장의 마지막 줄에 내가 다음에 할 일을 한 문장으로 적어.
+- 내가 "바로 첨삭"이라고 쓰면 1단계를 건너뛰고 2단계부터 해. 그 외에는 단계를 건너뛰거나 합치지 마.
+- 내가 "건너뛰기"라고 쓰면 그 단계만 넘어가.
+
+[단계]
+1/5 힌트: 핵심 오류 2~3개만 골라. 위치와 오류 종류(어순·시제·동사 형태 등)만 알려 주고, 고친 문장·정답 단어·교정본은 절대 보여 주지 마. 철자 오류는 핵심 오류 개수에 넣지 말고, 맨 끝에 "철자 확인: 단어1, 단어2"처럼 틀린 단어만 한 줄로 표시해(고친 철자는 보여 주지 마). 마지막 줄은 "수정한 글 전체를 새 메시지로 보내 줘."로 끝내.
+2/5 최종 교정: 내 수정본을 기준으로 (a) 최소 교정본 (b) 자연스러운 영국식 구어체 대안을 구분해서 보여 줘. 고친 이유를 짧게 설명하고, 잘 쓴 점도 하나 이상 말해 줘.
+3/5 문장 변형: 교정본에서 변형에 알맞은 문장 1~3개를 골라 시제 바꾸기, 또는 짧은 두 문장을 because / so / but / and 등으로 연결하는 과제를 줘. 변형이 부자연스러운 문장은 억지로 고르지 마. 내가 먼저 시도해. 내 답이 틀리면 정답을 바로 보여 주지 말고 무엇이 빠졌는지 힌트만 주고 한 번 더 고치게 해. 두 번째 시도 후에도 틀리거나 내가 "정답"이라고 쓰면 그때 교정문을 보여 줘.
+4/5 최종 재작성: 교정본을 다시 보여 주지 말고, 핵심 문장(2~4개)을 한국어 뜻으로만 제시해서 내가 영어로 다시 쓰게 해. 틀린 문장은 3단계와 같은 방식(힌트 → 한 번 더 → 정답)으로 확인해. 끝나면 소리 내어 말해 보라고 권해.
+5/5 정리: 이번에 반복된 어순·시제·동사 형태 오류를 짧게 정리하고, 아래 형식의 JSON을 코드블록 하나로만 출력해.
+
+[목표]
+네가 문장을 대신 완성하는 게 아니라, 내가 스스로 정확하고 자연스러운 문장을 만들게 돕는 거야.`;
+const ESSAY_TAGS=['word-order','tense','verb-form','agreement','relative-clause','conjunction','article','preposition','spelling','naturalness'];
+function essayPayload(e,s){return JSON.stringify({task:'S&G 에세이 단계 첨삭',start:'1/5 힌트부터. JSON은 5/5에서만, 아래 id 그대로.',entry:{id:s.id,episode:(e.episodes||[]).join(', '),title:e.title||'',prompt:plain(e.prompt||'')||'자유 글쓰기',text:s.text},final_output:{when:'5/5에서만, 코드블록 하나',format:[{id:s.id,verdict:'correct 또는 revise',correction:'최소 교정본:\n...\n\n구어체 대안:\n...',explanation:'한국어 설명 (핵심 수정 이유 + 4/5 재작성 결과 요약)',tags:ESSAY_TAGS.join(' | ')+' 중 해당하는 것만'}]}},null,2);}
+function exportJournalStaged(full){flushJournal();const e=db.journalEntries[journalId];if(!e?.draft.trim())return toast('먼저 글을 써 줘.');
+ if(e.submissions.at(-1)?.text!==e.draft)submitJournal();const s=e.submissions.at(-1);
+ const head=full?ESSAY_RULES+'\n\n[내 글과 출력 형식]\n':'[S&G 에세이 단계 첨삭] 프로젝트 지침대로 진행해 줘.\n\n';
+ copy(head+'```json\n'+essayPayload(e,s)+'\n```');}
+function subById(id){const m=String(id).match(/^journal:(j[^:]+):r\d+$/);const e=m&&db.journalEntries[m[1]];return e?e.submissions.find(s=>s.id===id):null;}
+feedbackHTML=function(id){const f=db.feedback[id];if(!f)return '';const s=subById(id);
+ return `<div class="feedback-note"><div class="eyebrow">CHATGPT CORRECTION · ${esc(f.verdict||'revise')}${f.stale?' · 이전 답안의 첨삭':''}</div>${rich(f.correction||'')}${f.explanation?`<details class="fb-more"><summary>설명 보기</summary>${rich(f.explanation)}</details>`:''}${f.tags?.length?`<p class="fb-tags">${f.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join(' ')}</p>`:''}${s?.rewrite?.text?`<div class="rewrite-saved"><div class="eyebrow">MY REWRITE · ${new Date(s.rewrite.at).toLocaleDateString('ko-KR')}</div>${rich(s.rewrite.text)}</div>`:''}</div>`;};
+const journalEditor087=journalEditor;
+journalEditor=function(){
+ let out=journalEditor087();const e=db.journalEntries[journalId];if(!e)return out;
+ out=out.replace(/(<button[^>]*data-action="export-entry"[^>]*>)[^<]*(<\/button>)/,'$1첨삭용 복사$2<button class="secondary" data-action="export-entry-full" title="프로젝트 밖 대화에 붙여넣을 때">규칙까지 복사</button>');
+ const latest=e.submissions?.at(-1);const hist=out.indexOf('<details class="hintbox"><summary>제출본·첨삭 기록');
+ if(latest&&db.feedback[latest.id]&&hist>0){
+  let head=out.slice(0,hist),tail=out.slice(hist);
+  const k=head.lastIndexOf('<div class="rewrite-saved">');if(k>=0){const end=head.indexOf('</div></div>',k);if(end>0)head=head.slice(0,k)+head.slice(end+6);}
+  const box=`<section class="rewrite-box"><label class="fieldlabel" for="rewritetext">MY REWRITE · 첨삭 후 다시 쓴 글</label><p class="sub">첨삭을 보지 않고 다시 쓴 글을 여기에 남겨. 이 첨삭과 한 묶음으로 저장돼. [제출]은 새 첨삭을 받고 싶을 때만 눌러.</p><textarea id="rewritetext" class="answer" style="min-height:140px" placeholder="Write it again without looking.">${esc(latest.rewrite?.text||'')}</textarea><div class="actions"><button class="primary" data-action="save-rewrite">재작성 저장</button>${latest.rewrite?.at?`<span class="sub">저장: ${new Date(latest.rewrite.at).toLocaleString('ko-KR')}</span>`:''}</div></section>`;
+  out=head+box+tail;}
+ return out;
+};
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;
+ if(a==='export-entry'||a==='export-entry-full'){ev.stopPropagation();ev.preventDefault();exportJournalStaged(a==='export-entry-full');}
+ else if(a==='save-rewrite'){ev.stopPropagation();const e=db.journalEntries[journalId],s=e?.submissions?.at(-1),t=$('rewritetext')?.value||'';if(!s)return;
+  if(!t.trim()){delete s.rewrite;}else s.rewrite={text:t,at:Date.now()};e.updatedAt=Date.now();activity('writing');save();render();toast(t.trim()?'재작성을 저장했어.':'재작성을 비웠어.');}
+ else if(a==='new-entry'){journalFilter=currentJournalEpisode()||'';journalTab='essay';}
+},true);
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};
