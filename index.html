@@ -287,7 +287,46 @@ body{background:#E6E1D9}.shell{background:var(--paper)}
 .wl-order{display:flex;align-items:center;gap:6px;margin:0 0 8px;font:9px Arial,sans-serif;letter-spacing:.16em;color:#5e6d77}.wl-order span{margin-right:4px}
 .wl-order button{min-height:28px;padding:0 10px;border:1px solid #8fa1ad;border-radius:14px;background:transparent;color:#3e4d57;font:11px Arial,sans-serif;letter-spacing:0;box-shadow:none}
 .wl-order button[aria-pressed=true]{background:#3e4d57;color:#f4f0e8}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">REVIEW</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.2 · STUDY-FIRST HOME</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+/* v0.9.3 review dossiers */
+.review-tabs{margin:14px 0 22px}
+.dossier-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:520px;margin:0 auto}
+.dossier{all:unset;box-sizing:border-box;display:block;position:relative;padding:16px 13px 0 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dossier:focus-visible{outline:2px solid var(--soil);outline-offset:4px}
+.dossier .dos-box{position:relative;display:block;aspect-ratio:1/1.414;transition:transform .15s}
+.dossier:active .dos-box{transform:translateY(1px)}
+.dos-back,.dos-mid,.dos-front,.dos-tab{position:absolute;background-image:var(--noise-bg)}
+.dos-back{inset:0;border-radius:2px 3px 3px 2px;box-shadow:4px 5px 0 #d9d0c4}
+.dos-mid{left:0;top:2px;bottom:3px;right:6px;border-radius:2px;box-shadow:1px 0 1.5px #00000026}
+.dos-tab{width:13px;border-radius:0 4px 4px 0;box-shadow:1px 1px 0 #0000001f;display:flex;align-items:center;justify-content:center}
+.dos-tab span{writing-mode:vertical-rl;font:bold 5.5px Arial,sans-serif;letter-spacing:.16em;white-space:nowrap}
+.dos-tab i{font-style:normal;font-weight:normal;opacity:.8}
+.dos-tab.bm{right:-12px;top:60%;height:27%}
+.dos-tab.dt{right:-6px;top:13%;height:30%}
+.dos-front{left:0;top:0;bottom:0;right:12px;border-radius:2px 1px 2px 2px;box-shadow:1px 0 2px #00000026,inset 0 1px 0 #ffffff40;display:flex;flex-direction:column;padding:30px 11px 11px;box-sizing:border-box;color:#3a2c22}
+.dos-front:after{content:"";position:absolute;right:0;bottom:0;width:11px;height:11px;background:linear-gradient(135deg,transparent 50%,#00000014 50%)}
+.dos-label{align-self:center;width:84%;box-sizing:border-box;background:#f6f2ea;border-radius:3px;padding:8px 4px;box-shadow:0 1px 1.5px #0000002e,inset 0 0 0 3px #f6f2ea,inset 0 0 0 4px #cfc3b0;transform:rotate(-.8deg);text-align:center;font:bold 13px Georgia,serif;letter-spacing:.08em;color:#231815}
+.dos-info{margin-top:auto;display:block}
+.dos-arch{display:block;font:7px Arial,sans-serif;letter-spacing:.18em;opacity:.75;margin-bottom:4px}
+.dos-line{display:flex;justify-content:space-between;font:9.5px 'Courier New',monospace;padding:3px 0;border-bottom:1px dotted #00000026}
+.dos-open{display:block;margin-top:7px;font:8.5px 'Courier New',monospace;text-align:right;letter-spacing:.06em}
+.dos-clip{position:absolute;z-index:3}
+.dos-clip.paper{left:12%;top:-12px;filter:drop-shadow(.8px 1px .6px #23181540)}
+.dos-clip.binder{left:10%;top:-16px;filter:drop-shadow(.8px 1.5px 1px #2318154d)}
+.dossier.vocab .dos-front{background-color:#C69C6D}
+.dossier.vocab .dos-mid,.dossier.vocab .dos-tab.dt{background-color:#5f7a6e;color:#f4f0e8}
+.dossier.vocab .dos-back,.dossier.vocab .dos-tab.bm{background-color:#9c7449;color:#f4f0e8}
+.dossier.writing .dos-front{background-color:#E3D5B5}
+.dossier.writing .dos-mid,.dossier.writing .dos-tab.dt{background-color:#8ba0a8;color:#231815}
+.dossier.writing .dos-back,.dossier.writing .dos-tab.bm{background-color:#c4b089;color:#231815}
+.rv-recent{max-width:520px;margin:26px auto 0}
+.rv-recent-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid var(--soil);padding-bottom:6px;font:10px Arial,sans-serif;letter-spacing:.18em;color:#6f6156}
+.rv-recent-row{all:unset;box-sizing:border-box;display:flex;align-items:baseline;gap:10px;width:100%;padding:10px 2px;border-bottom:1px dotted #c9beaf;cursor:pointer}
+.rv-recent-row .rv-w{flex:none;max-width:52%;font:15px Georgia,'Noto Serif KR',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-recent-row .rv-m{flex:1;min-width:0;font:12px 'Noto Serif KR',serif;color:#78695b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-recent-row .rv-k{font:10px Arial,sans-serif;color:var(--soil)}
+.rv-empty{margin-top:10px}
+.rv-feedback .textarea-small{min-height:220px}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">REVIEW</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.3 · REVIEW TABS</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
