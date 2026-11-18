@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Script Studio</title>
 <style>
-  :root{--bg:#f4f0e8;--card:#fbf8f1;--ink:#231815;--soil:#4a2e27;--muted:#78695b;--line:#e1d9cd;--line2:#bcb0a2;--soft:#efe9de;--shadow:#d9d0c4;
+  :root{--bg:#f4f0e8;--card:#fbf8f1;--ink:#231815;--muted:#78695b;--line:#e1d9cd;--line2:#bcb0a2;--soft:#efe9de;--shadow:#d9d0c4;
         --a:#4d0e12;--a-soft:#f1e4e0;--b:#4f6f96;--b-soft:#e4ebf3;--c:#5c6652;--c-soft:#e7e9df;--d:#8a6a3b;--d-soft:#f1e9da;
         --done:#231815;--todo:#b9ad9f;--ok:#4f6b3a;--ng:#9b2c2c;--mid:#9a6b1f;
         --serif:Georgia,'Noto Serif KR',serif;--sans:Arial,'Noto Sans KR',sans-serif}
@@ -17,10 +17,9 @@
         --done:#efe7dc;--todo:#6a5f55;--ok:#a9c48f;--ng:#e39a92;--mid:#d9b26a}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);line-height:1.55}
-  main{max-width:880px;margin:0 auto;padding:28px 16px 320px}
+  main{margin:0 auto;padding:28px 16px 320px}
   .eyebrow{font:11px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0}
   h1{font-family:var(--serif);font-weight:normal;font-size:clamp(34px,6vw,56px);line-height:1.1;margin:6px 0 10px;letter-spacing:-.01em}
-  .sub{color:var(--muted);font-size:.95rem;margin:0 0 22px;padding-bottom:20px;border-bottom:1px solid var(--line2)}
   .card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:18px;margin-bottom:18px;box-shadow:5px 6px 0 var(--shadow)}
   details.card summary{cursor:pointer;font:12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--soil)}
   textarea{width:100%;min-height:170px;margin-top:12px;font:15px/1.6 var(--serif);padding:12px;border-radius:3px;border:1px solid var(--line2);background:var(--bg);color:var(--ink);resize:vertical}
@@ -61,8 +60,6 @@
   .tools .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .tools select{max-width:190px;font-size:12px;padding:5px}
   .tools button{padding:6px 12px;font-size:12px}
-  .fab{position:fixed;right:16px;bottom:16px;z-index:4;display:flex;flex-direction:column;gap:8px}
-  .fab button{box-shadow:3px 4px 0 var(--shadow);background:var(--card);border:1px solid var(--line2);font-size:12px}
   .row.inLoop{box-shadow:inset 3px 0 0 var(--soil)}
   /* dictionary sheet */
   #dict{position:fixed;left:0;right:0;bottom:0;z-index:5;max-height:58vh;overflow:auto;background:var(--card);border-top:1px solid var(--line2);box-shadow:0 -10px 30px rgba(35,24,21,.18);border-radius:4px 4px 0 0;padding:18px 18px 24px;transform:translateY(105%);transition:transform .25s}
@@ -91,16 +88,12 @@
   .row.cur{box-shadow:inset 3px 0 0 var(--curc);background:var(--curbg)}
   .row.muted .txt{font-style:italic}
   .warn{color:var(--ng)}
-  .drop{border-style:dashed;border-color:var(--line2);transition:background .15s,border-color .15s}
-  .drop.over{background:var(--soft);border-color:var(--soil)}
   .row .ko{display:block;font-size:.9rem;color:var(--muted);margin-top:3px}
   #stage .koBig{margin-top:12px;font-size:clamp(1rem,2.4vw,1.2rem);color:var(--muted)}
   body.hideKo .ko, body.hideKo .koBig{display:none}
   .kt{display:inline-block;font:10px var(--sans);letter-spacing:.08em;padding:1px 6px;margin-right:7px;border-radius:2px;background:transparent;color:var(--muted);vertical-align:.2em;border:1px solid var(--line2)}
   .kt.lit{border-style:dashed}
   #title{font:11px var(--sans);letter-spacing:.16em;text-transform:uppercase;margin:0 0 10px;color:var(--muted)}
-  .recbar{justify-content:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
-  .recbar button{padding:8px 14px}
   #sayBtn.on{background:var(--a);border-color:var(--a);color:#fff}
   #sayRes{display:none;margin:12px auto 0;max-width:640px;background:var(--bg);border:1px solid var(--line);border-radius:2px;padding:12px 16px;font-size:.98rem;text-align:left}
   #sayRes.show{display:block}
@@ -115,26 +108,19 @@
   a.yg{display:inline-block;padding:8px 14px;border-radius:4px;border:1px solid var(--line2);color:var(--soil);text-decoration:none;font:13px var(--sans);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   a.yg:hover{background:var(--soft)}
   #dict a.yg{padding:4px 10px}
-</style>
-<style>.library-back,.studio-settings{color:var(--soil);font:13px var(--sans);text-decoration:none;display:inline-block;margin:0 0 18px}.studio-source>label{display:block;font:12px var(--sans);letter-spacing:.12em;margin-bottom:12px}.studio-source select{min-height:44px;flex:1;min-width:0;max-width:100%}.studio-source .studio-settings{margin:0;padding:10px 0}.studio-source .ctrl{align-items:center}.studio-source #sourceNote{margin:12px 0 0}.card[hidden]{display:none}@media(max-width:600px){.studio-source .ctrl{align-items:stretch}.studio-source select{flex-basis:100%;width:100%}.studio-source .studio-settings{font-size:12px}.sliders input{max-width:100%}}</style><style>.studio-top{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}.studio-logo{color:var(--ink);text-decoration:none;font-family:var(--serif);font-weight:bold;white-space:nowrap}.studio-logo span{font:10px var(--sans);letter-spacing:.12em}.studio-nav-bar{display:flex;gap:8px;flex-wrap:wrap}.studio-nav-bar a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--soil);background:transparent;border:1px solid var(--line2);border-radius:4px;padding:9px 12px;font:12px Arial,sans-serif;white-space:nowrap}.studio-nav-bar a.active{background:var(--soil);color:#FAF7F0}@media(max-width:760px){.studio-top{flex-direction:column;align-items:flex-start}.studio-nav-bar{width:100%}}@media(max-width:560px){.studio-nav-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.studio-nav-bar a{font-size:11px;padding:9px 5px;min-height:38px}}</style><style>
+.studio-settings{color:var(--soil);font:13px var(--sans);text-decoration:none;display:inline-block;margin:0 0 18px}.studio-source>label{display:block;font:12px var(--sans);letter-spacing:.12em;margin-bottom:12px}.studio-source select{min-height:44px;flex:1;min-width:0;max-width:100%}.studio-source .studio-settings{margin:0;padding:10px 0}.studio-source .ctrl{align-items:center}.studio-source #sourceNote{margin:12px 0 0}.card[hidden]{display:none}@media(max-width:600px){.studio-source .ctrl{align-items:stretch}.studio-source select{flex-basis:100%;width:100%}.studio-source .studio-settings{font-size:12px}.sliders input{max-width:100%}}
+.studio-top{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px}.studio-logo{color:var(--ink);text-decoration:none;font-family:var(--serif);font-weight:bold;white-space:nowrap}.studio-logo span{font:10px var(--sans);letter-spacing:.12em}.studio-nav-bar{display:flex;gap:8px;flex-wrap:wrap}.studio-nav-bar a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--soil);background:transparent;border:1px solid var(--line2);border-radius:4px;padding:9px 12px;font:12px Arial,sans-serif;white-space:nowrap}.studio-nav-bar a.active{background:var(--soil);color:#FAF7F0}@media(max-width:760px){.studio-top{flex-direction:column;align-items:flex-start}.studio-nav-bar{width:100%}}@media(max-width:560px){.studio-nav-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.studio-nav-bar a{font-size:11px;padding:9px 5px;min-height:38px}}
 /* v0.7.2 · one clipboard workspace, with clear space below the clamp */
 main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio-top{margin-left:0;margin-right:0}.studio-nav-bar a{min-height:38px}.studio-nav-bar{justify-content:flex-end}
-.studio-board{position:relative;isolation:isolate;margin:0 7px 28px;padding:18px;background:#8D7965;border:1px solid #786552;border-radius:5px;box-shadow:7px 9px 0 var(--shadow)}
-.studio-paper{position:relative;background:var(--card);padding:77px 28px 30px;min-width:0;border:1px solid var(--line2);box-shadow:0 2px 5px #23181520}
-.studio-clamp{position:absolute;z-index:2;top:-17px;left:50%;transform:translateX(-50%);width:152px;height:40px;border:1px solid #77786F;border-radius:4px;background:linear-gradient(#D3D0C5,#9F9F95 24%,#E4E0D5 46%,#85867E 58%,#C5C3B8);box-shadow:0 4px 5px #23181540;pointer-events:none}
-.studio-clamp:before{content:'';position:absolute;left:calc(50% - 14px);top:-31px;width:28px;height:38px;border:4px double #89897F;border-radius:17px 17px 3px 3px;background:linear-gradient(90deg,#B3B2A7,#E1DDD1,#95958C)}
-.studio-clamp:after{content:'';position:absolute;left:calc(50% - 5px);top:-24px;width:10px;height:10px;border:2px solid #77786F;border-radius:50%;background:var(--bg)}
-.studio-paper>.sub{padding-bottom:24px;margin-bottom:25px}.studio-paper>.card{box-shadow:none;background:transparent;border:0;border-top:1px solid var(--line2);padding:21px 0;margin:0;border-radius:0}.studio-paper>.studio-source{border-top:0;padding-top:0;padding-bottom:24px}
+.studio-board{position:relative;isolation:isolate;border-radius:5px}
+.studio-paper{position:relative;background:var(--card);min-width:0}.studio-paper>.card{box-shadow:none;background:transparent;border:0;border-top:1px solid var(--line2);padding:21px 0;margin:0;border-radius:0}.studio-paper>.studio-source{border-top:0;padding-top:0;padding-bottom:24px}
 .studio-paper>#list{margin-top:12px}:is(.studio-paper,.studio-desk) #stage{background:var(--soft)!important;border:1px solid var(--line);border-left:4px solid var(--cur,var(--line2));min-height:190px}
 :is(.studio-paper,.studio-desk) .spk{background:var(--soft);min-width:0}:is(.studio-paper,.studio-desk) .spk select{min-width:0}:is(.studio-paper,.studio-desk) .row{flex-wrap:wrap}:is(.studio-paper,.studio-desk) .row .txt{min-width:0;overflow-wrap:anywhere;flex:1}:is(.studio-paper,.studio-desk) .row .tag{min-width:55px}:is(.studio-paper,.studio-desk) .sliders>div{max-width:100%;flex-wrap:wrap}
 .studio-version{text-align:right;font:10px var(--sans);letter-spacing:.1em;color:var(--muted);margin:24px 0 0}button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #849FA9;outline-offset:3px}
-@media(max-width:600px){main{padding:20px 12px 95px}.studio-top{margin-bottom:54px}.studio-board{margin:0 3px 22px;padding:8px;box-shadow:4px 6px 0 var(--shadow)}.studio-paper{padding:66px 15px 24px}.studio-clamp{width:124px;height:34px;top:-15px}:is(.studio-paper,.studio-desk) .spk{grid-template-columns:auto minmax(0,1fr);gap:9px}:is(.studio-paper,.studio-desk) .spk label{grid-column:1/-1}:is(.studio-paper,.studio-desk) .tools .grp{min-width:0;width:100%}:is(.studio-paper,.studio-desk) .tools select{min-width:0;max-width:100%;flex:1 1 110px}:is(.studio-paper,.studio-desk) #stage{padding:25px 12px}:is(.studio-paper,.studio-desk) .studio-source select{font-size:16px}:is(.studio-paper,.studio-desk) h1{font-size:36px}}
-
+@media(max-width:600px){main{padding:20px 12px 95px}.studio-top{margin-bottom:54px}.studio-board{margin:0 3px 22px;padding:8px;box-shadow:4px 6px 0 var(--shadow)}.studio-paper{padding:66px 15px 24px}:is(.studio-paper,.studio-desk) .spk{grid-template-columns:auto minmax(0,1fr);gap:9px}:is(.studio-paper,.studio-desk) .spk label{grid-column:1/-1}:is(.studio-paper,.studio-desk) .tools .grp{min-width:0;width:100%}:is(.studio-paper,.studio-desk) .tools select{min-width:0;max-width:100%;flex:1 1 110px}:is(.studio-paper,.studio-desk) #stage{padding:25px 12px}:is(.studio-paper,.studio-desk) .studio-source select{font-size:16px}:is(.studio-paper,.studio-desk) h1{font-size:36px}}
 /* v0.8.6 · fixed controls, scrolling script */
 .studio-clip{position:absolute;z-index:2;left:50%;top:-47px;transform:translateX(-50%);width:156px;line-height:0;pointer-events:none}.studio-clip svg{width:100%;height:auto;display:block}
-.studio-board .studio-clamp{display:none}
 :is(.studio-paper,.studio-desk) .card{box-shadow:none;background:transparent;border:0;border-top:1px solid var(--line2);padding:16px 0;margin:0;border-radius:0}
-.studio-desk .desk-head .sub{padding-bottom:10px;margin-bottom:0}
 .studio-set{border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
 .studio-set>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer}.studio-set>summary::-webkit-details-marker{display:none}
 .set-sum{flex:1;min-width:0;font:12.5px var(--sans);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -142,22 +128,17 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
 .studio-set[open] .set-btn{background:var(--soil);color:var(--bg);border-color:var(--soil)}
 .set-body>.card:first-child{border-top:0;padding-top:4px}
 .set-guide>summary{cursor:pointer;font:12px var(--sans);color:var(--soil)}
-.studio-player{border-top:0!important}
 .mini{display:none}
 .mobile-only{display:none}
 @media(max-width:959px){
  .mobile-only{display:flex}
  body.has-mini main{padding-bottom:calc(var(--miniH,130px) + 24px)}
- .studio-player #stage,.studio-player>.ctrl,.studio-player #koNote{display:none!important}
- .studio-player{padding:0!important}
  #sayRes.show{position:fixed;left:12px;right:12px;bottom:calc(var(--miniH,130px) + 10px);z-index:4;background:var(--card);border:1px solid var(--line2);box-shadow:0 6px 18px #23181533;padding:12px;margin:0}
  .studio-paper .row{scroll-margin-bottom:calc(var(--miniH,130px) + 10px)}
- .fab{bottom:calc(var(--miniH,130px) + 10px);right:8px;gap:6px}
- .fab button{font-size:11px;padding:5px 9px;min-height:0;box-shadow:2px 2px 0 var(--shadow);opacity:.94}
- .mini{display:block;position:fixed;left:3px;right:3px;bottom:0;z-index:4;background:#8D7965;border-top:1px solid #786552;box-shadow:0 -6px 12px #23181533;padding:10px 14px calc(14px + env(safe-area-inset-bottom))}
+ .mini{display:block;position:fixed;z-index:4;border-top:1px solid #786552}
  .mini-now{display:flex;align-items:baseline;gap:8px;width:100%;margin:0 0 8px;padding:0;border:0;background:none;box-shadow:none;color:#fbf8f1;text-align:left;min-height:0}
- #miniWho{flex:none;font:10px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#f5efc6}
- #miniTxt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:15px var(--serif)}
+ #miniWho{flex:none;text-transform:uppercase}
+ #miniTxt{flex:1;min-width:0}
  .mini-prog{height:3px;background:#786552;border-radius:2px;margin-bottom:10px}.mini-prog i{display:block;height:3px;width:0;background:#f5efc6;border-radius:2px;transition:width .2s}
  .mini-btns{display:flex;gap:8px;align-items:center}
  .mini-btns button{width:44px;height:44px;min-height:0;padding:0;border:1px solid #786552;background:#fbf8f1;color:#231815;border-radius:50%;font-size:14px;box-shadow:none}
@@ -166,18 +147,14 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
 }
 @media(min-width:960px){
  main{max-width:1100px;padding-bottom:24px}
- .studio-layout{display:grid;grid-template-columns:380px minmax(0,1fr);gap:28px;align-items:start;margin-top:8px}
- .studio-desk{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--card);border:1px solid var(--line);box-shadow:4px 5px 0 var(--shadow);padding:18px 20px;border-radius:3px}
- .studio-desk h1{font-size:34px}
- .studio-board{position:sticky;top:60px;height:calc(100vh - 84px);margin:44px 7px 0;box-sizing:border-box}
- .studio-paper{height:100%;box-sizing:border-box;overflow:auto;padding-top:64px}
+ .studio-layout{display:grid;align-items:start;margin-top:8px}
+ .studio-board{box-sizing:border-box}
+ .studio-paper{height:100%;box-sizing:border-box;overflow:auto}
  .studio-clip{width:190px;top:-57px}
  .studio-desk #stage{min-height:150px;padding:20px 14px}
  .studio-desk #stage .big{font-size:26px}
  .studio-desk #stage .next{margin-top:12px;font-size:.92rem}
- .fab{display:none}
 }
-</style><style>
 /* v0.9.9 · design C: clipboard menu + typewriter script */
 :root{--blu:#3f6aa8;--navy:#2c3a5a;--band:#f2d35c3a;--typ:'Courier New',Courier,monospace}
 :root[data-theme="dark"]{--blu:#8fb0dd;--navy:#b9c8e6;--band:#f2d35c22}
@@ -191,9 +168,9 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
 .studio-paper>#list{background:transparent;border:0;box-shadow:none;padding:0;margin:8px 0 0}
 .studio-paper .row{display:block;position:relative;padding:14px 0 9px;border:0;border-radius:0;background:transparent;box-shadow:none}
 .studio-paper .row:hover{background:linear-gradient(90deg,transparent,var(--soft) 20%,var(--soft) 80%,transparent)}
-.studio-paper .row .tag{display:block;min-width:0;text-align:center;font:bold 13px var(--typ);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.studio-paper .row .tag{display:block;min-width:0;text-align:center;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .studio-paper .row .tag .bs{font:10px var(--sans);letter-spacing:0;text-transform:none;color:var(--muted);font-weight:normal}
-.studio-paper .row .txt{display:block;margin:3px 18% 0;font:15px/1.6 var(--typ);color:var(--ink);overflow-wrap:anywhere}
+.studio-paper .row .txt{display:block;margin:3px 18% 0;color:var(--ink);overflow-wrap:anywhere}
 .studio-paper .row .ko{display:block;margin-top:4px;font:italic 13px/1.5 var(--serif);color:#6a7f9c}
 .studio-paper .row .kt{font-style:normal}
 .studio-paper .row.cur{background:linear-gradient(90deg,transparent,var(--band) 20%,var(--band) 80%,transparent);box-shadow:none}
@@ -216,16 +193,10 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
 .studio-paper .row.loopPickA:after{content:'A';position:absolute;left:calc(18% - 76px);top:8px;font:italic 13px Georgia,serif;color:var(--blu)}
 body.loop-picking .studio-paper .row{cursor:crosshair}
 body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px}
-.loopbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.loopbar button{font-size:12px;padding:6px 10px}
 #loopBtn[aria-pressed="true"]{background:var(--blu);border-color:var(--blu);color:#fff}
-.loopbar .lb-x{padding:6px 9px}
-.loophint{margin:6px 0 0;color:var(--blu)}
-.ygrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px}.ygrow button{font-size:12px;padding:6px 10px}
 /* clipboard menu */
 .studio-desk{position:relative}
 .desk-clip{display:block}
-.legend{margin:10px 0 0;padding:8px 10px;background:var(--soft);font:11.5px/1.6 var(--serif);color:var(--muted)}
-.legend .lg-u{color:var(--blu);text-decoration:underline;text-underline-offset:3px}.legend .lg-c{color:var(--navy)}.legend .lg-q{color:var(--blu)}
 #dict .vtag{font:10px var(--sans);letter-spacing:.1em;color:#fff;background:var(--blu);padding:3px 7px;border-radius:2px;align-self:center}
 #dict .vex{margin:6px 0;line-height:1.6}
 /* selection strip + toast */
@@ -235,18 +206,14 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .menu-back{display:none}
 .mini-tip{margin:8px 0 0;font:12px var(--sans);color:#f5efc6;text-align:center}.mini-tip[hidden]{display:none}
 @media(min-width:960px){
- .studio-layout{grid-template-columns:340px minmax(0,1fr);gap:40px}
- .studio-desk{background:#8e7762;border:0;border-radius:10px;padding:26px 14px 14px;box-shadow:4px 5px 0 var(--shadow),inset 0 0 0 1px #0002;overflow:visible;max-height:none;top:56px}
- .studio-desk .desk-clip{position:absolute;left:50%;top:-44px;transform:translateX(-50%);width:150px;z-index:3}
- .desk-paper{background:var(--card);padding:22px 18px 16px;box-shadow:0 1px 3px #23181530;max-height:calc(100vh - 140px);overflow:auto}
+ .studio-desk{background:#8e7762;border:0;border-radius:10px;padding:26px 14px 14px;box-shadow:4px 5px 0 var(--shadow),inset 0 0 0 1px #0002;overflow:visible}
+ .studio-desk .desk-clip{position:absolute;left:50%;transform:translateX(-50%);width:150px;z-index:3}
+ .desk-paper{background:var(--card);padding:22px 18px 16px;box-shadow:0 1px 3px #23181530}
  .studio-desk .desk-head .eyebrow{font-size:9px;letter-spacing:.2em}
  .studio-desk h1{font-size:28px;margin:4px 0 2px}
- .studio-desk .desk-head .sub{font-size:12px}
  .studio-board{top:56px;height:calc(100vh - 80px);margin:0}
  .studio-paper{padding-top:34px}
  .studio-desk #stage{display:none!important}
- .studio-desk .studio-player{padding-top:12px}
- .studio-desk .studio-player>.ctrl:first-of-type{margin-top:0!important}
  .studio-desk .studio-source{padding:12px 0}.studio-desk .studio-source>label{font-size:10px;letter-spacing:.18em;color:var(--muted);margin-bottom:8px}
  .studio-desk #sourceNote{font-size:11px;margin-top:8px}
  .studio-desk .studio-source .studio-settings{font-size:11.5px}
@@ -260,7 +227,6 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .studio-desk .desk-clip{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:110px;z-index:3}
  .desk-paper{background:var(--card);padding:26px 14px 14px}
  .menu-close{position:absolute;right:16px;top:38px;min-height:0;padding:4px 10px;z-index:4}
- .studio-desk h1{font-size:26px}
  body.menu-open .menu-back{display:block;position:fixed;inset:0;z-index:7;background:#23181550}
  .studio-board{margin:0 0 22px}
  .studio-paper{padding:22px 14px 24px 34px;background-image:linear-gradient(90deg,transparent 24px,#e4b9b5 24px,#e4b9b5 25px,transparent 25px),none}
@@ -272,17 +238,13 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .studio-paper .row[data-ll]:not([data-ll=""]):after,.studio-paper .row.loopPickA:after{left:-29px;font-size:11px}
  .mini-btns button.mini-loop,.mini-btns button.mini-menu{width:40px}
  .mini-btns .mini-loop.on{background:var(--blu);color:#fff;border-color:var(--blu);font-size:11px}
- .fab #goTop{display:none}
  .studio-top{margin-bottom:22px}
 }
-</style>
-<style>
 /* ===== v1.0 · turntable studio ===== */
 :root{--java:#4a2e27;--sred:#8f2a26;--dblue:#7b93b3;--tyel:#e9c04f;--soil:#6b5440}
 .pc-only{display:inline}.mobile-only.quick{display:none}
 .studio-paper .row .txt{font:16px/1.62 Georgia,'Noto Serif KR',serif}
 .studio-paper .row .tag{font:bold 13px 'Courier New',Courier,monospace}
-.studio-player{display:none!important}
 #studioSet>summary{display:none}
 .set-play .sliders .rg-row{display:none}
 .set-extra{display:flex!important}#toggleKoM{display:none}
@@ -298,9 +260,9 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 /* deck column */
 .deck-col{display:none}
 @media(min-width:960px){
- .studio-layout{grid-template-columns:340px minmax(0,1fr)!important;gap:40px!important}
+ .studio-layout{gap:40px!important}
  .deck-col>*{flex:none}
- .deck-col{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;scrollbar-width:thin;padding:2px 4px 14px 2px}
+ .deck-col{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;padding:2px 4px 14px 2px}
  .mobile-only{display:none!important}
  /* settings drawer */
  .studio-desk{position:fixed!important;z-index:30;right:40px;top:44px;bottom:24px;width:480px;max-height:none!important;transform:translateX(calc(100% + 60px));visibility:hidden;transition:transform .25s,visibility .25s;margin:0!important}
@@ -308,7 +270,6 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .studio-desk .desk-clip{top:-30px!important}
  .desk-paper{height:100%;max-height:none!important;box-sizing:border-box;overflow:auto}
  body.menu-open .menu-back{display:block;position:fixed;inset:0;z-index:29;background:#23181540}
- .fab{display:none}
 }
 @media(max-width:959px){
  .pc-only{display:none}
@@ -333,12 +294,9 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .rl-def b{font:italic 15px Georgia,serif;margin:1px 0 9px}
 .rl-def #rTitle{font:7.5px 'Noto Serif KR',serif;line-height:1.2;max-height:2.4em;overflow:hidden}
 .rl-def .rl-side{font:5px Arial;letter-spacing:.12em;color:#400c0f;margin-top:3px}
-.spindle{position:absolute;left:142px;top:146px;width:8px;height:8px;border-radius:50%;background:#d9d6cc;box-shadow:0 0 0 1px #7d7c74}
+.spindle{position:absolute;width:8px;height:8px;border-radius:50%;background:#d9d6cc;box-shadow:0 0 0 1px #7d7c74}
 .tonearm{position:absolute;inset:0;pointer-events:none}
 .tonearm .arm{transform-origin:300px 62px;transform-box:view-box;transition:transform .9s cubic-bezier(.4,.1,.2,1)}
-.deck-start{position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:7px;font:7.5px Arial;letter-spacing:.12em;color:#f2e6d4}
-.deck-start i{width:16px;height:16px;border-radius:50%;background:#e9e7df;box-shadow:inset 0 0 0 5px #e9e7df,inset 0 0 0 9px #7a5a1e;border:1px solid #3a2316}
-.deck-brand{position:absolute;right:14px;bottom:10px;font:italic 11px Georgia,serif;color:#f2e6d4cc}
 .np{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px;margin-top:2px}
 .np-l{font:10px Arial;letter-spacing:.12em;color:#8d8577}#npCount{font:12px Georgia,serif;color:var(--java)}
 .prog{position:relative;height:54px;margin:-4px 2px 0;cursor:pointer;touch-action:none;outline:none}
@@ -354,11 +312,11 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .panel hr{border:0;height:1px;background:#d6cbb8;box-shadow:0 1px 0 #fff;margin:18px 0}
 .p-top{display:flex;gap:16px;align-items:center}
 .keys{flex:1;display:flex;gap:6px;padding:6px;background:#ddd2bf;border-radius:10px;box-shadow:inset 0 2px 3px #0000001f}
-.key{flex:1;height:50px;min-height:0;padding:0;border:0;border-radius:7px;background:radial-gradient(ellipse at 50% 35%,#fbf7ef,#efe7d9 70%,#e3d8c6);box-shadow:inset 0 -2px 2px #0000000f,inset 0 1px 0 #fff,0 1px 1px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font:bold 13px Arial,sans-serif;color:var(--java);cursor:pointer}
+.key{flex:1;height:50px;min-height:0;padding:0;border:0;border-radius:7px;background:radial-gradient(ellipse at 50% 35%,#fbf7ef,#efe7d9 70%,#e3d8c6);box-shadow:inset 0 -2px 2px #0000000f,inset 0 1px 0 #fff,0 1px 1px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;font:bold 13px Arial,sans-serif;color:var(--java);cursor:pointer}
 .key:active,.rb:active{box-shadow:inset 0 2px 4px #0000002e}
 .key .led{width:6px;height:6px;border-radius:50%;background:transparent}
 .key .led.on{background:var(--tyel);box-shadow:0 0 5px var(--tyel)}
-.say-dot{color:var(--sred);font-size:15px}
+.say-dot{color:var(--sred)}
 #kSay.on .say-dot{text-shadow:0 0 8px #e0705f;animation:sayblink 1s infinite}
 @keyframes sayblink{50%{opacity:.4}}
 .knob-wrap{flex:none;width:96px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;min-height:0;cursor:pointer;box-shadow:none}
@@ -455,8 +413,6 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .mini .mini-btns .mini-loop.on{color:#fff!important;background:var(--dblue)!important;font-size:12px!important}
  .mini .mini-tip{color:#3a4a4a!important}
 }
-</style>
-<style>
 /* v1.0.1 */
 .studio-board>.brad{z-index:3}
 @media(min-width:960px){
@@ -474,15 +430,25 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .key #kPlayIc{font-size:15px;line-height:1;transition:color .2s,text-shadow .2s}
 #kPlay.on #kPlayIc{color:#c99a1e;text-shadow:0 0 6px #e9c04f,0 0 1px #c99a1e}
 .say-dot{font-size:14px;line-height:1}
-.deck-start,.deck-brand{display:none}
 .deck-logo{position:absolute;left:16px;bottom:13px;font:bold 10px Georgia,serif;letter-spacing:.24em;background:linear-gradient(180deg,#f6e2a8,#c9a050 45%,#8f6a26 55%,#e4c47c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 #2b1a1099)}
-.speed-knob{position:absolute;left:8px;top:6px;width:66px;height:64px;padding:0;min-height:0;border:0;background:none;box-shadow:none;cursor:pointer}
-.sk-l{position:absolute;font:bold 8px Arial;letter-spacing:.06em;background:linear-gradient(180deg,#f6e2a8,#c9a050 50%,#9a7430);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sk-off{left:0;top:14px}.sk-33{left:27px;top:1px}.sk-45{left:52px;top:14px}
-.sk-dial{position:absolute;left:17px;top:24px;width:32px;height:32px;border-radius:50%;background:conic-gradient(from 0deg,#f8f2e6,#d9ccb6,#f8f2e6,#d9ccb6,#f8f2e6);box-shadow:0 2px 4px #0006,inset 0 0 0 3px #efe7d9;transform:rotate(-55deg);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
-.sk-dial i{position:absolute;left:50%;top:3px;width:2px;height:8px;margin-left:-1px;background:#8f2a26;border-radius:1px}
-.speed-knob.on .sk-dial{transform:rotate(0deg)}
-.speed-knob:focus-visible{outline:2px solid #e9c04f;outline-offset:2px;border-radius:50%}
+</style>
+
+
+<style>
+/* v1.0.2 */
+.ico{display:block}
+.key{color:var(--java)}#kPlayIc{display:flex}
+.rl-def{justify-content:flex-start;padding-top:13px}
+.rl-def b{margin:1px 0 0;white-space:nowrap;font-size:14px}
+.rl-def #rTitle{margin-top:15px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #npCount{color:#e8dccb}:root:not([data-theme="light"]) .np-l{color:#b7aa99}}
+:root[data-theme="dark"] #npCount{color:#e8dccb}
+.mini .mini-btns button{display:flex!important;align-items:center;justify-content:center}
+</style><style>
+/* v1.0.2b */
+.deck-knob{position:absolute;left:18px;top:18px;width:32px;height:32px;border-radius:50%;background:conic-gradient(from 0deg,#f8f2e6,#d9ccb6,#f8f2e6,#d9ccb6,#f8f2e6);box-shadow:0 2px 4px #0006,inset 0 0 0 3px #efe7d9;transform:rotate(-30deg);pointer-events:none}
+.deck-knob i{position:absolute;left:50%;top:3px;width:2px;height:8px;margin-left:-1px;background:#6b5440;border-radius:1px}
+.deck-logo{left:14px;bottom:10px;font:bold 7.5px Georgia,serif;letter-spacing:.22em;background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#3e2617;filter:none;text-shadow:0 1px 0 #a3714d99,0 -1px 0 #1c0f0899}
 </style></head>
 <body>
 <main>
@@ -569,30 +535,18 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
       <div class="grp"><label><input type="checkbox" id="blank"> ✏️ 빈칸 모드</label><button id="reshuffle">빈칸 바꾸기</button><button id="reveal">정답 보기</button></div>
     </div>
     <div class="ctrl mobile-only set-extra"><button id="stopM">■ 처음으로</button><button id="toggleKoM">뜻 보기</button></div>
-    <p class="hint" style="margin-top:8px">💡 단어를 누르면 발음을 듣고, 단어장 단어(파란 밑줄)는 뜻을 바로 보여줘요. 없는 단어는 ‘단어 질문 복사’로 GPT에 물어봐. 멈춘 상태에서 줄을 누르면 그 줄만 한 번 읽어요.</p>
+    <p class="hint" style="margin-top:8px">💡 단어를 누르면 발음, 단어장 단어(파란 밑줄)는 뜻까지. 멈춘 상태에서 줄을 누르면 그 줄만 한 번 읽어.</p>
   </div>
-  <details class="card set-guide"><summary>사용 안내 · YouGlish · 말해보기</summary>
-    
-    <p class="hint" id="recNote">🎬 대사에서 2~4단어를 드래그하면 그 표현만 YouGlish(영국 발음 영상)에서 찾아요. 문장 전체는 결과가 거의 없어요.<br>🎙 말해보기(R 키)를 누르고 현재 대사를 말하면, 다 말하고 잠깐 멈출 때 알아들은 말과 일치율을 보여줘요. 처음 한 번은 마이크 허용을 물어봐요.<br>📒 점수는 이 기기에 남아요. 이 기기에서 홈(서재)을 한 번 열면 학습 기록에 합쳐지고, 서버 저장에 포함돼요. 녹음은 저장하지 않아요.</p>
+  <details class="card set-guide"><summary>사용 안내</summary>
+    <p class="hint">🎬 대사에서 2~4단어를 드래그하면 그 표현만 YouGlish(영국 발음 영상)에서 찾고, ⧉로 질문을 복사해.<br>● 말해보기(R 키): 지금 대사를 말하고 잠깐 멈추면 알아들은 말과 일치율을 보여줘. 처음 한 번은 마이크 허용을 물어봐.<br>📒 점수는 이 기기에 남고, 홈을 한 번 열면 학습 기록에 합쳐져. 녹음은 저장하지 않아.</p>
   </details>
     </div>
   </details>
-  <div class="card studio-player" id="studioPlayer">
-    <div id="stage"><div class="big" style="color:var(--muted);font-size:1.2rem">▶ 재생을 눌러 시작하세요</div></div>
-    <div class="ctrl" style="justify-content:center;margin-top:10px">
-      <button id="prev" title="이전 줄">⏮</button>
-      <button class="primary" id="play">▶ 재생</button>
-      <button id="next" title="다음 줄">⏭</button>
-      <button id="stop">■ 처음으로</button>
-      <button id="toggleKo">한글 뜻 숨기기</button>
-    </div>
-    <div class="ctrl recbar">
-      <button id="sayBtn" title="현재 대사를 소리 내어 말하면 알아듣고 채점해요 (R 키)">🎙 말해보기</button>
-    </div>
-    <div class="loopbar" id="loopBar"><button id="loopBtn" aria-pressed="false">🔁 구간</button><button id="loopOne">이 줄만</button><button id="loopAround">앞뒤 2줄</button><button id="loopClear" class="lb-x" aria-label="구간 해제" hidden>✕</button></div><p class="hint loophint" id="loopHint" hidden>구간 모드: 대본에서 시작 줄 → 끝 줄을 눌러.</p>
-    <div class="ygrow"><a id="ygLink" class="yg" target="_blank" rel="noopener" href="https://youglish.com">🎬 YouGlish 🇬🇧</a><button id="ygCopy" hidden>⧉ 선택한 말 질문 복사</button></div>
-    <div id="sayRes"></div>
-    <p class="hint" id="koNote" style="text-align:center"></p>
+  <div id="engine" hidden aria-hidden="true">
+    <div id="stage"></div>
+    <button id="prev"></button><button id="play">▶ 재생</button><button id="next"></button><button id="stop"></button><button id="toggleKo"></button><button id="sayBtn"></button>
+    <button id="loopBtn"></button><button id="loopOne"></button><button id="loopAround"></button><button id="loopClear"></button><p id="loopHint"></p>
+    <a id="ygLink" href="https://youglish.com"></a><button id="ygCopy" hidden></button><p id="koNote"></p>
   </div>
   </div></aside>
 <aside class="deck-col" id="deckCol" aria-label="턴테이블">
@@ -602,7 +556,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
      <circle cx="300" cy="62" r="21" fill="#2b1a10" fill-opacity=".35"/><rect x="294" y="22" width="12" height="22" rx="3" fill="#3a3733"/>
      <g id="armG" class="arm"><path d="M300 62 L297 168 L292 236 L300 267" fill="none" stroke="#2b1a1055" stroke-width="7" stroke-linecap="round" transform="translate(3 4)"/><path d="M300 62 L297 168 L292 236 L300 267" fill="none" stroke="url(#armg)" stroke-width="5" stroke-linecap="round"/><rect x="290" y="258" width="20" height="13" rx="2" fill="#d9d6cc" stroke="#5e5d57"/></g>
      <circle cx="300" cy="62" r="17" fill="url(#armg)" stroke="#7d7c74"/><circle cx="300" cy="62" r="6" fill="#5e5d57"/></svg>
-    <button class="speed-knob" id="speedKnob" title="재생 / 일시정지" aria-label="재생 / 일시정지"><span class="sk-l sk-off">OFF</span><span class="sk-l sk-33">33</span><span class="sk-l sk-45">45</span><span class="sk-dial" id="skDial"><i></i></span></button><span class="deck-logo">S&amp;G STUDIO</span>
+    <span class="deck-knob" aria-hidden="true"><i></i></span><span class="deck-logo">S&amp;G STUDIO</span>
    </div>
    <div class="np"><span class="np-l">NOW PLAYING</span><span id="npCount"></span></div>
    <div class="prog" id="prog" role="slider" aria-label="대사 위치" tabindex="0"><span class="prog-bubble" id="progBubble"></span><i class="prog-track"></i><i class="prog-fill" id="progFill"></i><i class="prog-loop" id="progLoop" hidden></i><span class="prog-ab" id="progA" hidden>A</span><span class="prog-ab" id="progB" hidden>B</span><span class="prog-knob" id="progKnob"></span></div>
@@ -621,16 +575,16 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
   </aside>
   <section class="studio-board" aria-label="대본"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i><div class="studio-paper" id="studioPaper">
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v1.0.1</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v1.0.2</p></div></section>
   </div>
 </main>
 
 <div class="mini" id="mini" role="region" aria-label="재생 바"><div class="lcd"><span class="lcd-art" id="lcdArt"><img id="lcdImg" alt="" hidden><b id="lcdEp"></b></span><button class="mini-now" id="miniNow" title="지금 대사로 이동"><span id="miniTxt"></span><span class="lcd-meta"><span id="miniWho"></span> · <span id="lcdMeta"></span></span></button><span class="lcd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div class="mini-prog" aria-hidden="true"><i id="miniBar"></i></div></div><div class="mini-btns"><button id="mLoop" class="mini-loop" aria-label="구간 반복">⟲</button><button id="mPrev" aria-label="이전 줄">⏮</button><button id="mPlay" class="mini-play" aria-label="재생">▶</button><button id="mNext" aria-label="다음 줄">⏭</button><button id="mSay" class="mini-say" aria-label="말해보기">●</button><button id="mMenu" class="mini-menu" aria-label="메뉴">≡</button></div><p class="mini-tip" id="mLoopTip" hidden></p></div>
 <div class="menu-back" id="menuBack"></div>
 
-<div class="fab"><button id="goTop" title="메뉴로">📋 메뉴</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
 
 <div class="selbar" id="selBar" hidden><a id="selYg" target="_blank" rel="noopener" href="#">🎬 실제 발음</a><button id="selCopy">⧉ 질문 복사</button></div>
+<div id="sayRes"></div>
 <div class="stoast" id="sToast" role="status"></div>
 <div class="crate" id="crate" hidden><div class="crate-box" role="dialog" aria-modal="true" aria-label="레코드 상자"><header><div><p>RECORDS · 레코드 상자</p><h2>Pick a record.</h2></div><button id="crateClose">✕ 닫기</button></header><div class="crate-bar"><div class="crate-tabs" id="crateTabs"></div><span class="sp"></span><button data-csort="num">번호순</button><button data-csort="recent">최근순</button></div><div class="crate-grid" id="crateGrid"></div><p class="crate-note">재킷을 누르면 턴테이블에 올라가. 라벨 이미지가 없는 판은 기본 재킷이야.</p></div></div>
 <div id="dict" aria-live="polite"><div class="inner" id="dictInner"></div></div>
@@ -862,8 +816,6 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     synth.speak(u);
   }
   function scrollCur(){ const r=list.querySelector('.row.cur'); if(r && r.scrollIntoView) r.scrollIntoView({block:'center',behavior:'smooth'}); }
-  $('goCur').onclick=scrollCur;
-  $('goTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 
   function playOnce(){ if(!lines.length) return; oneShot=true; token++; clearTimers(); synth&&synth.cancel(); playing=true; $('play').textContent='⏸ 일시정지'; const my=token; setTimeout(()=>playLine(my),60); }
   function start(){
@@ -966,7 +918,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') dict.classList.remove('open'); });
 
-  function setTitle(t){let el=$('title');if(!el){el=document.createElement('div');el.id='title';el.className='page-head';list.before(el);}const id=currentSource.startsWith('pack:')?currentSource.slice(5):'';el.innerHTML=`<div class="ph-top"><span>SAW &amp; GIN${id?' · '+esc(id.replace(/_/g,' ')):''}</span><span id="phCount"></span></div><div class="ph-title">${esc(t||'')}</div>`;}
+  function setTitle(t){let el=$('title');if(!el){el=document.createElement('div');el.id='title';el.className='page-head';list.before(el);}const id=currentSource.startsWith('pack:')?currentSource.slice(5):'';el.innerHTML=`<div class="ph-top"><span>SAW &amp; GIN${id?' · '+esc(epCode(id)?epCode(id).replace(/^(S\d+)_/,'$1 · ').replace(/_(\d+)$/,'-$1'):id.replace(/_/g,' ')):''}</span><span id="phCount"></span></div><div class="ph-title">${esc(t||'')}</div>`;}
   $('rate').oninput=e=>$('rateV').textContent=(+e.target.value).toFixed(2).replace(/0$/,'')+'×';
   $('gap').oninput=e=>$('gapV').textContent=(+e.target.value)+'초';
   document.addEventListener('keydown',e=>{if(/^(TEXTAREA|INPUT|SELECT)$/.test(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();$('play').click();}if(e.key==='ArrowRight')$('next').click();if(e.key==='ArrowLeft')$('prev').click();});
@@ -1064,7 +1016,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
 
   // v0.8: practice scores (numbers only, never audio) go to a device log that the main app merges and syncs.
   const STUDIO_LOG_KEY='sawgin-studio-log-v1';
-  function logPractice(text, score){try{const d=new Date(),date=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null;const log=store.get(STUDIO_LOG_KEY);const list=Array.isArray(log)?log:[];list.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),at:Date.now(),date,pack:p?currentSource.slice(5):'direct',packTitle:p?String(p.title||currentSource.slice(5)):'직접 입력한 문장',line:String(text).slice(0,300),score:Math.round(score)});store.set(STUDIO_LOG_KEY,list.slice(-1000));}catch(e){}}
+  function logPractice(text, score){rememberSay(text,score);try{const d=new Date(),date=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null;const log=store.get(STUDIO_LOG_KEY);const list=Array.isArray(log)?log:[];list.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),at:Date.now(),date,pack:p?currentSource.slice(5):'direct',packTitle:p?String(p.title||currentSource.slice(5)):'직접 입력한 문장',line:String(text).slice(0,300),score:Math.round(score)});store.set(STUDIO_LOG_KEY,list.slice(-1000));}catch(e){}}
   const LAB_KEY='sawgin-lab-v01';
   let currentSource='direct',catalog={};
   const storedSource=store.get('dkStudioSource');
@@ -1074,7 +1026,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     currentSource=value;txt.readOnly=!!p;$('apply').disabled=!!p;$('editBox').hidden=!!p;
     if(p){txt.value=ScriptPacks.toText(p.lines);setTitle(p.title);$('sourceNote').textContent='등록한 대사팩 · '+p.lines.length+'줄 · 수정·삭제와 클라우드 동기화는 Settings에서 해 줘.';}
     else{const draft=store.get('dkScript');txt.value=typeof draft==='string'?draft:SAMPLE;setTitle('직접 입력');if(!isPack)$('sourceNote').textContent='직접 입력 내용과 음성 설정은 이 기기에만 저장돼. 영어만 넣어도 재생할 수 있어.';}
-    store.set('dkStudioSource',currentSource);loadSources();loadLearning(isPack?value.slice(5):'');parse();$('loop').checked=false;loopPick=0;updLoopUI();renderSpeakers();renderList();$('loopA').value='0';$('loopB').value=String(Math.max(0,lines.length-1));showLine(0,-1);ensureKo();}
+    store.set('dkStudioSource',currentSource);loadSources();loadLearning(isPack?value.slice(5):'');parse();$('loop').checked=false;loopPick=0;updLoopUI();renderSpeakers();renderList();$('loopA').value='0';$('loopB').value=String(Math.max(0,lines.length-1));showLine(0,-1);ensureKo();afterSource(value);}
   $('studioSource').onchange=e=>loadSource(e.target.value);
   $('reloadPacks').onclick=()=>loadSource(currentSource);
   txt.addEventListener('input',()=>{if(currentSource==='direct')store.set('dkScript',txt.value);});
@@ -1084,6 +1036,11 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
 
   // ---------- v0.9.9 · learning-pack links, question copy, one-line play, loop picking ----------
   const CHECK_SVG='<svg class="core-check" width="26" height="23" viewBox="0 0 36 32" aria-label="학습 핵심 문장" role="img"><path d="M3 18 C6 16 9 17 11 20 L14 25 C19 15 26 7 34 2 C27 9 21 17 15 29 C13 31 11 31 10 29 C8 25 6 22 3 18 Z"/></svg>';
+  const ICO={prev:'<path d="M6 5h2.2v14H6zM19.5 5.2v13.6L9.4 12z"/>',next:'<path d="M15.8 5H18v14h-2.2zM4.5 5.2v13.6L14.6 12z"/>',play:'<path d="M7.5 4.6v14.8L19.6 12z"/>',pause:'<path d="M6.6 5h3.8v14H6.6zM13.6 5h3.8v14h-3.8z"/>',loop:'<path d="M16.5 3l3 3-3 3M5 11V9.5A3.5 3.5 0 0 1 8.5 6h11M7.5 21l-3-3 3-3M19 13v1.5a3.5 3.5 0 0 1-3.5 3.5h-11" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>'};
+  const ico=(n,sz)=>`<svg class="ico" width="${sz||18}" height="${sz||18}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ICO[n]}</svg>`;
+  function epCode(id){ const m=String(id||'').toUpperCase().match(/S\d+_EP\d+(?:_\d+)?/); return m?m[0]:''; }
+  function epPretty(code){ const m=String(code||'').match(/EP(\d+)(?:_(\d+))?/); return m?'EP'+m[1]+(m[2]?'-'+m[2]:''):code; }
+  let marksOn=store.get('dkMarks')!==false;
   let VOCAB=[], TERMS=[], CORE=[], oneShot=false, loopPick=0, pickA=0, lastSel='', lastSelRow=-1, selHide=null, toastT=null;
   const nk=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   const tokN=w=>core(String(w||'').replace(/[’‘]/g,"'")).toLowerCase();
@@ -1094,7 +1051,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     if(!packId) return;
     let raw=null; try{ raw=JSON.parse(localStorage.getItem(LAB_KEY)||'null'); }catch(e){}
     const packs=raw&&raw.packs; if(!packs) return;
-    const want=nk(packId), mine=p=>p&&Array.isArray(p.items)&&nk(p.episode||p.ep)===want;
+    const want=nk(epCode(packId)||packId), mine=p=>p&&Array.isArray(p.items)&&nk(p.episode||p.ep)===want;
     Object.values(packs.vocab||{}).filter(mine).forEach(p=>p.items.forEach(x=>{
       const vi=VOCAB.push(x)-1, terms=new Set();
       [x['정답'],x['기본형'],x['과거형'],x['과거분사'],x['발음 단어'],...String(x['허용 정답']||'').split('|')].forEach(t=>{ const toks=String(t||'').split(/\s+/).map(tokN).filter(Boolean); if(toks.length&&toks.join(' ').length>=2) terms.add(toks.join(' ')); });
@@ -1114,14 +1071,14 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     return /^(s|es|ed|d|ing|'s)$/.test(tok.slice(term.length));
   }
   function vocabMap(text){
-    const out={}; if(!TERMS.length) return out;
+    const out={}; if(!marksOn||!TERMS.length) return out;
     const toks=String(text).split(/\s+/).filter(Boolean).map(tokN);
     for(let k=0;k<toks.length;k++){ if(out[k]!=null) continue;
       for(const T of TERMS){ const n=T.toks.length; if(k+n>toks.length) continue;
         if(T.toks.every((t,j)=>tokHit(toks[k+j],t,j===n-1))){ for(let j=0;j<n;j++) out[k+j]=T.vi; break; } } }
     return out;
   }
-  function coreLine(text){ if(!CORE.length) return false; const n=' '+sentN(text)+' '; return CORE.some(c=>n.includes(' '+c+' ')); }
+  function coreLine(text){ if(!marksOn||!CORE.length) return false; const n=' '+sentN(text)+' '; return CORE.some(c=>n.includes(' '+c+' ')); }
 
   function epLabel(){ const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null; return p?(p.title||currentSource.slice(5)):'직접 입력한 문장'; }
   function qWord(word,sentence){ return `[S&G 영어 학습] 단어 질문\n에피소드: ${epLabel()}\n단어: ${word}\n문장: ${sentence}\n\n이 문장에서의 뜻, 영국식 발음(IPA), 품사, 비슷한 표현, 예문 2개를 알려줘.`; }
@@ -1171,7 +1128,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     $('loopClear').hidden=!(on||loopPick);
     $('loopHint').hidden=!loopPick; $('loopHint').textContent=loopPick===1?'대본에서 시작 줄을 눌러.':'이제 끝 줄을 눌러.';
     document.body.classList.toggle('loop-picking',!!loopPick);
-    const mb=$('mLoop'); if(mb){ mb.classList.toggle('on',!!loopPick||on); mb.textContent=loopPick?'A→B':'🔁'; }
+    const mb=$('mLoop'); if(mb){ mb.classList.toggle('on',!!loopPick||on); mb.innerHTML=loopPick?'<b style="font:bold 11px Arial">A→B</b>':ico('loop',18); }
     const ml=$('mLoopTip'); if(ml){ ml.hidden=!loopPick; ml.textContent=loopPick===1?'🔁 시작 줄을 눌러':'🔁 끝 줄을 눌러'; }
   }
   function startPick(){ if(loopPick){ loopPick=0; } else { loopPick=1; if(playing) pause(); } updLoopUI(); renderList(); closeMenu(); }
@@ -1204,25 +1161,20 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   const SET_KEY='sawgin-studio-settings-open';setBox.open=store.get(SET_KEY)===true;setBox.addEventListener('toggle',()=>store.set(SET_KEY,setBox.open));
   function updateSummary(){const sel=$('studioSource'),src=sel.selectedOptions[0]?sel.selectedOptions[0].text:'',mine=speakers.filter(s=>cfg[s]&&cfg[s].mute);
     $('setSummary').textContent=[src,(+$('rate').value).toFixed(2).replace(/0$/,'')+'×','쉼 '+$('gap').value+'초',mine.length?'내가 읽기: '+mine.join(', '):''].filter(Boolean).join(' · ');}
-  function updateMini(){const n=lines.length,l=lines[cur];$('miniWho').textContent=l?(l.who||'화자')+' · '+(cur+1)+'/'+n:'';$('miniTxt').textContent=l?l.text:'스크립트를 입력해 주세요';$('miniBar').style.width=n?((cur+1)/n*100)+'%':'0';$('mPlay').textContent=$('play').textContent;$('mSay').classList.toggle('on',listening);$('toggleKoM').textContent=$('toggleKo').textContent;}
+  function updateMini(){const n=lines.length,l=lines[cur];$('miniWho').textContent=l?(l.who||'화자')+' · '+(cur+1)+'/'+n:'';$('miniTxt').textContent=l?l.text:'스크립트를 입력해 주세요';$('miniBar').style.width=n?((cur+1)/n*100)+'%':'0';$('mSay').classList.toggle('on',listening);$('toggleKoM').textContent=$('toggleKo').textContent;}
   new MutationObserver(updateMini).observe(stage,{childList:true});
   new MutationObserver(updateMini).observe($('play'),{childList:true,characterData:true,subtree:true});
   new MutationObserver(updateMini).observe($('sayBtn'),{childList:true,characterData:true,subtree:true,attributes:true});
   $('mPrev').onclick=()=>$('prev').click();$('mNext').onclick=()=>$('next').click();$('mPlay').onclick=()=>$('play').click();$('mSay').onclick=()=>$('sayBtn').click();
   $('stopM').onclick=()=>$('stop').click();$('toggleKoM').onclick=()=>{$('toggleKo').click();updateMini();};
-  $('miniNow').onclick=scrollCur;$('goTop').onclick=toggleMenu;$('mMenu').onclick=toggleMenu;$('mLoop').onclick=startPick;
+  $('miniNow').onclick=scrollCur;$('mMenu').onclick=toggleMenu;
   document.addEventListener('change',()=>setTimeout(updateSummary));document.addEventListener('input',e=>{if(e.target.type==='range')updateSummary();});
 
   // ---------- v1.0 · turntable studio ----------
-  const epCode=id=>{ const m=String(id||'').toUpperCase().match(/S\d+_EP\d+(?:_\d+)?/); return m?m[0]:''; };
-  const epPretty=code=>{ const m=code.match(/EP(\d+)(?:_(\d+))?/); return m?'EP'+m[1]+(m[2]?'-'+m[2]:''):code; };
   const recSrc=code=>code?'records/'+code+'.webp':'';
   const SLEEVE_COLORS=['#774223','#ABBBC3','#56431F','#400C0F','#C2B087','#6b5440','#8e7762','#D8D8B4'];
   const sleeveColor=id=>{ let h=0; for(const ch of String(id)) h=(h*31+ch.charCodeAt(0))>>>0; return SLEEVE_COLORS[h%SLEEVE_COLORS.length]; };
-  let marksOn=store.get('dkMarks')!==false;
-  { const _vm=vocabMap, _cl=coreLine; vocabMap=t=>marksOn?_vm(t):{}; coreLine=t=>marksOn&&_cl(t); }
   $('marks').checked=marksOn; $('marks').onchange=e=>{ marksOn=e.target.checked; store.set('dkMarks',marksOn); renderList(); };
-  { const _ll=loadLearning; loadLearning=id=>_ll(id?(epCode(id)||id):''); }
   // rate / gap persistence + gap step for 0.3
   $('gap').step='0.05';
   { const r=store.get('dkRate'), g=store.get('dkGap'); if(r!=null){ $('rate').value=r; $('rate').oninput({target:$('rate')}); } if(g!=null){ $('gap').value=g; $('gap').oninput({target:$('gap')}); } }
@@ -1285,7 +1237,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   $('koSeg').addEventListener('click',e=>{ const b=e.target.closest('[data-km]'); if(!b) return; let guard=0; while(koMode!==b.dataset.km&&guard++<4) $('toggleKo').click(); renderKo(); });
   // last say
   let lastSay=store.get('dkLastSay')||null;
-  { const _lp=logPractice; logPractice=function(text,score){ try{ const i=lines.findIndex(l=>l.text===text); lastSay={pct:Math.round(score),text,who:i>=0?(lines[i].who||''):'',line:i,src:currentSource}; store.set('dkLastSay',lastSay); renderLastSay(); }catch(e){} return _lp.apply(this,arguments); }; }
+  function rememberSay(text,score){ try{ const i=lines.findIndex(l=>l.text===text); lastSay={pct:Math.round(score),text,who:i>=0?(lines[i].who||''):'',line:i,src:currentSource}; store.set('dkLastSay',lastSay); renderLastSay(); }catch(e){} }
   function renderLastSay(){
     document.querySelectorAll('[data-lastsay]').forEach(box=>{
       if(!lastSay){ box.innerHTML='<span class="ls-empty">● 말해보기를 하면 여기에 점수가 남아.</span>'; return; }
@@ -1301,7 +1253,6 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   $('kOne').onclick=()=>$('loopOne').click(); $('kAround').onclick=()=>$('loopAround').click();
   $('qOne').onclick=()=>$('loopOne').click(); $('qAround').onclick=()=>$('loopAround').click(); $('qClear').onclick=()=>{ clearLoop(); closeMenu(); };
   $('kAsk').onclick=()=>$('ygCopy').click();
-  $('speedKnob').onclick=()=>$('play').click();
   $('openSet').onclick=()=>{ document.body.classList.add('menu-open'); };
   // progress bar
   let dragI=null;
@@ -1316,16 +1267,16 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const n=lines.length, i=dragI!=null?dragI:cur, f=n>1?i/(n-1):0, l=lines[i];
     $('npCount').textContent=n?(i+1)+' / '+n:'';
     $('progFill').style.width=(f*100)+'%'; $('progKnob').style.left=(f*100)+'%';
-    const b=$('progBubble'); b.textContent=l?'L'+(i+1)+' · '+(l.who||'화자'):''; b.style.left=Math.max(6,Math.min(94,f*100))+'%'; b.hidden=!l;
+    const b=$('progBubble'); b.textContent=l?'L'+(i+1)+' · '+(l.who||'화자'):''; b.hidden=!l; { const W=$('prog').clientWidth||1, bw=b.offsetWidth||60; b.style.left=Math.max(bw/2,Math.min(W-bw/2,f*W))+'px'; }
     const lo=loopOn()&&n>1; ['progLoop','progA','progB'].forEach(k=>$(k).hidden=!lo);
     if(lo){ const a=loopA()/(n-1)*100, z=loopB()/(n-1)*100; Object.assign($('progLoop').style,{left:a+'%',width:Math.max(1.2,z-a)+'%'}); $('progA').style.left=a+'%'; $('progB').style.left=z+'%'; }
     $('armG').style.transform=`rotate(${playing?27+20*(n>1?cur/(n-1):0):0}deg)`;
     $('record').classList.toggle('spin',playing); document.body.classList.toggle('is-playing',playing);
-    $('kLed').classList.toggle('on',playing); $('kPlay').classList.toggle('on',playing); $('speedKnob').classList.toggle('on',playing); $('kPlayIc').textContent=playing?'❙❙':'▶'; $('kPlay').setAttribute('aria-label',playing?'일시정지':'재생');
+    $('kLed').classList.toggle('on',playing); $('kPlay').classList.toggle('on',playing); { const st=playing?'pause':'play'; if($('kPlayIc').dataset.st!==st){ $('kPlayIc').dataset.st=st; $('kPlayIc').innerHTML=ico(st,17); } } $('kPlay').setAttribute('aria-label',playing?'일시정지':'재생');
     $('kSay').classList.toggle('on',listening); $('mSay').classList.toggle('on',listening);
     $('kLoop').classList.toggle('on',loopOn()); $('kLoop').classList.toggle('pick',!!loopPick);
     $('kAsk').disabled=$('ygCopy').hidden; $('kYg').href=$('ygLink').href;
-    const mp=$('mPlay'), sym=playing?'❙❙':'▶'; if(mp.textContent!==sym) mp.textContent=sym; mp.setAttribute('aria-label',playing?'일시정지':'재생');
+    const mp=$('mPlay'), sym=playing?'pause':'play'; if(mp.dataset.st!==sym){ mp.dataset.st=sym; mp.innerHTML=ico(sym,22); } mp.setAttribute('aria-label',playing?'일시정지':'재생');
     $('lcdMeta').textContent=[currentSource.startsWith('pack:')?epPretty(epCode(currentSource.slice(5)))||'':'직접 입력',(+$('rate').value).toFixed(2).replace(/0$/,'')+'×'].filter(Boolean).join(' · ');
   }
   function updateLabel(){
@@ -1341,8 +1292,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   // observers
   const deckObs=new MutationObserver(()=>updateDeck());
   deckObs.observe(stage,{childList:true}); deckObs.observe($('play'),{childList:true,characterData:true,subtree:true}); deckObs.observe($('sayBtn'),{childList:true,characterData:true,subtree:true,attributes:true}); deckObs.observe($('ygCopy'),{attributes:true}); deckObs.observe($('ygLink'),{attributes:true}); deckObs.observe(list,{childList:true});
-  $('mPlay').textContent='▶';
-  { const _ls=loadSource; loadSource=function(v,startup){ const r=_ls.apply(this,arguments); if(String(v).startsWith('pack:')) pushRecent(v.slice(5)); renderRecords(); updateLabel(); updateDeck(); return r; }; }
+  $('mPrev').innerHTML=ico('prev',18); $('mNext').innerHTML=ico('next',18); $('mLoop').innerHTML=ico('loop',18); $('kPrev').innerHTML=ico('prev',16); $('kNext').innerHTML=ico('next',16);
+  function afterSource(v){ if(String(v).startsWith('pack:')) pushRecent(v.slice(5)); renderRecords(); updateLabel(); updateDeck(); }
   setBox.open=true;
   renderSnaps(); renderKo(); renderLastSay(); placeSay();
   loadSources();loadSource(typeof storedSource==='string'?storedSource:'direct',true);
