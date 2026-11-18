@@ -456,7 +456,34 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .mini .mini-tip{color:#3a4a4a!important}
 }
 </style>
-</head>
+<style>
+/* v1.0.1 */
+.studio-board>.brad{z-index:3}
+@media(min-width:960px){
+ .studio-board{position:sticky}
+ .studio-paper{background-size:0 0,auto}
+ .studio-board::after{content:'';position:absolute;left:45px;top:1px;bottom:1px;width:1px;background:#e4b9b5;z-index:2;pointer-events:none}
+ .studio-layout{grid-template-columns:358px minmax(0,1fr)!important}
+ .deck-col{padding-right:16px;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#ddd2bf transparent}
+ .deck-col:hover{scrollbar-color:#b9a98f transparent}
+ .deck-col::-webkit-scrollbar{width:6px}.deck-col::-webkit-scrollbar-thumb{background:#ddd2bf;border-radius:3px}.deck-col:hover::-webkit-scrollbar-thumb{background:#b9a98f}.deck-col::-webkit-scrollbar-track{background:transparent}
+}
+.rl-def[hidden]{display:none!important}
+.spindle{left:121px;top:121px;z-index:2}
+.key{gap:0}.key .led{display:none}
+.key #kPlayIc{font-size:15px;line-height:1;transition:color .2s,text-shadow .2s}
+#kPlay.on #kPlayIc{color:#c99a1e;text-shadow:0 0 6px #e9c04f,0 0 1px #c99a1e}
+.say-dot{font-size:14px;line-height:1}
+.deck-start,.deck-brand{display:none}
+.deck-logo{position:absolute;left:16px;bottom:13px;font:bold 10px Georgia,serif;letter-spacing:.24em;background:linear-gradient(180deg,#f6e2a8,#c9a050 45%,#8f6a26 55%,#e4c47c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 #2b1a1099)}
+.speed-knob{position:absolute;left:8px;top:6px;width:66px;height:64px;padding:0;min-height:0;border:0;background:none;box-shadow:none;cursor:pointer}
+.sk-l{position:absolute;font:bold 8px Arial;letter-spacing:.06em;background:linear-gradient(180deg,#f6e2a8,#c9a050 50%,#9a7430);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sk-off{left:0;top:14px}.sk-33{left:27px;top:1px}.sk-45{left:52px;top:14px}
+.sk-dial{position:absolute;left:17px;top:24px;width:32px;height:32px;border-radius:50%;background:conic-gradient(from 0deg,#f8f2e6,#d9ccb6,#f8f2e6,#d9ccb6,#f8f2e6);box-shadow:0 2px 4px #0006,inset 0 0 0 3px #efe7d9;transform:rotate(-55deg);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+.sk-dial i{position:absolute;left:50%;top:3px;width:2px;height:8px;margin-left:-1px;background:#8f2a26;border-radius:1px}
+.speed-knob.on .sk-dial{transform:rotate(0deg)}
+.speed-knob:focus-visible{outline:2px solid #e9c04f;outline-offset:2px;border-radius:50%}
+</style></head>
 <body>
 <main>
   <header class="studio-top"><a class="studio-logo" href="./">S&amp;G <span>/ ENGLISH LAB</span></a><nav class="studio-nav-bar" aria-label="상단 메뉴"><a href="./">HOME</a><a href="./?studio=review">ARCHIVE</a><a href="./?studio=records">RECORDS</a><a href="./?studio=settings">SETTINGS</a><a href="./?studio=settings" title="학습 기록 서버 저장은 Settings에서 실행">저장</a></nav></header>
@@ -575,7 +602,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
      <circle cx="300" cy="62" r="21" fill="#2b1a10" fill-opacity=".35"/><rect x="294" y="22" width="12" height="22" rx="3" fill="#3a3733"/>
      <g id="armG" class="arm"><path d="M300 62 L297 168 L292 236 L300 267" fill="none" stroke="#2b1a1055" stroke-width="7" stroke-linecap="round" transform="translate(3 4)"/><path d="M300 62 L297 168 L292 236 L300 267" fill="none" stroke="url(#armg)" stroke-width="5" stroke-linecap="round"/><rect x="290" y="258" width="20" height="13" rx="2" fill="#d9d6cc" stroke="#5e5d57"/></g>
      <circle cx="300" cy="62" r="17" fill="url(#armg)" stroke="#7d7c74"/><circle cx="300" cy="62" r="6" fill="#5e5d57"/></svg>
-    <span class="deck-start"><i></i>START</span><span class="deck-brand">Saw &amp; Gin · Hi-Fi</span>
+    <button class="speed-knob" id="speedKnob" title="재생 / 일시정지" aria-label="재생 / 일시정지"><span class="sk-l sk-off">OFF</span><span class="sk-l sk-33">33</span><span class="sk-l sk-45">45</span><span class="sk-dial" id="skDial"><i></i></span></button><span class="deck-logo">S&amp;G STUDIO</span>
    </div>
    <div class="np"><span class="np-l">NOW PLAYING</span><span id="npCount"></span></div>
    <div class="prog" id="prog" role="slider" aria-label="대사 위치" tabindex="0"><span class="prog-bubble" id="progBubble"></span><i class="prog-track"></i><i class="prog-fill" id="progFill"></i><i class="prog-loop" id="progLoop" hidden></i><span class="prog-ab" id="progA" hidden>A</span><span class="prog-ab" id="progB" hidden>B</span><span class="prog-knob" id="progKnob"></span></div>
@@ -590,11 +617,11 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
     <div class="lastsay" data-lastsay></div>
    </div>
    <div class="say-slot" id="saySlot"></div>
-   <div class="records"><span class="rec-v">RECORDS</span><div class="rec-row" data-recrow></div><div class="rec-side"><button class="rec-all" data-crate>판 전체 ›</button><button class="rec-set" id="openSet">📋 Settings</button></div></div>
+   <div class="records"><span class="rec-v">RECORDS</span><div class="rec-row" data-recrow></div><div class="rec-side"><button class="rec-all" data-crate>판 전체 ›</button><button class="rec-set" id="openSet">Settings</button></div></div>
   </aside>
-  <section class="studio-board" aria-label="대본"><div class="studio-paper" id="studioPaper"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i>
+  <section class="studio-board" aria-label="대본"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i><div class="studio-paper" id="studioPaper">
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v1.0</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v1.0.1</p></div></section>
   </div>
 </main>
 
@@ -1274,6 +1301,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   $('kOne').onclick=()=>$('loopOne').click(); $('kAround').onclick=()=>$('loopAround').click();
   $('qOne').onclick=()=>$('loopOne').click(); $('qAround').onclick=()=>$('loopAround').click(); $('qClear').onclick=()=>{ clearLoop(); closeMenu(); };
   $('kAsk').onclick=()=>$('ygCopy').click();
+  $('speedKnob').onclick=()=>$('play').click();
   $('openSet').onclick=()=>{ document.body.classList.add('menu-open'); };
   // progress bar
   let dragI=null;
@@ -1293,7 +1321,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     if(lo){ const a=loopA()/(n-1)*100, z=loopB()/(n-1)*100; Object.assign($('progLoop').style,{left:a+'%',width:Math.max(1.2,z-a)+'%'}); $('progA').style.left=a+'%'; $('progB').style.left=z+'%'; }
     $('armG').style.transform=`rotate(${playing?27+20*(n>1?cur/(n-1):0):0}deg)`;
     $('record').classList.toggle('spin',playing); document.body.classList.toggle('is-playing',playing);
-    $('kLed').classList.toggle('on',playing); $('kPlayIc').textContent=playing?'❙❙':'▶'; $('kPlay').setAttribute('aria-label',playing?'일시정지':'재생');
+    $('kLed').classList.toggle('on',playing); $('kPlay').classList.toggle('on',playing); $('speedKnob').classList.toggle('on',playing); $('kPlayIc').textContent=playing?'❙❙':'▶'; $('kPlay').setAttribute('aria-label',playing?'일시정지':'재생');
     $('kSay').classList.toggle('on',listening); $('mSay').classList.toggle('on',listening);
     $('kLoop').classList.toggle('on',loopOn()); $('kLoop').classList.toggle('pick',!!loopPick);
     $('kAsk').disabled=$('ygCopy').hidden; $('kYg').href=$('ygLink').href;
