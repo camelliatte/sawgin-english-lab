@@ -177,67 +177,111 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
  .studio-desk #stage .next{margin-top:12px;font-size:.92rem}
  .fab{display:none}
 }
-</style></head>
+</style><style>
+/* v0.9.9 · design C: clipboard menu + typewriter script */
+:root{--blu:#3f6aa8;--navy:#2c3a5a;--band:#f2d35c3a;--typ:'Courier New',Courier,monospace}
+:root[data-theme="dark"]{--blu:#8fb0dd;--navy:#b9c8e6;--band:#f2d35c22}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--blu:#8fb0dd;--navy:#b9c8e6;--band:#f2d35c22}}
+/* script paper */
+.studio-board{background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 28px}
+.studio-board:before{content:'';position:absolute;left:3%;right:2%;top:10px;bottom:-8px;background:var(--soft);box-shadow:2px 2px 0 #0001;z-index:-1}
+.studio-paper{background-color:var(--card);background-image:linear-gradient(90deg,transparent 44px,#e4b9b5 44px,#e4b9b5 45px,transparent 45px),url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%27.9%27%20numOctaves%3D%272%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20values%3D%270%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200%200%20%200%200%200%20.08%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27160%27%20height%3D%27160%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E");background-attachment:local;padding:30px 34px 30px 64px;border:1px solid var(--line);box-shadow:3px 4px 0 var(--shadow)}
+.brad{position:absolute;left:14px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f1d79b,#b8913e 55%,#7a5a1e);box-shadow:0 1px 1px #0005;z-index:1}.brad.b1{top:40px}.brad.b2{top:50%}.brad.b3{bottom:40px}
+.page-head{font:12px var(--typ);color:var(--muted);margin:0 0 6px}.page-head .ph-top{display:flex;justify-content:space-between;gap:12px}.page-head .ph-title{text-align:right;margin-top:3px}
+.studio-paper>#list{background:transparent;border:0;box-shadow:none;padding:0;margin:8px 0 0}
+.studio-paper .row{display:block;position:relative;padding:14px 0 9px;border:0;border-radius:0;background:transparent;box-shadow:none}
+.studio-paper .row:hover{background:linear-gradient(90deg,transparent,var(--soft) 20%,var(--soft) 80%,transparent)}
+.studio-paper .row .tag{display:block;min-width:0;text-align:center;font:bold 13px var(--typ);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.studio-paper .row .tag .bs{font:10px var(--sans);letter-spacing:0;text-transform:none;color:var(--muted);font-weight:normal}
+.studio-paper .row .txt{display:block;margin:3px 18% 0;font:15px/1.6 var(--typ);color:var(--ink);overflow-wrap:anywhere}
+.studio-paper .row .ko{display:block;margin-top:4px;font:italic 13px/1.5 var(--serif);color:#6a7f9c}
+.studio-paper .row .kt{font-style:normal}
+.studio-paper .row.cur{background:linear-gradient(90deg,transparent,var(--band) 20%,var(--band) 80%,transparent);box-shadow:none}
+.studio-paper .row.cur .tag{color:var(--blu)}
+.studio-paper .row.muted .txt{font-style:italic;color:var(--muted)}
+.k.vv{text-decoration:underline;text-decoration-color:var(--blu);text-decoration-thickness:1.5px;text-underline-offset:3px}
+#stage .k.vv{text-decoration-thickness:2px;text-underline-offset:5px}
+.core-check{position:absolute;left:calc(18% - 32px);top:38px;transform:rotate(-6deg);fill:var(--navy);pointer-events:none}
+.qcopy{position:absolute;right:-6px;top:16px;min-height:0;padding:3px 6px;border:0;background:transparent;box-shadow:none;color:var(--muted);font:12px var(--sans);opacity:.55;cursor:pointer}
+.qcopy:hover,.qcopy:focus-visible{opacity:1;color:var(--blu);background:transparent}
+/* loop bracket */
+.studio-paper .row.inLoop{box-shadow:none}
+.studio-paper .row.inLoop:before{content:'';position:absolute;left:calc(18% - 54px);top:0;bottom:0;border-left:2.2px solid var(--blu);opacity:.85;pointer-events:none}
+.studio-paper .row.loopStart:before{top:16px;border-top:2.2px solid var(--blu);border-top-left-radius:12px;width:10px}
+.studio-paper .row.loopEnd:before{bottom:10px;border-bottom:2.2px solid var(--blu);border-bottom-left-radius:12px;width:10px}
+.studio-paper .row.loopStart.loopEnd:before{border-radius:12px 0 0 12px}
+.studio-paper .row[data-ll]:not([data-ll=""]):after{content:attr(data-ll);position:absolute;left:calc(18% - 76px);top:8px;font:italic 13px Georgia,serif;color:var(--blu)}
+.studio-paper .row.loopEnd:not(.loopStart):after{top:auto;bottom:2px}
+.studio-paper .row.loopPickA{background:repeating-linear-gradient(90deg,transparent 0 6px,#3f6aa814 6px 12px)}
+.studio-paper .row.loopPickA:after{content:'A';position:absolute;left:calc(18% - 76px);top:8px;font:italic 13px Georgia,serif;color:var(--blu)}
+body.loop-picking .studio-paper .row{cursor:crosshair}
+body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px}
+.loopbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.loopbar button{font-size:12px;padding:6px 10px}
+#loopBtn[aria-pressed="true"]{background:var(--blu);border-color:var(--blu);color:#fff}
+.loopbar .lb-x{padding:6px 9px}
+.loophint{margin:6px 0 0;color:var(--blu)}
+.ygrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px}.ygrow button{font-size:12px;padding:6px 10px}
+/* clipboard menu */
+.studio-desk{position:relative}
+.desk-clip{display:block}
+.legend{margin:10px 0 0;padding:8px 10px;background:var(--soft);font:11.5px/1.6 var(--serif);color:var(--muted)}
+.legend .lg-u{color:var(--blu);text-decoration:underline;text-underline-offset:3px}.legend .lg-c{color:var(--navy)}.legend .lg-q{color:var(--blu)}
+#dict .vtag{font:10px var(--sans);letter-spacing:.1em;color:#fff;background:var(--blu);padding:3px 7px;border-radius:2px;align-self:center}
+#dict .vex{margin:6px 0;line-height:1.6}
+/* selection strip + toast */
+.selbar{position:fixed;z-index:6;left:12px;right:12px;bottom:calc(var(--miniH,130px) + 10px);display:flex;gap:8px;align-items:center;justify-content:center;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:22px;box-shadow:0 6px 18px #23181540}
+.selbar[hidden]{display:none}.selbar a{color:var(--bg);text-decoration:none;font:13px var(--sans);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.selbar button{min-height:0;padding:6px 11px;font-size:12px;border-radius:16px;background:var(--bg);color:var(--ink);border:0}
+.stoast{position:fixed;z-index:9;left:50%;top:18px;transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font:13px var(--sans);padding:9px 14px;border-radius:3px;transition:.2s}.stoast.show{opacity:1;transform:translate(-50%,0)}
+.menu-back{display:none}
+.mini-tip{margin:8px 0 0;font:12px var(--sans);color:#f5efc6;text-align:center}.mini-tip[hidden]{display:none}
+@media(min-width:960px){
+ .studio-layout{grid-template-columns:340px minmax(0,1fr);gap:40px}
+ .studio-desk{background:#8e7762;border:0;border-radius:10px;padding:26px 14px 14px;box-shadow:4px 5px 0 var(--shadow),inset 0 0 0 1px #0002;overflow:visible;max-height:none;top:56px}
+ .studio-desk .desk-clip{position:absolute;left:50%;top:-44px;transform:translateX(-50%);width:150px;z-index:3}
+ .desk-paper{background:var(--card);padding:22px 18px 16px;box-shadow:0 1px 3px #23181530;max-height:calc(100vh - 140px);overflow:auto}
+ .studio-desk .desk-head .eyebrow{font-size:9px;letter-spacing:.2em}
+ .studio-desk h1{font-size:28px;margin:4px 0 2px}
+ .studio-desk .desk-head .sub{font-size:12px}
+ .studio-board{top:56px;height:calc(100vh - 80px);margin:0}
+ .studio-paper{padding-top:34px}
+ .studio-desk #stage{display:none!important}
+ .studio-desk .studio-player{padding-top:12px}
+ .studio-desk .studio-player>.ctrl:first-of-type{margin-top:0!important}
+ .studio-desk .studio-source{padding:12px 0}.studio-desk .studio-source>label{font-size:10px;letter-spacing:.18em;color:var(--muted);margin-bottom:8px}
+ .studio-desk #sourceNote{font-size:11px;margin-top:8px}
+ .studio-desk .studio-source .studio-settings{font-size:11.5px}
+ .studio-desk .studio-source .ctrl{flex-wrap:wrap}.studio-desk .studio-source select{flex:1 1 100%;width:100%}
+ .selbar{display:none!important}
+}
+@media(max-width:959px){
+ .studio-layout{display:block}
+ .studio-desk{position:fixed;z-index:8;left:0;right:0;bottom:0;max-height:86vh;overflow:auto;background:#8e7762;padding:30px 10px calc(10px + env(safe-area-inset-bottom));border-radius:12px 12px 0 0;box-shadow:0 -10px 30px #23181555;transform:translateY(105%);transition:transform .25s;visibility:hidden}
+ body.menu-open .studio-desk{transform:none;visibility:visible}
+ .studio-desk .desk-clip{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:110px;z-index:3}
+ .desk-paper{background:var(--card);padding:26px 14px 14px}
+ .menu-close{position:absolute;right:16px;top:38px;min-height:0;padding:4px 10px;z-index:4}
+ .studio-desk h1{font-size:26px}
+ body.menu-open .menu-back{display:block;position:fixed;inset:0;z-index:7;background:#23181550}
+ .studio-board{margin:0 0 22px}
+ .studio-paper{padding:22px 14px 24px 34px;background-image:linear-gradient(90deg,transparent 24px,#e4b9b5 24px,#e4b9b5 25px,transparent 25px),none}
+ .brad{left:6px;width:11px;height:11px}
+ .studio-paper .row .txt{margin:3px 4% 0 6%}
+ .core-check{left:-8px;top:36px;width:20px;height:18px}
+ .qcopy{right:-10px}
+ .studio-paper .row.inLoop:before{left:-14px}
+ .studio-paper .row[data-ll]:not([data-ll=""]):after,.studio-paper .row.loopPickA:after{left:-29px;font-size:11px}
+ .mini-btns button.mini-loop,.mini-btns button.mini-menu{width:40px}
+ .mini-btns .mini-loop.on{background:var(--blu);color:#fff;border-color:var(--blu);font-size:11px}
+ .fab #goTop{display:none}
+ .studio-top{margin-bottom:22px}
+}
+</style>
+</head>
 <body>
 <main>
-  <header class="studio-top"><a class="studio-logo" href="./">S&amp;G <span>/ ENGLISH LAB</span></a><nav class="studio-nav-bar" aria-label="상단 메뉴"><a href="./">HOME</a><a href="./?studio=review">REVIEW</a><a href="./?studio=records">RECORDS</a><a href="./?studio=settings">SETTINGS</a><a href="./?studio=settings" title="학습 기록 서버 저장은 Settings에서 실행">저장</a></nav></header>
+  <header class="studio-top"><a class="studio-logo" href="./">S&amp;G <span>/ ENGLISH LAB</span></a><nav class="studio-nav-bar" aria-label="상단 메뉴"><a href="./">HOME</a><a href="./?studio=review">ARCHIVE</a><a href="./?studio=records">RECORDS</a><a href="./?studio=settings">SETTINGS</a><a href="./?studio=settings" title="학습 기록 서버 저장은 Settings에서 실행">저장</a></nav></header>
   <div class="studio-layout">
-  <aside class="studio-desk" id="studioDesk" aria-label="연습 조작">
-  <div class="desk-head">
-  <p class="eyebrow">S&amp;G · English Lab — Script Studio</p>
-  <h1>Script Studio.</h1>
-  <p class="sub">대사를 듣고, 따라 말하고, 문장을 몸에 붙여 봐. 줄을 누르면 거기서부터 시작해.</p>
-  </div>
-  <details class="studio-set" id="studioSet">
-    <summary><span class="set-sum" id="setSummary"></span><span class="set-btn">⚙ 설정</span></summary>
-    <div class="set-body">
-  <section class="card studio-source"><label for="studioSource">연습 자료</label><div class="ctrl"><select id="studioSource" aria-label="연습 자료"><option value="direct">직접 입력한 문장</option></select><button id="reloadPacks">목록 새로고침</button><a class="studio-settings" href="./?studio=settings">Settings · 대사팩 관리 →</a></div><p class="hint" id="sourceNote"></p></section>
-  <details class="card" id="editBox">
-    <summary>Script · 스크립트 입력 / 수정</summary>
-    <textarea id="script"></textarea>
-    <p class="hint">한 줄에 한 대사씩, <b>이름: 대사</b> 형식으로 써주세요. (예: <code>Emma: Hello!</code>) 이름이 없는 줄은 앞 사람 대사에 이어붙여요. 영어만 넣어도 돼요. 번역을 함께 보려면 대사 아랫줄에 <b>번역: 한국어 뜻</b> 또는 <b>직역: 한국어 뜻</b>을 적어주세요. AI 자동 번역은 사용하지 않아요.</p>
-    <div class="ctrl" style="margin-top:10px"><button class="primary" id="apply">적용</button></div>
-  </details>
-  <div class="card">
-    <div class="speakers" id="speakers"></div>
-    <p class="hint" id="voiceNote"></p>
-  </div>
-  <div class="card set-play">
-    <div class="sliders">
-      <div>속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
-      <div>줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
-      <div><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="shadow"> 따라 말하기 (줄마다 대사 길이만큼 멈춤)</label></div>
-    </div>
-    <div class="tools">
-      <div class="grp"><label><input type="checkbox" id="loop"> 🔁 구간 반복</label><select id="loopA"></select>~<select id="loopB"></select></div>
-      <div class="grp"><label><input type="checkbox" id="blank"> ✏️ 빈칸 모드</label><button id="reshuffle">빈칸 바꾸기</button><button id="reveal">정답 보기</button></div>
-    </div>
-    <div class="ctrl mobile-only set-extra"><button id="stopM">■ 처음으로</button><button id="toggleKoM">뜻 보기</button></div>
-    <p class="hint" style="margin-top:8px">💡 단어를 누르면 발음을 듣고, 저장된 설명이 있으면 볼 수 있어요. 빈칸 모드에선 빈칸을 누르면 정답이 보여요.</p>
-  </div>
-  <details class="card set-guide"><summary>사용 안내 · YouGlish · 말해보기</summary>
-    <div class="ctrl" style="margin-top:10px"><a id="ygLink" class="yg" target="_blank" rel="noopener" href="https://youglish.com">🎬 YouGlish 🇬🇧</a></div>
-    <p class="hint" id="recNote">🎬 대사에서 2~4단어를 드래그하면 그 표현만 YouGlish(영국 발음 영상)에서 찾아요. 문장 전체는 결과가 거의 없어요.<br>🎙 말해보기(R 키)를 누르고 현재 대사를 말하면, 다 말하고 잠깐 멈출 때 알아들은 말과 일치율을 보여줘요. 처음 한 번은 마이크 허용을 물어봐요.<br>📒 점수는 이 기기에 남아요. 이 기기에서 홈(서재)을 한 번 열면 학습 기록에 합쳐지고, 서버 저장에 포함돼요. 녹음은 저장하지 않아요.</p>
-  </details>
-    </div>
-  </details>
-  <div class="card studio-player" id="studioPlayer">
-    <div id="stage"><div class="big" style="color:var(--muted);font-size:1.2rem">▶ 재생을 눌러 시작하세요</div></div>
-    <div class="ctrl" style="justify-content:center;margin-top:10px">
-      <button id="prev" title="이전 줄">⏮</button>
-      <button class="primary" id="play">▶ 재생</button>
-      <button id="next" title="다음 줄">⏭</button>
-      <button id="stop">■ 처음으로</button>
-      <button id="toggleKo">한글 뜻 숨기기</button>
-    </div>
-    <div class="ctrl recbar">
-      <button id="sayBtn" title="현재 대사를 소리 내어 말하면 알아듣고 채점해요 (R 키)">🎙 말해보기</button>
-    </div>
-    <div id="sayRes"></div>
-    <p class="hint" id="koNote" style="text-align:center"></p>
-  </div>
-  </aside>
-  <section class="studio-board" aria-label="스크립트 연습 클립보드"><div class="studio-clip" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 92">
+  <aside class="studio-desk" id="studioDesk" aria-label="연습 조작"><div class="studio-clip desk-clip" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 92">
   <defs>
     <linearGradient id="cPlate" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#f4f2ec"/><stop offset=".18" stop-color="#d9d6cc"/><stop offset=".5" stop-color="#a9a79d"/><stop offset=".78" stop-color="#cfccc2"/><stop offset="1" stop-color="#7d7c74"/>
@@ -280,16 +324,77 @@ main{max-width:980px;padding-bottom:100px}.studio-top{margin-bottom:56px}.studio
   <!-- rivets -->
   <g stroke="#55544e" stroke-width=".8"><circle cx="27" cy="63" r="5" fill="url(#cRivet)"/><circle cx="173" cy="63" r="5" fill="url(#cRivet)"/></g>
   <g fill="#ffffffaa"><circle cx="25.5" cy="61.5" r="1.4"/><circle cx="171.5" cy="61.5" r="1.4"/></g>
-</svg></div><div class="studio-paper" id="studioPaper">
+</svg></div><div class="desk-paper">
+  <div class="desk-head"><button class="menu-close mobile-only" id="menuClose" aria-label="메뉴 닫기">✕</button>
+  <p class="eyebrow">S&amp;G · English Lab — Script Studio</p>
+  <h1>Script Studio.</h1>
+  <p class="sub">대사를 듣고, 따라 말하고, 문장을 몸에 붙여 봐.</p>
+  <p class="legend"><span class="lg-u">밑줄</span> 단어장 단어 · <span class="lg-c">✔</span> 학습 핵심 문장 · <span class="lg-q">⧉</span> 문장 질문 복사</p>
+  </div>
+  <section class="card studio-source"><label for="studioSource">연습 자료</label><div class="ctrl"><select id="studioSource" aria-label="연습 자료"><option value="direct">직접 입력한 문장</option></select><button id="reloadPacks">목록 새로고침</button><a class="studio-settings" href="./?studio=settings">Settings · 대사팩 관리 →</a></div><p class="hint" id="sourceNote"></p></section>
+  <details class="studio-set" id="studioSet">
+    <summary><span class="set-sum" id="setSummary"></span><span class="set-btn">⚙ 설정</span></summary>
+    <div class="set-body">
+  <details class="card" id="editBox">
+    <summary>Script · 스크립트 입력 / 수정</summary>
+    <textarea id="script"></textarea>
+    <p class="hint">한 줄에 한 대사씩, <b>이름: 대사</b> 형식으로 써주세요. (예: <code>Emma: Hello!</code>) 이름이 없는 줄은 앞 사람 대사에 이어붙여요. 영어만 넣어도 돼요. 번역을 함께 보려면 대사 아랫줄에 <b>번역: 한국어 뜻</b> 또는 <b>직역: 한국어 뜻</b>을 적어주세요. AI 자동 번역은 사용하지 않아요.</p>
+    <div class="ctrl" style="margin-top:10px"><button class="primary" id="apply">적용</button></div>
+  </details>
+  <div class="card">
+    <div class="speakers" id="speakers"></div>
+    <p class="hint" id="voiceNote"></p>
+  </div>
+  <div class="card set-play">
+    <div class="sliders">
+      <div>속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
+      <div>줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
+      <div><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="shadow"> 따라 말하기 (줄마다 대사 길이만큼 멈춤)</label></div>
+    </div>
+    <div class="tools">
+      <input type="checkbox" id="loop" hidden><select id="loopA" hidden></select><select id="loopB" hidden></select>
+      <div class="grp"><label><input type="checkbox" id="blank"> ✏️ 빈칸 모드</label><button id="reshuffle">빈칸 바꾸기</button><button id="reveal">정답 보기</button></div>
+    </div>
+    <div class="ctrl mobile-only set-extra"><button id="stopM">■ 처음으로</button><button id="toggleKoM">뜻 보기</button></div>
+    <p class="hint" style="margin-top:8px">💡 단어를 누르면 발음을 듣고, 단어장 단어(파란 밑줄)는 뜻을 바로 보여줘요. 없는 단어는 ‘단어 질문 복사’로 GPT에 물어봐. 멈춘 상태에서 줄을 누르면 그 줄만 한 번 읽어요.</p>
+  </div>
+  <details class="card set-guide"><summary>사용 안내 · YouGlish · 말해보기</summary>
+    
+    <p class="hint" id="recNote">🎬 대사에서 2~4단어를 드래그하면 그 표현만 YouGlish(영국 발음 영상)에서 찾아요. 문장 전체는 결과가 거의 없어요.<br>🎙 말해보기(R 키)를 누르고 현재 대사를 말하면, 다 말하고 잠깐 멈출 때 알아들은 말과 일치율을 보여줘요. 처음 한 번은 마이크 허용을 물어봐요.<br>📒 점수는 이 기기에 남아요. 이 기기에서 홈(서재)을 한 번 열면 학습 기록에 합쳐지고, 서버 저장에 포함돼요. 녹음은 저장하지 않아요.</p>
+  </details>
+    </div>
+  </details>
+  <div class="card studio-player" id="studioPlayer">
+    <div id="stage"><div class="big" style="color:var(--muted);font-size:1.2rem">▶ 재생을 눌러 시작하세요</div></div>
+    <div class="ctrl" style="justify-content:center;margin-top:10px">
+      <button id="prev" title="이전 줄">⏮</button>
+      <button class="primary" id="play">▶ 재생</button>
+      <button id="next" title="다음 줄">⏭</button>
+      <button id="stop">■ 처음으로</button>
+      <button id="toggleKo">한글 뜻 숨기기</button>
+    </div>
+    <div class="ctrl recbar">
+      <button id="sayBtn" title="현재 대사를 소리 내어 말하면 알아듣고 채점해요 (R 키)">🎙 말해보기</button>
+    </div>
+    <div class="loopbar" id="loopBar"><button id="loopBtn" aria-pressed="false">🔁 구간</button><button id="loopOne">이 줄만</button><button id="loopAround">앞뒤 2줄</button><button id="loopClear" class="lb-x" aria-label="구간 해제" hidden>✕</button></div><p class="hint loophint" id="loopHint" hidden>구간 모드: 대본에서 시작 줄 → 끝 줄을 눌러.</p>
+    <div class="ygrow"><a id="ygLink" class="yg" target="_blank" rel="noopener" href="https://youglish.com">🎬 YouGlish 🇬🇧</a><button id="ygCopy" hidden>⧉ 선택한 말 질문 복사</button></div>
+    <div id="sayRes"></div>
+    <p class="hint" id="koNote" style="text-align:center"></p>
+  </div>
+  </div></aside>
+  <section class="studio-board" aria-label="대본"><div class="studio-paper" id="studioPaper"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i>
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v0.8.6</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v0.9.9</p></div></section>
   </div>
 </main>
 
-<div class="mini" id="mini" role="region" aria-label="재생 바"><button class="mini-now" id="miniNow" title="지금 대사로 이동"><span id="miniWho"></span><span id="miniTxt"></span></button><div class="mini-prog" aria-hidden="true"><i id="miniBar"></i></div><div class="mini-btns"><button id="mPrev" aria-label="이전 줄">⏮</button><button id="mPlay" class="mini-play">▶ 재생</button><button id="mNext" aria-label="다음 줄">⏭</button><button id="mSay" class="mini-say" aria-label="말해보기">🎙</button></div></div>
+<div class="mini" id="mini" role="region" aria-label="재생 바"><button class="mini-now" id="miniNow" title="지금 대사로 이동"><span id="miniWho"></span><span id="miniTxt"></span></button><div class="mini-prog" aria-hidden="true"><i id="miniBar"></i></div><div class="mini-btns"><button id="mPrev" aria-label="이전 줄">⏮</button><button id="mPlay" class="mini-play">▶ 재생</button><button id="mNext" aria-label="다음 줄">⏭</button><button id="mSay" class="mini-say" aria-label="말해보기">🎙</button><button id="mLoop" class="mini-loop" aria-label="구간 반복">🔁</button><button id="mMenu" class="mini-menu" aria-label="메뉴">📋</button></div><p class="mini-tip" id="mLoopTip" hidden></p></div>
+<div class="menu-back" id="menuBack"></div>
 
-<div class="fab"><button id="goTop" title="맨 위 설정으로">↑ 설정</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
+<div class="fab"><button id="goTop" title="메뉴로">📋 메뉴</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
 
+<div class="selbar" id="selBar" hidden><a id="selYg" target="_blank" rel="noopener" href="#">🎬 실제 발음</a><button id="selCopy">⧉ 질문 복사</button></div>
+<div class="stoast" id="sToast" role="status"></div>
 <div id="dict" aria-live="polite"><div class="inner" id="dictInner"></div></div>
 
 <script src="./script-packs.js"></script>
@@ -355,12 +460,14 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const en=enVoices();
     speakers.forEach((s,i)=>{
       cfg[s]=cfg[s]||{};
-      if(!cfg[s].voice || !voices.some(v=>v.voiceURI===cfg[s].voice)) cfg[s].voice=pickDefault(i);
+      const avail=cfg[s].voice&&voices.some(v=>v.voiceURI===cfg[s].voice);
+      if(!cfg[s].voice || (cfg[s].auto!==false && !avail) || (cfg[s].auto===true && voices.length)) { const d=pickDefault(i); if(d){cfg[s].voice=d; cfg[s].auto=true;} }
+      const shown=voices.some(v=>v.voiceURI===cfg[s].voice)?cfg[s].voice:pickDefault(i);
       const [c]=COLORS[i%COLORS.length];
       const d=document.createElement('div'); d.className='spk';
-      const opts = en.map(v=>{const g=gender(v);return `<option value="${esc(v.voiceURI)}"${v.voiceURI===cfg[s].voice?' selected':''}>${/en[-_]GB/i.test(v.lang)?'🇬🇧':'🌐'} ${g==='f'?'여':g==='m'?'남':'·'} | ${esc(v.name)}</option>`}).join('');
+      const opts = en.map(v=>{const g=gender(v);return `<option value="${esc(v.voiceURI)}"${v.voiceURI===shown?' selected':''}>${/en[-_]GB/i.test(v.lang)?'🇬🇧':'🌐'} ${g==='f'?'여':g==='m'?'남':'·'} | ${esc(v.name)}</option>`}).join('');
       d.innerHTML=`<span class="name" style="background:${c}">${esc(s||'화자')}</span><select>${opts||'<option>음성 없음</option>'}</select><label title="체크하면 이 역할은 직접 읽어요"><input type="checkbox"${cfg[s].mute?' checked':''}> 내가 읽기</label>`;
-      d.querySelector('select').onchange=e=>{cfg[s].voice=e.target.value; store.set('dkCfg',cfg); preview(s);};
+      d.querySelector('select').onchange=e=>{cfg[s].voice=e.target.value; cfg[s].auto=false; store.set('dkCfg',cfg); preview(s);};
       d.querySelector('input').onchange=e=>{cfg[s].mute=e.target.checked; store.set('dkCfg',cfg); renderList();};
       box.appendChild(d);
     });
@@ -388,12 +495,16 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
       const [c,bg]=colorOf(l.who);
       const r=document.createElement('div'); r.className='row'+(i===cur?' cur':'')+(cfg[l.who]&&cfg[l.who].mute?' muted':'');
       r.style.setProperty('--curc',c); r.style.setProperty('--curbg',bg);
-      if(inLoop(i)) r.classList.add('inLoop');
-      r.innerHTML=`<span class="tag" style="color:${c}">${esc(l.who||'화자')}${cfg[l.who]&&cfg[l.who].mute?' 🙋':''}${best[l.text]!=null?` <span class="bs">${best[l.text]}%</span>`:''}</span><span class="txt">${wordsHtml(i).html}<span class="ko">${koHtml(l)}</span></span>`;
-      r.onclick=()=>{ cur=i; if(playing){ start(); } else { showLine(i,-1); renderList(); } };
+      if(inLoop(i)){ r.classList.add('inLoop'); if(i===loopA()) r.classList.add('loopStart'); if(i===loopB()) r.classList.add('loopEnd'); r.dataset.ll=i===loopA()&&i===loopB()?'A·B':i===loopA()?'A':i===loopB()?'B':''; }
+      if(loopPick===2 && i===pickA) r.classList.add('loopPickA');
+      const isCore=coreLine(l.text); if(isCore) r.classList.add('core');
+      r.dataset.i=i;
+      r.innerHTML=`<span class="tag" style="--tagc:${c}">${esc(l.who||'화자')}${cfg[l.who]&&cfg[l.who].mute?' 🙋':''}${best[l.text]!=null?` <span class="bs">${best[l.text]}%</span>`:''}</span><span class="txt">${isCore?CHECK_SVG:''}${wordsHtml(i).html}<span class="ko">${koHtml(l)}</span></span><button class="qcopy" data-q="${i}" title="문장 질문 복사" aria-label="문장 질문 복사">⧉</button>`;
+      r.onclick=e=>{ if(hasSel()) return; if(e.target.closest('.qcopy')) return; if(loopPick){ pickLoop(i); return; } cur=i; if(playing){ start(); } else { showLine(i,-1); renderList(); playOnce(); } };
       list.appendChild(r);
     });
     if(!lines.length) list.innerHTML='<p class="hint">스크립트를 입력해 주세요.</p>';
+    const pc=$('phCount'); if(pc) pc.textContent=lines.length?lines.length+'줄':'';
     fillLoopSelects();
   }
 
@@ -414,7 +525,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   function wordsHtml(i){
     const l=lines[i]; const bl=blankOn()?blanksFor(i):new Set();
-    let html='', wi=0, pos=0; const st=[];
+    let html='', wi=0, pos=0; const st=[]; const vmap=vocabMap(l.text);
     l.text.split(/(\s+)/).forEach(p=>{
       if(p && !/^\s+$/.test(p)){
         st.push(pos);
@@ -422,7 +533,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
           const m=p.match(/^([^A-Za-z0-9']*)(.*?)([^A-Za-z0-9']*)$/);
           const rev=revealed.has(i+'-'+wi);
           html+=`<span class="k blank${rev?' rev':''}" data-l="${i}" data-w="${wi}">${esc(m[1])}<span class="bw">${esc(m[2])}</span>${esc(m[3])}</span>`;
-        } else html+=`<span class="k" data-l="${i}" data-w="${wi}">${esc(p)}</span>`;
+        } else { const vi=vmap[wi]; html+=`<span class="k${vi!=null?' vv':''}" data-l="${i}" data-w="${wi}"${vi!=null?` data-vi="${vi}"`:''}>${esc(p)}</span>`; }
         wi++;
       } else html+=p;
       pos+=p.length;
@@ -469,7 +580,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   // ---------- playback ----------
   function makeU(text, who){
     const u=new SpeechSynthesisUtterance(text);
-    const v=voices.find(v=>v.voiceURI===(cfg[who]&&cfg[who].voice));
+    let v=voices.find(v=>v.voiceURI===(cfg[who]&&cfg[who].voice));
+    if(!v){ const fb=pickDefault(Math.max(0,speakers.indexOf(who))); v=voices.find(x=>x.voiceURI===fb); }
     if(v){u.voice=v;u.lang=v.lang;} else u.lang='en-GB';
     u.rate=+$('rate').value; return u;
   }
@@ -490,7 +602,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const l=lines[cur]; const mute=cfg[l.who]&&cfg[l.who].mute;
     showLine(cur,0,mute); renderList();
     const gap=+$('gap').value*1000;
-    const goNext=(extra)=>{ finishWords(); later(()=>{ if(my!==token) return; cur++; if(loopOn() && (cur>loopB()||cur<loopA())) cur=loopA(); playLine(my); }, gap+(extra||0)); };
+    const goNext=(extra)=>{ finishWords(); if(oneShot){ oneShot=false; playing=false; $('play').textContent='▶ 재생'; return; } later(()=>{ if(my!==token) return; cur++; if(loopOn() && (cur>loopB()||cur<loopA())) cur=loopA(); playLine(my); }, gap+(extra||0)); };
     if(mute || !synth){
       const ms=estMs(l.text)*1.15;
       animate(l.text, ms, my);
@@ -515,7 +627,9 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   $('goCur').onclick=scrollCur;
   $('goTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 
+  function playOnce(){ if(!lines.length) return; oneShot=true; token++; clearTimers(); synth&&synth.cancel(); playing=true; $('play').textContent='⏸ 일시정지'; const my=token; setTimeout(()=>playLine(my),60); }
   function start(){
+    oneShot=false;
     if(!lines.length) return;
     if(atEnd){ cur=loopOn()?loopA():0; atEnd=false; }
     if(loopOn() && (cur<loopA()||cur>loopB())) cur=loopA();
@@ -524,7 +638,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const my=token; setTimeout(()=>playLine(my), 60);
   }
   function pause(){
-    token++; clearTimers(); synth&&synth.cancel();
+    oneShot=false; token++; clearTimers(); synth&&synth.cancel();
     playing=false; $('play').textContent='▶ 이어서';
     showLine(cur,-1); renderList();
   }
@@ -552,7 +666,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
 
   // ---------- word click: reveal blank or open dictionary ----------
   document.addEventListener('click',e=>{
-    const el=e.target.closest('.k'); if(!el) return;
+    const el=e.target.closest('.k'); if(!el) return; if(hasSel()){ e.stopPropagation(); return; } if(loopPick) return;
     e.stopPropagation();
     const li=+el.dataset.l, wi=+el.dataset.w;
     if(el.classList.contains('blank') && !el.classList.contains('rev')){
@@ -583,10 +697,13 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const sentence=lines[li]?lines[li].text:'';
     const key=word.toLowerCase(), ck=key+'||'+sentence;
     const cache=store.get('dkDict')||{};
+    const vi=el.dataset.vi!=null?+el.dataset.vi:null, vx=vi!=null?VOCAB[vi]:null;
+    if(vx){ openVocab(vx, sentence); return; }
     const data=(PRESET_DICT[key] && PRESET_KO[sentence]) ? PRESET_DICT[key] : (cache[ck]||null);
     openDict(word, sentence, data);
     if(data) return;
-    dictBody('<p class="hint">저장된 단어 설명이 없어요. 위 실제 발음 링크를 이용해 주세요.</p>');
+    dictBody(`<p class="hint">단어장에 없는 단어야. 질문 문구를 복사해서 GPT(S&amp;G 영어 학습)에 붙여 넣어 봐.</p><div class="ctrl"><button class="primary" id="dCopy">⧉ 단어 질문 복사</button></div>`);
+    $('dCopy').onclick=()=>copyText(qWord(word, sentence),'단어 질문을 복사했어.');
   }
   function openDict(word, sentence, d){
     dict.dataset.word=word; dict.dataset.sent=sentence;
@@ -611,7 +728,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') dict.classList.remove('open'); });
 
-  function setTitle(t){let el=$('title');if(!el){el=document.createElement('div');el.id='title';list.before(el);}el.textContent=t?'📖 '+t:'';}
+  function setTitle(t){let el=$('title');if(!el){el=document.createElement('div');el.id='title';el.className='page-head';list.before(el);}const id=currentSource.startsWith('pack:')?currentSource.slice(5):'';el.innerHTML=`<div class="ph-top"><span>SAW &amp; GIN${id?' · '+esc(id.replace(/_/g,' ')):''}</span><span id="phCount"></span></div><div class="ph-title">${esc(t||'')}</div>`;}
   $('rate').oninput=e=>$('rateV').textContent=(+e.target.value).toFixed(2).replace(/0$/,'')+'×';
   $('gap').oninput=e=>$('gapV').textContent=(+e.target.value)+'초';
   document.addEventListener('keydown',e=>{if(/^(TEXTAREA|INPUT|SELECT)$/.test(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();$('play').click();}if(e.key==='ArrowRight')$('next').click();if(e.key==='ArrowLeft')$('prev').click();});
@@ -703,7 +820,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   document.addEventListener('selectionchange',()=>{
     let s=''; try{ s=String(window.getSelection()).replace(/\s+/g,' ').trim(); }catch(e){}
     const a=$('ygLink');
-    if(s && /[A-Za-z]/.test(s) && s.length<=60 && !/[가-힣]/.test(s)){ selActive=true; a.href=ygUrl(s); a.textContent='🎬 "'+s+'" 실제 발음'; }
+    if(s && /[A-Za-z]/.test(s) && s.length<=60 && !/[가-힣]/.test(s)){ selActive=true; lastSel=s; clearTimeout(selHide); a.href=ygUrl(s); a.textContent='🎬 "'+s+'" 실제 발음'; $('ygCopy').hidden=false; $('selYg').href=ygUrl(s); $('selYg').textContent='🎬 "'+(s.length>22?s.slice(0,21)+'…':s)+'"'; if(!mqWide.matches) $('selBar').hidden=false; }
+    else if(!s){ clearTimeout(selHide); selHide=setTimeout(()=>{ $('selBar').hidden=true; },600); }
   });
 
   // v0.8: practice scores (numbers only, never audio) go to a device log that the main app merges and syncs.
@@ -718,7 +836,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     currentSource=value;txt.readOnly=!!p;$('apply').disabled=!!p;$('editBox').hidden=!!p;
     if(p){txt.value=ScriptPacks.toText(p.lines);setTitle(p.title);$('sourceNote').textContent='등록한 대사팩 · '+p.lines.length+'줄 · 수정·삭제와 클라우드 동기화는 Settings에서 해 줘.';}
     else{const draft=store.get('dkScript');txt.value=typeof draft==='string'?draft:SAMPLE;setTitle('직접 입력');if(!isPack)$('sourceNote').textContent='직접 입력 내용과 음성 설정은 이 기기에만 저장돼. 영어만 넣어도 재생할 수 있어.';}
-    store.set('dkStudioSource',currentSource);loadSources();parse();$('loop').checked=false;renderSpeakers();renderList();$('loopA').value='0';$('loopB').value=String(Math.max(0,lines.length-1));showLine(0,-1);ensureKo();}
+    store.set('dkStudioSource',currentSource);loadSources();loadLearning(isPack?value.slice(5):'');parse();$('loop').checked=false;loopPick=0;updLoopUI();renderSpeakers();renderList();$('loopA').value='0';$('loopB').value=String(Math.max(0,lines.length-1));showLine(0,-1);ensureKo();}
   $('studioSource').onchange=e=>loadSource(e.target.value);
   $('reloadPacks').onclick=()=>loadSource(currentSource);
   txt.addEventListener('input',()=>{if(currentSource==='direct')store.set('dkScript',txt.value);});
@@ -726,10 +844,124 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   window.addEventListener('pagehide',()=>{if(currentSource==='direct')store.set('dkScript',txt.value);stopAll(false);if(listening)stopListen();});
 
 
+  // ---------- v0.9.9 · learning-pack links, question copy, one-line play, loop picking ----------
+  const CHECK_SVG='<svg class="core-check" width="26" height="23" viewBox="0 0 36 32" aria-label="학습 핵심 문장" role="img"><path d="M3 18 C6 16 9 17 11 20 L14 25 C19 15 26 7 34 2 C27 9 21 17 15 29 C13 31 11 31 10 29 C8 25 6 22 3 18 Z"/></svg>';
+  let VOCAB=[], TERMS=[], CORE=[], oneShot=false, loopPick=0, pickA=0, lastSel='', lastSelRow=-1, selHide=null, toastT=null;
+  const nk=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const tokN=w=>core(String(w||'').replace(/[’‘]/g,"'")).toLowerCase();
+  const sentN=t=>String(t||'').toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9' ]/g,' ').replace(/\s+/g,' ').trim();
+  const plainV=t=>String(t||'').replace(/\*\*|`/g,'').trim();
+  function loadLearning(packId){
+    VOCAB=[];TERMS=[];CORE=[];
+    if(!packId) return;
+    let raw=null; try{ raw=JSON.parse(localStorage.getItem(LAB_KEY)||'null'); }catch(e){}
+    const packs=raw&&raw.packs; if(!packs) return;
+    const want=nk(packId), mine=p=>p&&Array.isArray(p.items)&&nk(p.episode||p.ep)===want;
+    Object.values(packs.vocab||{}).filter(mine).forEach(p=>p.items.forEach(x=>{
+      const vi=VOCAB.push(x)-1, terms=new Set();
+      [x['정답'],x['기본형'],x['과거형'],x['과거분사'],x['발음 단어'],...String(x['허용 정답']||'').split('|')].forEach(t=>{ const toks=String(t||'').split(/\s+/).map(tokN).filter(Boolean); if(toks.length&&toks.join(' ').length>=2) terms.add(toks.join(' ')); });
+      terms.forEach(t=>TERMS.push({toks:t.split(' '),vi}));
+    }));
+    TERMS.sort((a,b)=>b.toks.length-a.toks.length);
+    const seen=new Set(), add=t=>plainV(t).split(/\n+/).map(l=>l.replace(/^\s*(\d+[.)]|[-•])\s*/,'')).forEach(l=>{ const n=sentN(l); if(n.split(' ').length>=3&&!seen.has(n)){ seen.add(n); CORE.push(n); } });
+    Object.values(packs.writing||{}).filter(mine).forEach(p=>p.items.forEach(x=>{
+      if(x['원문 영어']) add(x['원문 영어']);
+      if(x['기준 영어']) add(x['기준 영어']);
+      const t=x['문제 유형']; if(x['정답']&&(!t||['translation','transform','build','order'].includes(t))) add(x['정답']);
+    }));
+  }
+  function tokHit(tok,term,last){
+    if(tok===term) return true;
+    if(!last||term.length<3||!tok.startsWith(term)) return term.endsWith('e')&&last&&tok===term.slice(0,-1)+'ing';
+    return /^(s|es|ed|d|ing|'s)$/.test(tok.slice(term.length));
+  }
+  function vocabMap(text){
+    const out={}; if(!TERMS.length) return out;
+    const toks=String(text).split(/\s+/).filter(Boolean).map(tokN);
+    for(let k=0;k<toks.length;k++){ if(out[k]!=null) continue;
+      for(const T of TERMS){ const n=T.toks.length; if(k+n>toks.length) continue;
+        if(T.toks.every((t,j)=>tokHit(toks[k+j],t,j===n-1))){ for(let j=0;j<n;j++) out[k+j]=T.vi; break; } } }
+    return out;
+  }
+  function coreLine(text){ if(!CORE.length) return false; const n=' '+sentN(text)+' '; return CORE.some(c=>n.includes(' '+c+' ')); }
+
+  function epLabel(){ const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null; return p?(p.title||currentSource.slice(5)):'직접 입력한 문장'; }
+  function qWord(word,sentence){ return `[S&G 영어 학습] 단어 질문\n에피소드: ${epLabel()}\n단어: ${word}\n문장: ${sentence}\n\n이 문장에서의 뜻, 영국식 발음(IPA), 품사, 비슷한 표현, 예문 2개를 알려줘.`; }
+  function qLine(i){ const l=lines[i]; if(!l) return ''; return `[S&G 영어 학습] 문장 질문\n에피소드: ${epLabel()}\n화자: ${l.who||'-'}\n영어: ${l.text}${l.ko?`\n의역: ${l.ko}`:''}${l.lit?`\n직역: ${l.lit}`:''}\n\n문장 구조, 핵심 표현, 영국식으로 바꿔 말하는 방법을 설명해줘.`; }
+  function qSel(s){ const l=lines[lastSelRow>=0?lastSelRow:cur]; return `[S&G 영어 학습] 표현 질문\n에피소드: ${epLabel()}\n표현: ${s}${l?`\n문장: ${l.text}`:''}\n\n이 문장에서의 뜻, 영국식 발음, 쓰임, 비슷한 표현, 예문 2개를 알려줘.`; }
+  function sToast(msg){ const t=$('sToast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+  async function copyText(text,msg){
+    try{ await navigator.clipboard.writeText(text); sToast(msg||'복사했어. GPT에 붙여 넣어 봐.'); return; }catch(e){}
+    try{ const ta=document.createElement('textarea'); ta.value=text; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;left:-9999px;top:0'; document.body.appendChild(ta); ta.select(); const ok=document.execCommand('copy'); ta.remove(); if(ok){ sToast(msg||'복사했어.'); return; } }catch(e){}
+    window.prompt('아래 내용을 복사해 줘', text);
+  }
+  function hasSel(){ try{ const s=window.getSelection(); return !!(s&&!s.isCollapsed&&String(s).trim()); }catch(e){ return false; } }
+  function vText(t){ return esc(plainV(t)).replace(/\n/g,'<br>'); }
+  function openVocab(x,sentence){
+    const verb=!!(x['기본형']||x['과거형']||x['과거분사']);
+    const head=verb?[x['기본형']||x['정답'],x['과거형'],x['과거분사']].filter(Boolean).join(' · '):x['정답'];
+    const say=x['발음 단어']||x['기본형']||x['정답'], gb=x['IPA GB']||x['GB 발음']||x['영국식 발음']||x['발음 GB']||'';
+    dict.dataset.word=say; dict.dataset.sent=sentence;
+    dictInner.innerHTML=`<div class="top"><span class="vtag">단어장</span><span class="word">${esc(head)}</span>${gb?`<span class="ipa">${esc(gb)}</span>`:''}${x['품사']?`<span class="pos">${esc(x['품사'])}</span>`:''}<button id="dSay" title="발음 듣기">🔊</button><a class="yg" href="${esc(ygUrl(say))}" target="_blank" rel="noopener">🎬 실제 발음</a><button class="close" id="dClose">닫기</button></div><div id="dBody"></div>`;
+    $('dClose').onclick=()=>dict.classList.remove('open');
+    $('dSay').onclick=()=>sayWord(say);
+    let h=`<div class="ctx">${vText(x['뜻'])}</div>`;
+    if(x['예문 또는 결합']) h+=`<div class="h">예문 · 결합</div><div class="vex">${vText(x['예문 또는 결합'])}</div>`;
+    if(x['학습 메모']||x['설명']) h+=`<div class="tip">💡 ${vText(x['학습 메모']||x['설명'])}</div>`;
+    h+=`<div class="ctrl" style="margin-top:12px"><button id="dCopy">⧉ 단어 질문 복사</button></div>`;
+    dictBody(h); dict.classList.add('open');
+    $('dCopy').onclick=()=>copyText(qWord(say,sentence),'단어 질문을 복사했어.');
+  }
+
+  // loop: tap start line → end line
+  function setLoop(a,b){
+    const n=lines.length; if(!n) return;
+    a=Math.max(0,Math.min(n-1,a)); b=Math.max(0,Math.min(n-1,b)); if(a>b){ const t=a; a=b; b=t; }
+    $('loopA').value=String(a); $('loopB').value=String(b); $('loop').checked=true; loopPick=0;
+    if(cur<a||cur>b){ cur=a; if(playing) start(); }
+    updLoopUI(); refresh();
+  }
+  function clearLoop(){ $('loop').checked=false; loopPick=0; updLoopUI(); refresh(); }
+  function pickLoop(i){
+    if(loopPick===1){ pickA=i; loopPick=2; updLoopUI(); renderList(); return; }
+    setLoop(pickA,i); sToast('구간 '+(loopA()+1)+'–'+(loopB()+1)+'줄 반복');
+  }
+  function updLoopUI(){
+    const on=loopOn(), b=$('loopBtn');
+    b.setAttribute('aria-pressed',String(!!loopPick||on));
+    b.textContent=loopPick?'🔁 선택 중…':on?`🔁 ${loopA()+1}–${loopB()+1}줄`:'🔁 구간';
+    $('loopClear').hidden=!(on||loopPick);
+    $('loopHint').hidden=!loopPick; $('loopHint').textContent=loopPick===1?'대본에서 시작 줄을 눌러.':'이제 끝 줄을 눌러.';
+    document.body.classList.toggle('loop-picking',!!loopPick);
+    const mb=$('mLoop'); if(mb){ mb.classList.toggle('on',!!loopPick||on); mb.textContent=loopPick?'A→B':'🔁'; }
+    const ml=$('mLoopTip'); if(ml){ ml.hidden=!loopPick; ml.textContent=loopPick===1?'🔁 시작 줄을 눌러':'🔁 끝 줄을 눌러'; }
+  }
+  function startPick(){ if(loopPick){ loopPick=0; } else { loopPick=1; if(playing) pause(); } updLoopUI(); renderList(); closeMenu(); }
+  $('loopBtn').onclick=startPick;
+  $('loopOne').onclick=()=>{ setLoop(cur,cur); closeMenu(); };
+  $('loopAround').onclick=()=>{ setLoop(cur-2,cur+2); closeMenu(); };
+  $('loopClear').onclick=clearLoop;
+
+  // copy buttons
+  list.addEventListener('click',e=>{ const b=e.target.closest('.qcopy'); if(!b) return; e.stopPropagation(); copyText(qLine(+b.dataset.q),'문장 질문을 복사했어.'); });
+  $('ygCopy').onclick=()=>{ if(lastSel) copyText(qSel(lastSel),'질문을 복사했어.'); };
+  $('selCopy').onclick=()=>{ if(lastSel) copyText(qSel(lastSel),'질문을 복사했어.'); };
+  document.addEventListener('selectionchange',()=>{
+    let s=''; try{ const g=window.getSelection(); s=String(g).trim(); const row=g.anchorNode&&(g.anchorNode.nodeType===1?g.anchorNode:g.anchorNode.parentElement); const r=row&&row.closest&&row.closest('.row'); if(s&&r) lastSelRow=+r.dataset.i; }catch(e){}
+    if(!s){ selActive=false; $('ygCopy').hidden=true; const l=lines[cur], a=$('ygLink'); if(a){ a.href=ygUrl(l?l.text:''); a.textContent='🎬 YouGlish 🇬🇧 (문장 전체)'; } }
+  });
+
+  // phone menu drawer
+  function openMenu(){ document.body.classList.add('menu-open'); }
+  function closeMenu(){ document.body.classList.remove('menu-open'); }
+  function toggleMenu(){ document.body.classList.toggle('menu-open'); }
+  $('menuBack').onclick=closeMenu; $('menuClose').onclick=closeMenu;
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMenu(); });
+
   // ---------- v0.8.6 · desk placement, settings summary, mini player ----------
   const mqWide=window.matchMedia('(min-width:960px)'),desk=$('studioDesk'),paper=$('studioPaper'),layout=document.querySelector('.studio-layout'),mini=$('mini'),setBox=$('studioSet');
   function setMiniH(){document.documentElement.style.setProperty('--miniH',(mini.offsetHeight||130)+'px');}
-  function placeDesk(){if(mqWide.matches){if(desk.parentNode!==layout)layout.prepend(desk);document.body.classList.remove('has-mini');}else{if(desk.parentNode!==paper)paper.prepend(desk);document.body.classList.add('has-mini');}setMiniH();}
+  function placeDesk(){if(desk.parentNode!==layout)layout.prepend(desk);document.body.classList.toggle('has-mini',!mqWide.matches);setMiniH();}
   (mqWide.addEventListener?mqWide.addEventListener('change',placeDesk):mqWide.addListener(placeDesk));window.addEventListener('resize',setMiniH);
   const SET_KEY='sawgin-studio-settings-open';setBox.open=store.get(SET_KEY)===true;setBox.addEventListener('toggle',()=>store.set(SET_KEY,setBox.open));
   function updateSummary(){const sel=$('studioSource'),src=sel.selectedOptions[0]?sel.selectedOptions[0].text:'',mine=speakers.filter(s=>cfg[s]&&cfg[s].mute);
@@ -740,7 +972,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   new MutationObserver(updateMini).observe($('sayBtn'),{childList:true,characterData:true,subtree:true,attributes:true});
   $('mPrev').onclick=()=>$('prev').click();$('mNext').onclick=()=>$('next').click();$('mPlay').onclick=()=>$('play').click();$('mSay').onclick=()=>$('sayBtn').click();
   $('stopM').onclick=()=>$('stop').click();$('toggleKoM').onclick=()=>{$('toggleKo').click();updateMini();};
-  $('miniNow').onclick=scrollCur;$('goTop').onclick=()=>{setBox.open=true;setBox.scrollIntoView({block:'start',behavior:'smooth'});};
+  $('miniNow').onclick=scrollCur;$('goTop').onclick=toggleMenu;$('mMenu').onclick=toggleMenu;$('mLoop').onclick=startPick;
   document.addEventListener('change',()=>setTimeout(updateSummary));document.addEventListener('input',e=>{if(e.target.type==='range')updateSummary();});
   loadSources();loadSource(typeof storedSource==='string'?storedSource:'direct',true);
   placeDesk();updateSummary();updateMini();
