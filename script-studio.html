@@ -276,6 +276,186 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .studio-top{margin-bottom:22px}
 }
 </style>
+<style>
+/* ===== v1.0 · turntable studio ===== */
+:root{--java:#4a2e27;--sred:#8f2a26;--dblue:#7b93b3;--tyel:#e9c04f;--soil:#6b5440}
+.pc-only{display:inline}.mobile-only.quick{display:none}
+.studio-paper .row .txt{font:16px/1.62 Georgia,'Noto Serif KR',serif}
+.studio-paper .row .tag{font:bold 13px 'Courier New',Courier,monospace}
+.studio-player{display:none!important}
+#studioSet>summary{display:none}
+.set-play .sliders .rg-row{display:none}
+.set-extra{display:flex!important}#toggleKoM{display:none}
+.desk-head .eyebrow{font:9px var(--sans);letter-spacing:.22em;color:#8a6a5a;margin:0}
+.desk-head h1{margin:4px 0 0}
+.desk-head .menu-close{float:right;min-height:0;padding:5px 11px;font-size:12px}
+.set-h{margin:22px 0 4px;font:bold 9px var(--sans);letter-spacing:.22em;color:#8a6a5a}
+.studio-desk .card{box-shadow:none}
+.studio-desk input[type=checkbox]{appearance:none;-webkit-appearance:none;width:34px;height:20px;border-radius:10px;background:#e8dfcf;border:1px solid #d1c3ad;position:relative;cursor:pointer;flex:none;vertical-align:middle;margin:0 4px 0 0;transition:.15s}
+.studio-desk input[type=checkbox]::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fbf7ef;box-shadow:0 1px 2px #0003;transition:.15s}
+.studio-desk input[type=checkbox]:checked{background:var(--java);border-color:var(--java)}
+.studio-desk input[type=checkbox]:checked::after{left:16px;background:var(--tyel);box-shadow:0 0 5px var(--tyel)}
+/* deck column */
+.deck-col{display:none}
+@media(min-width:960px){
+ .studio-layout{grid-template-columns:340px minmax(0,1fr)!important;gap:40px!important}
+ .deck-col>*{flex:none}
+ .deck-col{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;scrollbar-width:thin;padding:2px 4px 14px 2px}
+ .mobile-only{display:none!important}
+ /* settings drawer */
+ .studio-desk{position:fixed!important;z-index:30;right:40px;top:44px;bottom:24px;width:480px;max-height:none!important;transform:translateX(calc(100% + 60px));visibility:hidden;transition:transform .25s,visibility .25s;margin:0!important}
+ body.menu-open .studio-desk{transform:none;visibility:visible}
+ .studio-desk .desk-clip{top:-30px!important}
+ .desk-paper{height:100%;max-height:none!important;box-sizing:border-box;overflow:auto}
+ body.menu-open .menu-back{display:block;position:fixed;inset:0;z-index:29;background:#23181540}
+ .fab{display:none}
+}
+@media(max-width:959px){
+ .pc-only{display:none}
+ .mobile-only.quick{display:block}
+ .studio-desk h1{font-size:26px}
+}
+.deck{position:relative;width:340px;height:292px;border-radius:12px;flex:none;
+ background:repeating-linear-gradient(178deg,#3a231622 0 1px,transparent 1px 9px),repeating-linear-gradient(181deg,#f2d3a80f 0 1px,transparent 1px 13px),linear-gradient(100deg,#7b5236,#6a452c 30%,#7f573a 55%,#5f3d27 80%,#6f4a30);
+ box-shadow:inset 0 0 0 1px #2b1a1080,4px 6px 0 #d4cab9}
+.platter{position:absolute;left:21px;top:25px;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,#cfccc2 90%,#9c998f 96%,#e9e7df 100%);box-shadow:0 3px 0 #00000040}
+.record{position:absolute;inset:7px;border-radius:50%;background:
+ repeating-radial-gradient(circle,#ffffff0d 0 .6px,transparent .6px 3px),
+ conic-gradient(from 30deg,#ffffff00,#ffffff1c 12%,#ffffff00 25%,#ffffff00 50%,#ffffff18 62%,#ffffff00 75%),
+ radial-gradient(circle,#2a2422 30%,#151110 95%,#0d0a09);}
+.record.spin{animation:recspin 1.8s linear infinite}
+@keyframes recspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.record.spin{animation:none}.tonearm .arm{transition:none!important}}
+.rlabel{position:absolute;left:50%;top:50%;width:86px;height:86px;margin:-43px;border-radius:50%;overflow:hidden;background:#abbbc3;box-shadow:inset 0 0 0 1px #0002}
+.rlabel img{width:100%;height:100%;object-fit:cover;display:block}
+.rl-def{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#231815;padding:0 8px}
+.rl-def .rl-sg{font:6.5px Georgia,serif;letter-spacing:.14em;color:#400c0f}
+.rl-def b{font:italic 15px Georgia,serif;margin:1px 0 9px}
+.rl-def #rTitle{font:7.5px 'Noto Serif KR',serif;line-height:1.2;max-height:2.4em;overflow:hidden}
+.rl-def .rl-side{font:5px Arial;letter-spacing:.12em;color:#400c0f;margin-top:3px}
+.spindle{position:absolute;left:142px;top:146px;width:8px;height:8px;border-radius:50%;background:#d9d6cc;box-shadow:0 0 0 1px #7d7c74}
+.tonearm{position:absolute;inset:0;pointer-events:none}
+.tonearm .arm{transform-origin:300px 62px;transform-box:view-box;transition:transform .9s cubic-bezier(.4,.1,.2,1)}
+.deck-start{position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:7px;font:7.5px Arial;letter-spacing:.12em;color:#f2e6d4}
+.deck-start i{width:16px;height:16px;border-radius:50%;background:#e9e7df;box-shadow:inset 0 0 0 5px #e9e7df,inset 0 0 0 9px #7a5a1e;border:1px solid #3a2316}
+.deck-brand{position:absolute;right:14px;bottom:10px;font:italic 11px Georgia,serif;color:#f2e6d4cc}
+.np{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px;margin-top:2px}
+.np-l{font:10px Arial;letter-spacing:.12em;color:#8d8577}#npCount{font:12px Georgia,serif;color:var(--java)}
+.prog{position:relative;height:54px;margin:-4px 2px 0;cursor:pointer;touch-action:none;outline:none}
+.prog-track,.prog-fill{position:absolute;left:0;top:32px;height:5px;border-radius:3px}
+.prog-track{right:0;background:#d6ccbd;box-shadow:inset 0 1px 1px #0002}.prog-fill{background:var(--soil);width:0}
+.prog-loop{position:absolute;top:29px;height:11px;border-radius:2px;background:#7b93b333;border:1px solid #7b93b399;box-sizing:border-box}
+.prog-ab{position:absolute;top:42px;transform:translateX(-50%);font:italic 10px Georgia;color:var(--dblue)}
+.prog-knob{position:absolute;top:26px;left:0;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fffefb,#e2ddd2);box-shadow:0 2px 3px #0004;border:1px solid #c9c2b4}
+.prog-bubble{position:absolute;top:0;left:0;transform:translateX(-50%);background:var(--java);color:#f4f0e8;font:10.5px Georgia,'Noto Serif KR',serif;padding:3px 8px;border-radius:3px;white-space:nowrap;pointer-events:none}
+.prog-bubble::after{content:'';position:absolute;left:50%;bottom:-4px;margin-left:-4px;border:4px solid transparent;border-bottom:0;border-top-color:var(--java)}
+.prog:focus-visible .prog-knob{outline:2px solid var(--dblue);outline-offset:2px}
+.panel{background:linear-gradient(170deg,#f2ece0,#e6ddcc);border-radius:14px;padding:20px 20px 18px;border:1px solid #d8ccb8;box-shadow:inset 0 1px 0 #fff,0 3px 0 #d4cab9,0 6px 14px #23181514;color:var(--java)}
+.panel hr{border:0;height:1px;background:#d6cbb8;box-shadow:0 1px 0 #fff;margin:18px 0}
+.p-top{display:flex;gap:16px;align-items:center}
+.keys{flex:1;display:flex;gap:6px;padding:6px;background:#ddd2bf;border-radius:10px;box-shadow:inset 0 2px 3px #0000001f}
+.key{flex:1;height:50px;min-height:0;padding:0;border:0;border-radius:7px;background:radial-gradient(ellipse at 50% 35%,#fbf7ef,#efe7d9 70%,#e3d8c6);box-shadow:inset 0 -2px 2px #0000000f,inset 0 1px 0 #fff,0 1px 1px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font:bold 13px Arial,sans-serif;color:var(--java);cursor:pointer}
+.key:active,.rb:active{box-shadow:inset 0 2px 4px #0000002e}
+.key .led{width:6px;height:6px;border-radius:50%;background:transparent}
+.key .led.on{background:var(--tyel);box-shadow:0 0 5px var(--tyel)}
+.say-dot{color:var(--sred);font-size:15px}
+#kSay.on .say-dot{text-shadow:0 0 8px #e0705f;animation:sayblink 1s infinite}
+@keyframes sayblink{50%{opacity:.4}}
+.knob-wrap{flex:none;width:96px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;min-height:0;cursor:pointer;box-shadow:none}
+.knob-labels{display:flex;justify-content:space-between;width:94px;font:bold 8px Arial;color:#a69a8b}
+.knob-labels .on{color:var(--sred)}
+.knob{width:54px;height:54px;border-radius:50%;background:conic-gradient(from 0deg,#f8f2e6,#d9ccb6,#f8f2e6,#d9ccb6,#f8f2e6);box-shadow:0 3px 5px #0003,inset 0 0 0 5px #efe7d9;position:relative;transition:transform .2s}
+.knob i{position:absolute;left:50%;top:6px;width:3px;height:14px;margin-left:-1.5px;background:var(--sred);border-radius:2px}
+.p-round{display:flex;justify-content:space-between;align-items:center;padding:0 4px}
+.rb{position:relative;width:40px;height:40px;min-height:0;padding:0;flex:none;border-radius:50%;background:radial-gradient(circle at 45% 35%,#fbf7ef,#e8dfcf);box-shadow:0 2px 3px #0002,inset 0 1px 0 #ffffff99,inset 0 -2px 3px #0000001a;border:1px solid #cdc7bb;display:flex;align-items:center;justify-content:center;font:bold 13px Arial;color:var(--java);text-decoration:none;cursor:pointer}
+.rb[disabled]{color:#c4bdb0;cursor:default;background:radial-gradient(circle at 45% 35%,#f6f4f0,#ebe8e1)}
+.rb .led{position:absolute;right:-1px;top:-1px;width:7px;height:7px;border-radius:50%;background:transparent}
+#kLoop.on{background:radial-gradient(circle at 50% 60%,#efe5d3,#ddd0ba);box-shadow:inset 0 2px 4px #0000002e,0 1px 0 #fff;color:var(--dblue)}
+#kLoop.on .led{background:var(--dblue);box-shadow:0 0 4px var(--dblue)}
+#kLoop.pick{animation:sayblink 1.2s infinite}
+.vsep{width:1px;height:28px;background:#d6cbb8}
+.snaps{display:flex;flex-direction:column;gap:10px}
+.snap{display:flex;align-items:flex-start;gap:14px}
+.snap-l{flex:none;width:44px;font:bold 8.5px Arial;letter-spacing:.14em;color:#8d8577;padding-top:4px}
+.snap-t{flex:1;position:relative;height:40px;cursor:pointer;touch-action:none}
+.snap-t::before{content:'';position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#d6d1c6;box-shadow:inset 0 1px 1px #0002}
+.snap-f{position:absolute;left:0;top:7px;height:4px;border-radius:2px;background:var(--soil)}
+.snap-d{position:absolute;top:7px;width:5px;height:5px;margin:-.5px 0 0 -2.5px;border-radius:50%;background:#b8b1a4}
+.snap-s{position:absolute;top:22px;transform:translateX(-50%);font:9px Arial;color:#a8a094;background:none;border:0;padding:0;min-height:0}
+.snap-s.on{color:var(--java);font-weight:bold}
+.snap-h{position:absolute;top:0;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fffefb,#e2ddd2);box-shadow:0 2px 3px #0004;border:1px solid #c9c2b4;transition:left .12s}
+.snap-h::after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:var(--tyel)}
+.snap-v{flex:none;width:38px;text-align:right;font:bold 12px Georgia,serif;color:var(--java);padding-top:1px}
+.lastsay{display:flex;align-items:center;gap:14px}
+.ls-ring{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px #0002}
+.ls-ring b{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 45% 35%,#fdfcf9,#ebe7de);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 2px #0002;font:bold 14px Georgia,serif;color:var(--java)}
+.ls-t{flex:1;min-width:0;line-height:1.45}.ls-t small{display:block;font:bold 8.5px Arial;letter-spacing:.14em;color:#8d8577}.ls-t span{display:block;font:12.5px Georgia,serif;color:var(--java);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-again{flex:none;background:none;border:0;min-height:0;padding:0;font:11px 'Noto Serif KR',serif;color:var(--dblue);cursor:pointer}
+.lastsay .ls-empty{font:11.5px 'Noto Serif KR',serif;color:#9a8b7c}
+.say-slot #sayRes{margin:0;max-width:none}
+.records{display:flex;align-items:flex-end;gap:8px;padding-top:12px;border-top:1px solid #d6ccbd}
+.rec-v{font:9px Arial;letter-spacing:.18em;color:#8a6a5a;writing-mode:vertical-rl;transform:rotate(180deg);height:58px;text-align:center}
+.rec-row{display:flex;gap:8px;align-items:flex-end}
+.sleeve{display:block;position:relative;flex:none;width:58px;height:58px;border-radius:2px;overflow:hidden;box-shadow:0 2px 3px #23181530;border:0;padding:0;min-height:0;cursor:pointer;transition:transform .15s}
+.sleeve.on{transform:translateY(-8px);outline:2px solid var(--dblue);outline-offset:2px;box-shadow:0 4px 8px #23181540}
+.sleeve .disc{position:absolute;right:-28%;top:10%;width:80%;height:80%;border-radius:50%;background:radial-gradient(#2a2422 30%,#151110)}
+.sleeve .disc img{position:absolute;left:31%;top:31%;width:38%;height:38%;border-radius:50%;object-fit:cover}
+.sleeve .sl-t{position:absolute;left:5px;bottom:4px;font:italic 11px Georgia;color:#fff;text-shadow:0 1px 2px #0006;white-space:nowrap}
+.sleeve.def{background:repeating-linear-gradient(135deg,#e9e1d0 0 8px,#e2d8c4 8px 16px)}.sleeve.def .sl-t{color:var(--java);text-shadow:none}
+.rec-side{flex:1;display:flex;flex-direction:column;gap:6px}
+.rec-all{padding:7px 8px;border:1px dashed #b9ab97;background:none;font:11.5px 'Noto Serif KR',serif;color:#6f6156;min-height:0}
+.rec-set{padding:7px 8px;background:#8e7762;border:0;color:#fbf8f1;font:11.5px Arial;border-radius:3px;min-height:0}
+/* crate */
+.crate{position:fixed;inset:0;z-index:40;background:#23181566;display:flex;align-items:center;justify-content:center;padding:24px}
+.crate[hidden]{display:none}
+.crate-box{width:min(760px,100%);max-height:100%;background:#fbf8f1;border-radius:6px;box-shadow:0 20px 50px #23181560;display:flex;flex-direction:column;overflow:hidden;color:#231815}
+.crate-box header{padding:20px 26px 14px;background:linear-gradient(#7b5236,#5f3d27);color:#f2e6d4;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.crate-box header p{margin:0;font:10px Arial;letter-spacing:.24em;opacity:.8}.crate-box header h2{margin:4px 0 0;font:26px Georgia,serif}
+.crate-box header button{background:none;border:1px solid #f2e6d455;color:#f2e6d4;font:12px Arial;padding:6px 12px;min-height:0}
+.crate-bar{display:flex;align-items:center;gap:8px;padding:12px 26px;border-bottom:1px solid #e3d9c8;flex-wrap:wrap}
+.crate-tabs{display:flex;gap:16px}.crate-tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:4px 2px;font:13px Georgia,serif;color:#a69a8b;min-height:0}.crate-tabs button.on{color:#231815;border-color:var(--java)}
+.crate-bar .sp{flex:1}
+.crate-bar [data-csort]{padding:5px 11px;border-radius:14px;border:1px solid #c9bda9;background:none;color:#6f6156;font:11.5px Arial;min-height:0}.crate-bar [data-csort].on{background:var(--java);color:#f4f0e8;border-color:var(--java)}
+.crate-grid{flex:1;overflow:auto;padding:20px 26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:24px 22px;align-content:start}
+.crate-item{display:block;background:none;border:0;padding:0;min-height:0;text-align:left;cursor:pointer;color:#231815}
+.crate-item .sleeve{width:100%;height:auto;aspect-ratio:1}.crate-item .sleeve .sl-t{font-size:19px;left:10px;bottom:8px}
+.crate-item .ci-t{display:flex;justify-content:space-between;gap:6px;margin-top:9px;font:13px Georgia,'Noto Serif KR',serif}
+.crate-item .ci-t small{font:9px Arial;letter-spacing:.1em;color:var(--dblue);white-space:nowrap}
+.crate-item .ci-s{font:10.5px Arial;color:#9a8b7c;margin-top:2px}
+.crate-note{margin:0;padding:10px 26px;border-top:1px solid #e3d9c8;font:11px 'Noto Serif KR',serif;color:#9a8b7c}
+@media(max-width:600px){.crate{padding:0}.crate-box{height:100%;border-radius:0}.crate-grid{grid-template-columns:repeat(2,1fr);padding:16px}}
+/* phone quick menu */
+.quick h4{margin:20px 0 10px;font:bold 9px var(--sans);letter-spacing:.22em;color:#8a6a5a}
+.quick .rec-row .sleeve{width:76px;height:76px}.quick .rec-row .sleeve.on{transform:none}
+.quick .q-crate{margin-top:10px;width:100%;padding:9px;border:1px dashed #cdbfa8;background:none;font:12.5px 'Noto Serif KR',serif;color:var(--java)}
+.ko-seg{display:flex;padding:3px;margin-top:10px;background:#ddd2bf;border-radius:8px;box-shadow:inset 0 1px 2px #0002}
+.ko-seg button{flex:1;padding:8px 0;min-height:0;border:0;border-radius:6px;background:none;font:12px 'Noto Serif KR',serif;color:#8d8577}
+.ko-seg button.on{background:linear-gradient(#fbf7ef,#ece3d3);box-shadow:0 1px 2px #0003;color:var(--java);font-weight:bold}
+.q-loop{display:flex;gap:8px}.q-loop button{flex:1;padding:10px 0;border-radius:8px;border:1px solid #d8ccb8;background:linear-gradient(#fbf7ef,#e8dfcf);font:12.5px 'Noto Serif KR',serif;color:var(--java);min-height:0}
+/* phone MP3 mini player (B) */
+@media(max-width:959px){
+ .mini{left:10px!important;right:10px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;border-radius:16px!important;background:linear-gradient(#e9e9e6,#cfd0cc)!important;padding:12px!important;box-shadow:0 8px 24px #23181540,inset 0 1px 0 #fff!important;color:#1f2a2a!important;border:0!important}
+ .lcd{display:grid;grid-template-columns:42px minmax(0,1fr) auto;grid-template-rows:auto auto;gap:4px 10px;align-items:center;background:#b9c7c4;border-radius:6px;padding:9px 10px;box-shadow:inset 0 2px 4px #0003;font-family:'Courier New',monospace}
+ .lcd-art{grid-row:1/3;width:42px;height:42px;border-radius:2px;background:#774223;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-start}
+ .lcd-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+ .lcd-art b{position:relative;font:italic 10px Georgia;color:#fff;padding:0 0 3px 4px}
+ .lcd .mini-now{all:unset;cursor:pointer;min-width:0;display:block}
+ #miniTxt{display:block;font:bold 12.5px 'Courier New',monospace;letter-spacing:.02em;color:#1f2a2a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .lcd-meta{display:block;font:10px 'Courier New',monospace;letter-spacing:.06em;color:#2c3a3a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #miniWho{font:inherit;color:inherit;letter-spacing:inherit}
+ .lcd-eq{display:flex;gap:2px;align-items:flex-end;height:22px}.lcd-eq i{width:3px;height:30%;background:#1f2a2a}
+ body.is-playing .lcd-eq i{animation:eq .8s ease-in-out infinite alternate}.lcd-eq i:nth-child(2){animation-delay:-.3s}.lcd-eq i:nth-child(3){animation-delay:-.6s}.lcd-eq i:nth-child(4){animation-delay:-.15s}.lcd-eq i:nth-child(5){animation-delay:-.45s}
+ @keyframes eq{from{height:20%}to{height:100%}}
+ .lcd .mini-prog{grid-column:2/4;height:3px!important;background:#1f2a2a33!important;margin:3px 0 0!important;border-radius:0!important}.lcd .mini-prog i{background:#1f2a2a!important}
+ .mini .mini-btns{display:flex!important;justify-content:space-between;align-items:center;margin-top:10px;gap:0!important}
+ .mini .mini-btns button{width:40px!important;height:40px;min-height:0;padding:0;border-radius:50%;flex:none!important;background:#f4f4f1!important;border:0!important;box-shadow:0 1px 2px #0003;color:#3a2316!important;font:15px Arial!important}
+ .mini .mini-btns #mPrev,.mini .mini-btns #mNext{background:none!important;box-shadow:none}
+ .mini .mini-btns .mini-play{width:56px!important;height:56px;background:radial-gradient(#fafaf8,#d9dad6)!important;box-shadow:0 2px 4px #0004,inset 0 1px 0 #fff;font-size:18px!important}
+ .mini .mini-btns .mini-say{color:var(--sred)!important}.mini .mini-btns .mini-say.on{box-shadow:0 0 0 3px #e0705f88}
+ .mini .mini-btns .mini-loop.on{color:#fff!important;background:var(--dblue)!important;font-size:12px!important}
+ .mini .mini-tip{color:#3a4a4a!important}
+}
+</style>
 </head>
 <body>
 <main>
@@ -325,11 +505,16 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
   <g stroke="#55544e" stroke-width=".8"><circle cx="27" cy="63" r="5" fill="url(#cRivet)"/><circle cx="173" cy="63" r="5" fill="url(#cRivet)"/></g>
   <g fill="#ffffffaa"><circle cx="25.5" cy="61.5" r="1.4"/><circle cx="171.5" cy="61.5" r="1.4"/></g>
 </svg></div><div class="desk-paper">
-  <div class="desk-head"><button class="menu-close mobile-only" id="menuClose" aria-label="메뉴 닫기">✕</button>
-  <p class="eyebrow">S&amp;G · English Lab — Script Studio</p>
-  <h1>Script Studio.</h1>
-  <p class="sub">대사를 듣고, 따라 말하고, 문장을 몸에 붙여 봐.</p>
-  <p class="legend"><span class="lg-u">밑줄</span> 단어장 단어 · <span class="lg-c">✔</span> 학습 핵심 문장 · <span class="lg-q">⧉</span> 문장 질문 복사</p>
+  <div class="desk-head"><button class="menu-close" id="menuClose" aria-label="닫기">✕</button><p class="eyebrow">SCRIPT STUDIO · <span class="pc-only">SETTINGS</span><span class="mobile-only">MENU</span></p><h1><span class="pc-only">Settings.</span><span class="mobile-only">Menu.</span></h1>
+  <section class="quick mobile-only" id="quick" aria-label="빠른 메뉴">
+   <h4>RECORDS</h4><div class="rec-row q" data-recrow></div><button class="q-crate" data-crate>판 전체 ›</button>
+   <h4>PLAY · 재생</h4><div class="snaps" data-snaps></div>
+   <div class="ko-seg" id="koSeg"><button data-km="both">의역+직역</button><button data-km="nat">의역</button><button data-km="lit">직역</button><button data-km="off">끔</button></div>
+   <h4>LOOP · 구간</h4><div class="q-loop"><button id="qOne">이 줄만</button><button id="qAround">앞뒤 2줄</button><button id="qClear">해제</button></div>
+   <p class="hint">🔁 구간 모드는 아래 플레이어 🔁로 켜고, 대본에서 시작 줄 → 끝 줄을 탭해.</p>
+   <h4>LAST SAY</h4><div class="lastsay" data-lastsay></div>
+  </section>
+  <h4 class="set-h">CAST · PRACTICE · SCRIPT</h4>
   </div>
   <section class="card studio-source"><label for="studioSource">연습 자료</label><div class="ctrl"><select id="studioSource" aria-label="연습 자료"><option value="direct">직접 입력한 문장</option></select><button id="reloadPacks">목록 새로고침</button><a class="studio-settings" href="./?studio=settings">Settings · 대사팩 관리 →</a></div><p class="hint" id="sourceNote"></p></section>
   <details class="studio-set" id="studioSet">
@@ -347,12 +532,13 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
   </div>
   <div class="card set-play">
     <div class="sliders">
-      <div>속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
-      <div>줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
+      <div class="rg-row">속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
+      <div class="rg-row">줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
       <div><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="shadow"> 따라 말하기 (줄마다 대사 길이만큼 멈춤)</label></div>
     </div>
     <div class="tools">
       <input type="checkbox" id="loop" hidden><select id="loopA" hidden></select><select id="loopB" hidden></select>
+      <div class="grp"><label><input type="checkbox" id="marks" checked> 단어장 밑줄 · 핵심 문장 체크</label></div>
       <div class="grp"><label><input type="checkbox" id="blank"> ✏️ 빈칸 모드</label><button id="reshuffle">빈칸 바꾸기</button><button id="reveal">정답 보기</button></div>
     </div>
     <div class="ctrl mobile-only set-extra"><button id="stopM">■ 처음으로</button><button id="toggleKoM">뜻 보기</button></div>
@@ -382,19 +568,44 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
     <p class="hint" id="koNote" style="text-align:center"></p>
   </div>
   </div></aside>
+<aside class="deck-col" id="deckCol" aria-label="턴테이블">
+   <div class="deck" id="deck">
+    <div class="platter"><div class="record" id="record"><div class="rlabel"><img id="rImg" alt="" hidden><div class="rl-def" id="rDef"><span class="rl-sg">SAW &amp; GIN</span><b id="rEp">S&amp;G</b><span id="rTitle"></span><span class="rl-side">SIDE A · 33⅓</span></div></div></div><i class="spindle"></i></div>
+    <svg class="tonearm" viewBox="0 0 340 292" aria-hidden="true"><defs><linearGradient id="armg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f2ec"/><stop offset=".5" stop-color="#b5b3a9"/><stop offset="1" stop-color="#e9e7df"/></linearGradient></defs>
+     <circle cx="300" cy="62" r="21" fill="#2b1a10" fill-opacity=".35"/><rect x="294" y="22" width="12" height="22" rx="3" fill="#3a3733"/>
+     <g id="armG" class="arm"><path d="M300 62 L297 168 L292 236 L300 267" fill="none" stroke="#2b1a1055" stroke-width="7" stroke-linecap="round" transform="translate(3 4)"/><path d="M300 62 L297 168 L292 236 L300 267" fill="none" stroke="url(#armg)" stroke-width="5" stroke-linecap="round"/><rect x="290" y="258" width="20" height="13" rx="2" fill="#d9d6cc" stroke="#5e5d57"/></g>
+     <circle cx="300" cy="62" r="17" fill="url(#armg)" stroke="#7d7c74"/><circle cx="300" cy="62" r="6" fill="#5e5d57"/></svg>
+    <span class="deck-start"><i></i>START</span><span class="deck-brand">Saw &amp; Gin · Hi-Fi</span>
+   </div>
+   <div class="np"><span class="np-l">NOW PLAYING</span><span id="npCount"></span></div>
+   <div class="prog" id="prog" role="slider" aria-label="대사 위치" tabindex="0"><span class="prog-bubble" id="progBubble"></span><i class="prog-track"></i><i class="prog-fill" id="progFill"></i><i class="prog-loop" id="progLoop" hidden></i><span class="prog-ab" id="progA" hidden>A</span><span class="prog-ab" id="progB" hidden>B</span><span class="prog-knob" id="progKnob"></span></div>
+   <div class="panel">
+    <div class="p-top"><div class="keys"><button class="key" id="kPrev" title="이전 줄" aria-label="이전 줄">◀◀</button><button class="key" id="kPlay" title="재생 / 일시정지" aria-label="재생"><span id="kPlayIc">▶</span><i class="led" id="kLed"></i></button><button class="key" id="kNext" title="다음 줄" aria-label="다음 줄">▶▶</button><button class="key" id="kSay" title="말해보기 (R)" aria-label="말해보기"><b class="say-dot">●</b></button></div>
+     <button class="knob-wrap" id="kKnob" title="뜻 표시: 누를 때마다 바뀜" aria-label="뜻 표시 바꾸기"><span class="knob-labels"><span data-km="both">+직역</span><span data-km="nat">의역</span><span data-km="lit">직역</span><span data-km="off">끔</span></span><span class="knob" id="knobDial"><i></i></span></button></div>
+    <hr>
+    <div class="p-round"><button class="rb" id="kLoop" title="구간 반복: 대본에서 시작 줄 → 끝 줄" aria-label="구간 반복">⟲<i class="led"></i></button><button class="rb" id="kOne" title="이 줄만 반복" aria-label="이 줄만 반복">1</button><button class="rb" id="kAround" title="앞뒤 2줄 반복" aria-label="앞뒤 2줄 반복">±2</button><i class="vsep"></i><a class="rb" id="kYg" target="_blank" rel="noopener" href="https://youglish.com" title="YouGlish 실제 발음 (드래그한 말 또는 지금 문장)" aria-label="YouGlish 실제 발음">▷</a><button class="rb" id="kAsk" title="드래그한 말 질문 복사" aria-label="선택한 말 질문 복사" disabled>⧉</button></div>
+    <hr>
+    <div class="snaps" data-snaps></div>
+    <hr>
+    <div class="lastsay" data-lastsay></div>
+   </div>
+   <div class="say-slot" id="saySlot"></div>
+   <div class="records"><span class="rec-v">RECORDS</span><div class="rec-row" data-recrow></div><div class="rec-side"><button class="rec-all" data-crate>판 전체 ›</button><button class="rec-set" id="openSet">📋 Settings</button></div></div>
+  </aside>
   <section class="studio-board" aria-label="대본"><div class="studio-paper" id="studioPaper"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i>
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v0.9.9</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v1.0</p></div></section>
   </div>
 </main>
 
-<div class="mini" id="mini" role="region" aria-label="재생 바"><button class="mini-now" id="miniNow" title="지금 대사로 이동"><span id="miniWho"></span><span id="miniTxt"></span></button><div class="mini-prog" aria-hidden="true"><i id="miniBar"></i></div><div class="mini-btns"><button id="mPrev" aria-label="이전 줄">⏮</button><button id="mPlay" class="mini-play">▶ 재생</button><button id="mNext" aria-label="다음 줄">⏭</button><button id="mSay" class="mini-say" aria-label="말해보기">🎙</button><button id="mLoop" class="mini-loop" aria-label="구간 반복">🔁</button><button id="mMenu" class="mini-menu" aria-label="메뉴">📋</button></div><p class="mini-tip" id="mLoopTip" hidden></p></div>
+<div class="mini" id="mini" role="region" aria-label="재생 바"><div class="lcd"><span class="lcd-art" id="lcdArt"><img id="lcdImg" alt="" hidden><b id="lcdEp"></b></span><button class="mini-now" id="miniNow" title="지금 대사로 이동"><span id="miniTxt"></span><span class="lcd-meta"><span id="miniWho"></span> · <span id="lcdMeta"></span></span></button><span class="lcd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div class="mini-prog" aria-hidden="true"><i id="miniBar"></i></div></div><div class="mini-btns"><button id="mLoop" class="mini-loop" aria-label="구간 반복">⟲</button><button id="mPrev" aria-label="이전 줄">⏮</button><button id="mPlay" class="mini-play" aria-label="재생">▶</button><button id="mNext" aria-label="다음 줄">⏭</button><button id="mSay" class="mini-say" aria-label="말해보기">●</button><button id="mMenu" class="mini-menu" aria-label="메뉴">≡</button></div><p class="mini-tip" id="mLoopTip" hidden></p></div>
 <div class="menu-back" id="menuBack"></div>
 
 <div class="fab"><button id="goTop" title="메뉴로">📋 메뉴</button><button id="goCur" title="지금 읽는 대사로 이동">📍 현재 대사</button></div>
 
 <div class="selbar" id="selBar" hidden><a id="selYg" target="_blank" rel="noopener" href="#">🎬 실제 발음</a><button id="selCopy">⧉ 질문 복사</button></div>
 <div class="stoast" id="sToast" role="status"></div>
+<div class="crate" id="crate" hidden><div class="crate-box" role="dialog" aria-modal="true" aria-label="레코드 상자"><header><div><p>RECORDS · 레코드 상자</p><h2>Pick a record.</h2></div><button id="crateClose">✕ 닫기</button></header><div class="crate-bar"><div class="crate-tabs" id="crateTabs"></div><span class="sp"></span><button data-csort="num">번호순</button><button data-csort="recent">최근순</button></div><div class="crate-grid" id="crateGrid"></div><p class="crate-note">재킷을 누르면 턴테이블에 올라가. 라벨 이미지가 없는 판은 기본 재킷이야.</p></div></div>
 <div id="dict" aria-live="polite"><div class="inner" id="dictInner"></div></div>
 
 <script src="./script-packs.js"></script>
@@ -974,6 +1185,138 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   $('stopM').onclick=()=>$('stop').click();$('toggleKoM').onclick=()=>{$('toggleKo').click();updateMini();};
   $('miniNow').onclick=scrollCur;$('goTop').onclick=toggleMenu;$('mMenu').onclick=toggleMenu;$('mLoop').onclick=startPick;
   document.addEventListener('change',()=>setTimeout(updateSummary));document.addEventListener('input',e=>{if(e.target.type==='range')updateSummary();});
+
+  // ---------- v1.0 · turntable studio ----------
+  const epCode=id=>{ const m=String(id||'').toUpperCase().match(/S\d+_EP\d+(?:_\d+)?/); return m?m[0]:''; };
+  const epPretty=code=>{ const m=code.match(/EP(\d+)(?:_(\d+))?/); return m?'EP'+m[1]+(m[2]?'-'+m[2]:''):code; };
+  const recSrc=code=>code?'records/'+code+'.webp':'';
+  const SLEEVE_COLORS=['#774223','#ABBBC3','#56431F','#400C0F','#C2B087','#6b5440','#8e7762','#D8D8B4'];
+  const sleeveColor=id=>{ let h=0; for(const ch of String(id)) h=(h*31+ch.charCodeAt(0))>>>0; return SLEEVE_COLORS[h%SLEEVE_COLORS.length]; };
+  let marksOn=store.get('dkMarks')!==false;
+  { const _vm=vocabMap, _cl=coreLine; vocabMap=t=>marksOn?_vm(t):{}; coreLine=t=>marksOn&&_cl(t); }
+  $('marks').checked=marksOn; $('marks').onchange=e=>{ marksOn=e.target.checked; store.set('dkMarks',marksOn); renderList(); };
+  { const _ll=loadLearning; loadLearning=id=>_ll(id?(epCode(id)||id):''); }
+  // rate / gap persistence + gap step for 0.3
+  $('gap').step='0.05';
+  { const r=store.get('dkRate'), g=store.get('dkGap'); if(r!=null){ $('rate').value=r; $('rate').oninput({target:$('rate')}); } if(g!=null){ $('gap').value=g; $('gap').oninput({target:$('gap')}); } }
+  // recent packs
+  let recent=(store.get('dkRecentPacks')||[]).filter(x=>typeof x==='string');
+  function pushRecent(id){ recent=[id,...recent.filter(x=>x!==id)].slice(0,30); store.set('dkRecentPacks',recent); }
+  function packIds(){ return Object.keys(catalog); }
+  function sleeveHTML(id,active,big){
+    const p=catalog[id], code=epCode(id), src=recSrc(code), t=code?epPretty(code):(p&&p.title?p.title.slice(0,8):'S&G');
+    if(!src) return `<span class="sleeve def${active?' on':''}"><span class="sl-t">${esc(t)}</span></span>`;
+    return `<span class="sleeve${active?' on':''}" style="background:${sleeveColor(id)}"><span class="disc"><img src="${esc(src)}" alt="" onerror="this.remove()"></span><span class="sl-t">${esc(t)}</span></span>`;
+  }
+  function renderRecords(){
+    const curId=currentSource.startsWith('pack:')?currentSource.slice(5):'';
+    const ids=packIds(); let row=[]; if(curId&&catalog[curId]) row.push(curId);
+    recent.forEach(id=>{ if(row.length<3&&catalog[id]&&!row.includes(id)) row.push(id); });
+    ids.forEach(id=>{ if(row.length<3&&!row.includes(id)) row.push(id); });
+    document.querySelectorAll('[data-recrow]').forEach(box=>{ box.innerHTML=row.map(id=>`<button class="rec-btn" data-pick="${esc(id)}" title="${esc((catalog[id]&&catalog[id].title)||id)}" style="all:unset;display:block;cursor:pointer">${sleeveHTML(id,id===curId)}</button>`).join('')||'<span class="hint">대사팩을 가져오면 여기 판이 꽂혀.</span>'; });
+  }
+  function pickPack(id){ if(!catalog[id]) return; const v='pack:'+id; $('studioSource').value=v; loadSource(v); closeCrate(); closeMenu(); }
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-pick]'); if(b){ e.preventDefault(); pickPack(b.dataset.pick); } });
+  // crate
+  let crateSort=store.get('dkCrateSort')||'num', crateSeason='';
+  function seasonOf(id){ const m=epCode(id).match(/^S(\d+)/); return m?'S'+m[1]:'기타'; }
+  function renderCrate(){
+    const ids=packIds(), seasons=[...new Set(ids.map(seasonOf))].sort();
+    if(!seasons.includes(crateSeason)) crateSeason=seasons.includes(seasonOf(currentSource.slice(5)))?seasonOf(currentSource.slice(5)):(seasons[0]||'');
+    $('crateTabs').innerHTML=seasons.map(se=>`<button data-season="${esc(se)}" class="${se===crateSeason?'on':''}">${se.startsWith('S')?'Season '+se.slice(1):se}</button>`).join('');
+    document.querySelectorAll('[data-csort]').forEach(b=>b.classList.toggle('on',b.dataset.csort===crateSort));
+    const curId=currentSource.startsWith('pack:')?currentSource.slice(5):'';
+    let list2=ids.filter(id=>seasonOf(id)===crateSeason);
+    const num=id=>epCode(id).replace(/\d+/g,d=>d.padStart(4,'0'))||'~'+id;
+    if(crateSort==='recent') list2.sort((a,b)=>{ const ia=recent.indexOf(a), ib=recent.indexOf(b); return (ia<0?1e9:ia)-(ib<0?1e9:ib) || (catalog[b].updatedAt||0)-(catalog[a].updatedAt||0); });
+    else list2.sort((a,b)=>num(a).localeCompare(num(b)));
+    $('crateGrid').innerHTML=list2.map(id=>{ const p=catalog[id]; return `<button class="crate-item" data-pick="${esc(id)}">${sleeveHTML(id,id===curId,true)}<span class="ci-t"><span>${esc(p.title||id)}</span>${id===curId?'<small>ON DECK</small>':''}</span><span class="ci-s">${(p.lines||[]).length||''}${(p.lines||[]).length?'줄':''}</span></button>`; }).join('')||'<p class="hint">아직 대사팩이 없어. 앱 Settings에서 가져와 줘.</p>';
+  }
+  function openCrate(){ catalog=readCatalog(); renderCrate(); $('crate').hidden=false; }
+  function closeCrate(){ $('crate').hidden=true; }
+  document.addEventListener('click',e=>{ if(e.target.closest('[data-crate]')){ closeMenu(); openCrate(); } const se=e.target.closest('[data-season]'); if(se){ crateSeason=se.dataset.season; renderCrate(); } const so=e.target.closest('[data-csort]'); if(so){ crateSort=so.dataset.csort; store.set('dkCrateSort',crateSort); renderCrate(); } });
+  $('crateClose').onclick=closeCrate; $('crate').addEventListener('click',e=>{ if(e.target===$('crate')) closeCrate(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeCrate(); });
+  // snap sliders (SPEED / GAP)
+  const SNAPS=[{key:'rate',label:'SPEED',stops:[0.7,0.8,0.9,1.0],fmt:v=>(+v).toFixed(2).replace(/0$/,'')+'×',lab:v=>v.toFixed(1)},{key:'gap',label:'GAP',stops:[0.3,0.5,1,2],fmt:v=>(+v)+'s',lab:v=>String(v)}];
+  function renderSnaps(){
+    document.querySelectorAll('[data-snaps]').forEach(box=>{
+      box.innerHTML=SNAPS.map(sn=>{ const v=+$(sn.key).value, n=sn.stops.length; let ci=0; sn.stops.forEach((x,k)=>{ if(Math.abs(x-v)<Math.abs(sn.stops[ci]-v)) ci=k; });
+        const pos=k=>k/(n-1)*100;
+        return `<div class="snap"><span class="snap-l">${sn.label}</span><div class="snap-t" data-snap="${sn.key}"><i class="snap-f" style="width:${pos(ci)}%"></i>${sn.stops.map((x,k)=>`<i class="snap-d" style="left:${pos(k)}%"></i><button class="snap-s${k===ci?' on':''}" style="left:${pos(k)}%" data-sv="${x}" aria-label="${sn.label} ${x}">${sn.lab(x)}</button>`).join('')}<span class="snap-h" style="left:${pos(ci)}%"></span></div><span class="snap-v">${sn.fmt(v)}</span></div>`; }).join('');
+    });
+  }
+  function setSnap(key,val){ const el=$(key); el.value=val; el.dispatchEvent(new Event('input',{bubbles:true})); store.set(key==='rate'?'dkRate':'dkGap',+val); renderSnaps(); updateDeck(); }
+  document.addEventListener('pointerdown',e=>{ const t=e.target.closest('.snap-t'); if(!t) return; e.preventDefault(); const sn=SNAPS.find(x=>x.key===t.dataset.snap);
+    const pick=ev=>{ const r=t.getBoundingClientRect(), f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)), k=Math.round(f*(sn.stops.length-1)); if(+$(sn.key).value!==sn.stops[k]) setSnap(sn.key,sn.stops[k]); };
+    pick(e); const mv=ev=>pick(ev), up=()=>{ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); };
+    document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up); });
+  // meaning knob / segmented
+  const KNOB_DEG={both:-60,nat:-20,lit:20,off:60};
+  function renderKo(){ $('knobDial').style.transform=`rotate(${KNOB_DEG[koMode]||0}deg)`; document.querySelectorAll('[data-km]').forEach(x=>x.classList.toggle('on',x.dataset.km===koMode)); }
+  $('kKnob').onclick=()=>{ $('toggleKo').click(); renderKo(); };
+  $('koSeg').addEventListener('click',e=>{ const b=e.target.closest('[data-km]'); if(!b) return; let guard=0; while(koMode!==b.dataset.km&&guard++<4) $('toggleKo').click(); renderKo(); });
+  // last say
+  let lastSay=store.get('dkLastSay')||null;
+  { const _lp=logPractice; logPractice=function(text,score){ try{ const i=lines.findIndex(l=>l.text===text); lastSay={pct:Math.round(score),text,who:i>=0?(lines[i].who||''):'',line:i,src:currentSource}; store.set('dkLastSay',lastSay); renderLastSay(); }catch(e){} return _lp.apply(this,arguments); }; }
+  function renderLastSay(){
+    document.querySelectorAll('[data-lastsay]').forEach(box=>{
+      if(!lastSay){ box.innerHTML='<span class="ls-empty">● 말해보기를 하면 여기에 점수가 남아.</span>'; return; }
+      const pc=Math.max(0,Math.min(100,lastSay.pct||0));
+      box.innerHTML=`<span class="ls-ring" style="background:conic-gradient(var(--dblue) 0 ${pc}%,#e0d6c5 ${pc}% 100%)"><b>${pc}</b></span><span class="ls-t"><small>LAST SAY${lastSay.line>=0?' · L'+(lastSay.line+1):''}${lastSay.who?' '+esc(String(lastSay.who).toUpperCase()):''}</small><span>${esc(lastSay.text||'')}</span></span><button class="ls-again" data-again>다시 ›</button>`;
+    });
+  }
+  document.addEventListener('click',e=>{ if(!e.target.closest('[data-again]')||!lastSay) return; if(lastSay.src===currentSource){ const i=lines.findIndex(l=>l.text===lastSay.text); if(i>=0){ if(playing) pause(); cur=i; showLine(i,-1); renderList(); scrollCur(); } } closeMenu(); setTimeout(()=>$('sayBtn').click(),80); });
+  // panel keys
+  $('kPrev').onclick=()=>$('prev').click(); $('kNext').onclick=()=>$('next').click(); $('kPlay').onclick=()=>$('play').click(); $('kSay').onclick=()=>$('sayBtn').click();
+  function loopKey(){ if(loopPick){ loopPick=0; updLoopUI(); renderList(); } else if(loopOn()){ clearLoop(); } else { startPick(); sToast('구간: 대본에서 시작 줄 → 끝 줄을 눌러.'); } updateDeck(); }
+  $('kLoop').onclick=loopKey; $('mLoop').onclick=loopKey;
+  $('kOne').onclick=()=>$('loopOne').click(); $('kAround').onclick=()=>$('loopAround').click();
+  $('qOne').onclick=()=>$('loopOne').click(); $('qAround').onclick=()=>$('loopAround').click(); $('qClear').onclick=()=>{ clearLoop(); closeMenu(); };
+  $('kAsk').onclick=()=>$('ygCopy').click();
+  $('openSet').onclick=()=>{ document.body.classList.add('menu-open'); };
+  // progress bar
+  let dragI=null;
+  function idxAt(x){ const r=$('prog').getBoundingClientRect(), n=lines.length; if(!n) return 0; return Math.round(Math.max(0,Math.min(1,(x-r.left)/r.width))*(n-1)); }
+  $('prog').addEventListener('pointerdown',e=>{ if(!lines.length) return; e.preventDefault(); dragI=idxAt(e.clientX); updateDeck();
+    const mv=ev=>{ dragI=idxAt(ev.clientX); updateDeck(); }, up=()=>{ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); const i=dragI; dragI=null; jumpTo(i); };
+    document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up); });
+  $('prog').addEventListener('keydown',e=>{ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); jumpTo(Math.max(0,Math.min(lines.length-1,cur+(e.key==='ArrowRight'?1:-1)))); } });
+  function jumpTo(i){ if(i==null||!lines.length) return; cur=i; if(playing) start(); else { showLine(i,-1); renderList(); } scrollCur(); updateDeck(); }
+  // deck state
+  function updateDeck(){
+    const n=lines.length, i=dragI!=null?dragI:cur, f=n>1?i/(n-1):0, l=lines[i];
+    $('npCount').textContent=n?(i+1)+' / '+n:'';
+    $('progFill').style.width=(f*100)+'%'; $('progKnob').style.left=(f*100)+'%';
+    const b=$('progBubble'); b.textContent=l?'L'+(i+1)+' · '+(l.who||'화자'):''; b.style.left=Math.max(6,Math.min(94,f*100))+'%'; b.hidden=!l;
+    const lo=loopOn()&&n>1; ['progLoop','progA','progB'].forEach(k=>$(k).hidden=!lo);
+    if(lo){ const a=loopA()/(n-1)*100, z=loopB()/(n-1)*100; Object.assign($('progLoop').style,{left:a+'%',width:Math.max(1.2,z-a)+'%'}); $('progA').style.left=a+'%'; $('progB').style.left=z+'%'; }
+    $('armG').style.transform=`rotate(${playing?27+20*(n>1?cur/(n-1):0):0}deg)`;
+    $('record').classList.toggle('spin',playing); document.body.classList.toggle('is-playing',playing);
+    $('kLed').classList.toggle('on',playing); $('kPlayIc').textContent=playing?'❙❙':'▶'; $('kPlay').setAttribute('aria-label',playing?'일시정지':'재생');
+    $('kSay').classList.toggle('on',listening); $('mSay').classList.toggle('on',listening);
+    $('kLoop').classList.toggle('on',loopOn()); $('kLoop').classList.toggle('pick',!!loopPick);
+    $('kAsk').disabled=$('ygCopy').hidden; $('kYg').href=$('ygLink').href;
+    const mp=$('mPlay'), sym=playing?'❙❙':'▶'; if(mp.textContent!==sym) mp.textContent=sym; mp.setAttribute('aria-label',playing?'일시정지':'재생');
+    $('lcdMeta').textContent=[currentSource.startsWith('pack:')?epPretty(epCode(currentSource.slice(5)))||'':'직접 입력',(+$('rate').value).toFixed(2).replace(/0$/,'')+'×'].filter(Boolean).join(' · ');
+  }
+  function updateLabel(){
+    const id=currentSource.startsWith('pack:')?currentSource.slice(5):'', p=catalog[id], code=epCode(id), src=recSrc(code), img=$('rImg'), li=$('lcdImg');
+    $('rEp').textContent=code?epPretty(code):(id?'S&G':'MY LINES'); $('rTitle').textContent=p?String(p.title||'').replace(/^.*?·\s*/,''):'직접 입력';
+    $('lcdEp').textContent=code?epPretty(code).replace('EP',''):'S&G'; $('lcdArt').style.background=id?sleeveColor(id):'#6b5440';
+    [img,li].forEach(im=>{ im.hidden=true; im.onload=()=>{ im.hidden=false; if(im===img) $('rDef').hidden=true; if(im===li) $('lcdEp').hidden=true; }; im.onerror=()=>{ im.hidden=true; if(im===img) $('rDef').hidden=false; if(im===li) $('lcdEp').hidden=false; }; $('rDef').hidden=false; $('lcdEp').hidden=false; if(src) im.src=src; else im.removeAttribute('src'); });
+  }
+  // keep #sayRes visible next to the panel on PC
+  const sayRes=$('sayRes'), sayHome=sayRes.parentNode;
+  function placeSay(){ if(mqWide.matches){ if(sayRes.parentNode!==$('saySlot')) $('saySlot').appendChild(sayRes); } else if(sayRes.parentNode!==sayHome) sayHome.appendChild(sayRes); }
+  (mqWide.addEventListener?mqWide.addEventListener('change',placeSay):mqWide.addListener(placeSay));
+  // observers
+  const deckObs=new MutationObserver(()=>updateDeck());
+  deckObs.observe(stage,{childList:true}); deckObs.observe($('play'),{childList:true,characterData:true,subtree:true}); deckObs.observe($('sayBtn'),{childList:true,characterData:true,subtree:true,attributes:true}); deckObs.observe($('ygCopy'),{attributes:true}); deckObs.observe($('ygLink'),{attributes:true}); deckObs.observe(list,{childList:true});
+  $('mPlay').textContent='▶';
+  { const _ls=loadSource; loadSource=function(v,startup){ const r=_ls.apply(this,arguments); if(String(v).startsWith('pack:')) pushRecent(v.slice(5)); renderRecords(); updateLabel(); updateDeck(); return r; }; }
+  setBox.open=true;
+  renderSnaps(); renderKo(); renderLastSay(); placeSay();
   loadSources();loadSource(typeof storedSource==='string'?storedSource:'direct',true);
   placeDesk();updateSummary();updateMini();
   if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
