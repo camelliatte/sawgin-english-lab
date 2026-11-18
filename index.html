@@ -356,8 +356,8 @@ body::before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:en
 .bp-check input{width:16px;height:16px;margin:0}
 .bp-main{all:unset;box-sizing:border-box;flex:1;min-width:0;display:flex;align-items:center;gap:9px;min-height:43px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .bp-main:focus-visible{outline:2px solid var(--soil);outline-offset:2px}
-.bp-title{flex:0 1 auto;min-width:0;max-width:62%;font:15.5px Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 3px}
-.bp-title.ko{font:14px 'Noto Serif KR',serif;max-width:70%}
+.bp-title{flex:0 0 auto;min-width:0;max-width:64%;font:15.5px Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 7px 2px 4px;box-sizing:border-box}
+.bp-title.ko{font:14px 'Noto Serif KR',serif;max-width:72%}
 .bp-sub{flex:1;min-width:0;font:11.5px 'Noto Serif KR',serif;color:#6f6458;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slip-pad.writing .bp-sub{text-align:right;font:10.5px Arial,sans-serif;color:#8b8073}
 .bp-star{all:unset;flex:none;width:36px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -389,7 +389,24 @@ body::before{content:"";position:fixed;z-index:60;left:0;right:0;top:0;height:en
 
 @media(max-width:680px){.bp-h1{font-size:26px;margin-bottom:10px}}
 .bp-more button:not(.bp-snip):not(.bp-go){min-height:28px;padding:3px 9px;font-size:12px}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.6 · HOME &amp; BOOKMARKS</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+/* v0.9.7 */
+.bp-goal{margin:4px 0 0;font:10.5px 'Noto Serif KR',serif;color:#6f6156}
+@media(min-width:900px){.slip-pad{max-width:none}.bp-rows{column-count:2;column-gap:34px;column-rule:1px dashed var(--rule)}.bp-row{break-inside:avoid;-webkit-column-break-inside:avoid}}
+.seal-list{padding-right:12px;scrollbar-gutter:stable}
+.seal-when{flex:none}
+button.member-badge{border:0;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:28px}
+button.member-badge span{font-size:13px;line-height:1;opacity:.8}
+.tier-xp{margin:-4px 0 0}
+.tier-row b em{font-style:normal;font-size:12px;color:var(--wine)}
+.tier-row.now{background:#efe7d6;margin:0 -8px;padding-left:10px;padding-right:10px;border-radius:4px}
+.tier-row:not(.on) .seal-text b,.tier-row:not(.on) .seal-when{color:#9a8e80;font-weight:normal}
+.tier-bar{display:block;height:5px;background:#e3d9c6;border-radius:3px;margin-top:6px;overflow:hidden}
+.tier-bar span{display:block;height:100%;background:var(--wine)}
+.day[data-cal]{cursor:pointer}
+.day[data-cal]:hover{filter:brightness(1.15)}
+.day[data-cal]:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:background .6s}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.7 · TIERS &amp; CALENDAR</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
