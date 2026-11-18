@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.9.7 · 등급 팝업·달력 기록')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.9.8 · 패스·단어 카드·영작 화면')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -1314,6 +1314,42 @@ function openRecordDate(key){const a=db.activity[key]||{},study=(a.vocab||0)+(a.
  requestAnimationFrame(()=>{const row=document.querySelector(`[data-date="${key}"]`);if(!row)return;row.scrollIntoView({block:'center',behavior:'smooth'});row.classList.add('date-flash');setTimeout(()=>row.classList.remove('date-flash'),2200);});}
 document.addEventListener('click',ev=>{const d=ev.target.closest('[data-cal]');if(d)openRecordDate(d.dataset.cal);});
 document.addEventListener('keydown',ev=>{const d=ev.target.closest?.('[data-cal]');if(d&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();openRecordDate(d.dataset.cal);}});
+
+/* v0.9.8 · vocab pass button · review = wrong/passed only · word card ribbon + cover toggle · practice prompt hierarchy. */
+needsReview=function(id){return db.vocabResults[id]?.correct===false;};
+const quizActionsHTML098=quizActionsHTML;
+quizActionsHTML=function(g){const out=quizActionsHTML098(g);if(g||view.mode!=='vocab')return out;return out.replace('<span class="keyhint">',`<button class="secondary pass-btn" data-action="quiz-pass">모르겠어 · 패스</button><span class="keyhint">`);};
+const gradeHTML098=gradeHTML;
+gradeHTML=function(x,g){let out=gradeHTML098(x,g);if(!g.passed)return out;return out.replace('✗ 다시 볼 단어','↷ 패스 · 다시 볼 단어').replace(/<span class="bad"><s><\/s><\/span> → /g,'');};
+function passVocab(){const x=currentItem();if(!x||view.done||view.graded?.id===x.id||view.mode!=='vocab')return;const verb=isVerb(x),ids=verb?['useranswer','pastanswer','participleanswer']:['useranswer'],parts=ids.map(()=>''),ok=ids.map(()=>false);
+ const r=db.vocabResults[x.id]||{attempts:0,streak:0};r.attempts++;r.correct=false;r.passed=true;r.streak=0;r.last=dateKey();r.next=nextDate(1);db.vocabResults[x.id]=r;activity('vocab');
+ view.session??={right:0,wrong:0,wrongIdx:[],label:''};view.session.wrong++;view.session.wrongIdx.push(view.idx);
+ view.graded={id:x.id,parts,ok,correct:false,passed:true};view.reveal=false;lockRewards();save();
+ ids.forEach(id=>{const el=$(id);if(el){el.readOnly=true;el.classList.add('bad');}});
+ if($('result'))$('result').innerHTML=gradeHTML(x,view.graded);if($('quizActions'))$('quizActions').innerHTML=quizActionsHTML(view.graded);
+ const bar=document.querySelector('#quizsheet .bar.thin .fill'),order=sessionOrder();if(bar)bar.style.width=(sessionPos()+1)/order.length*100+'%';
+ document.querySelector('#quizActions .primary')?.focus();}
+document.addEventListener('click',ev=>{if(ev.target.closest('[data-action="quiz-pass"]'))passVocab();});
+/* Word card: ribbon bookmark top-left, cover ON/OFF in the icon row. */
+const RIBBON_SVG='<svg viewBox="0 0 22 44" aria-hidden="true"><path class="rb" d="M0 0 H22 V44 L11 35 L0 44 Z"/><path class="rl" d="M3 0 V38"/></svg>';
+const vocabCard098=vocabCard;
+vocabCard=function(p){let out=vocabCard098(p);const n=p.items.length,x=p.items[vocabOrderArr(p)[Math.max(0,Math.min(vcardIdx,n-1))]],on=vocabView()!=='show',flag=!!db.reviewFlags[x.id];
+ out=out.replace(/<em>(뜻 가리기|단어 가리기)<\/em>/,'');
+ out=out.replace('<header class="vc-band">',`<header class="vc-band has-ribbon"><label class="vc-ribbon" title="책갈피"><input type="checkbox" data-review="${attr(x.id)}" ${flag?'checked':''}><span class="sr-only">책갈피</span>${RIBBON_SVG}</label>`);
+ out=out.replace(/<label><input type="checkbox" data-review="[^"]*"[^>]*><span>🔖<\/span>책갈피<\/label>/,`<button class="vc-cover" data-action="vcard-cover" aria-pressed="${on}"><span><i class="vc-tapeicon"></i></span>가리기 ${on?'ON':'OFF'}</button>`);
+ return out;};
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="vcard-cover"]');if(!b)return;ev.stopPropagation();db.settings.vocabView=vocabView()==='show'?'hide-meaning':'show';save();render();},true);
+/* Practice: the sentence to write is the main line; directions stay small. */
+const quiz098=quiz;
+function firstSentences(t,n){const parts=String(t||'').split(/(?<=[.!?。])\s+/).filter(Boolean);return parts.slice(0,n).join(' ');}
+quiz=function(p){let out=quiz098(p);const x=p.items[view.idx];if(view.mode!=='writing'||!x)return out;
+ const h2=`<h2>${esc(x['제목']||'문장을 만들어 봐')}</h2>`,q=`<div class="question">${rich(x['지시']||x['한국어'])}</div>`;if(!out.includes(h2)||!out.includes(q))return out;
+ const title=String(x['제목']||''),ko=String(x['한국어']||'').trim(),dir=String(x['지시']||'').trim();let main,note,prefix='';
+ if(ko){main=ko;note=dir&&dir!==ko?firstSentences(dir,2):'';const i=title.indexOf(' · ');prefix=i>0&&title.slice(i+3).trim()===ko?title.slice(0,i):(title&&title!==ko?title:'');}
+ else{main=dir||title||'문장을 만들어 봐';note=dir&&title&&title!==dir?title:'';}
+ out=out.replace(h2,'').replace(q,`<div class="q-main">${esc(main)}</div>${note?`<p class="q-note">${esc(note)}</p>`:''}`);
+ if(prefix)out=out.replace(/(<p class="qtype">[\s\S]*?)<\/p>/,`$1 · ${esc(prefix)}</p>`);
+ return out;};
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};

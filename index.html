@@ -406,7 +406,22 @@ button.member-badge span{font-size:13px;line-height:1;opacity:.8}
 .day[data-cal]:hover{filter:brightness(1.15)}
 .day[data-cal]:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
 tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:background .6s}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.7 · TIERS &amp; CALENDAR</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+/* v0.9.8 */
+.pass-btn{white-space:nowrap}
+.vc-band.has-ribbon{position:relative;padding-left:48px}
+.vc-ribbon{position:absolute;left:12px;top:0;width:44px;height:52px;margin-left:-11px;display:flex;justify-content:center;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent}
+.vc-ribbon input{position:absolute;opacity:0;pointer-events:none}
+.vc-ribbon svg{width:20px;height:40px;filter:drop-shadow(0 1px 1px #0002)}
+.vc-ribbon .rb{fill:transparent;stroke:#9fb0bb;stroke-width:1.5}
+.vc-ribbon .rl{stroke:transparent;stroke-width:1}
+.vc-ribbon:has(input:checked) .rb{fill:#b5545c;stroke:#b5545c}
+.vc-ribbon:has(input:checked) .rl{stroke:#ffffff40}
+.vc-ribbon:has(input:focus-visible){outline:2px solid #3e4d57;outline-offset:-2px}
+.vc-tapeicon{display:block;width:20px;height:10px;background-color:#c9d3d9;background-image:radial-gradient(#8fa1ad 1.1px,transparent 1.3px);background-size:4px 4px;transform:rotate(-6deg);border-radius:1px}
+.vc-icons .vc-cover[aria-pressed=true] span{background:#3e4d57;border-color:#3e4d57}
+.q-main{margin:10px 0 0;font:22px/1.45 'Noto Serif KR',Georgia,serif;color:#231815}
+.q-note{margin:6px 0 14px;font:12px/1.6 'Noto Serif KR',serif;color:#8a7a6b}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v0.9.8 · PASS &amp; WORD CARD</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
