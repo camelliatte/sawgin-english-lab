@@ -77,7 +77,7 @@ function navigate(page,mode,ep){
  view={page,mode:m,ep:ep||null,idx:0,quiz:false,reveal:false};lessonIdx=0;editPacks=false;selectedPacks.clear();
  if(page==='library'){
   const memory=db.settings.bookMemory[m]||{};
-  view.filterEpisode=ep||memory.episode||'';
+  view.filterEpisode=ep||'';
   if(ep&&oldEpisode===ep)view.filterEpisode=oldEpisode;
  }else if(page==='pack'&&ep){const memory=db.settings.bookMemory[m]||{},length=db.packs[m]?.[ep]?.items?.length||1;if(memory.pack===ep){view.idx=Math.max(0,Math.min(memory.idx||0,length-1));lessonIdx=view.idx;view.quiz=!!memory.quiz;}db.settings.bookMemory[m]={episode:db.packs[m]?.[ep]?.episode||'',pack:ep,idx:view.idx,quiz:view.quiz};save();}
  render();scrollTo(0,0);
@@ -181,7 +181,7 @@ function exportJournal(){flushJournal();const e=db.journalEntries[journalId];if(
 function deleteEntry(){if(!confirm('이 글과 제출본·첨삭을 삭제할까? XP와 날짜별 학습 활동은 남아.'))return;try{beforeOverwrite('Journal 글 삭제');const e=db.journalEntries[journalId];for(const s of e.submissions)delete db.feedback[s.id];delete db.journalEntries[journalId];journalId=null;save();navigate('library','journal')}catch(e){alert(e.message)}}
 function episodeSettings(){return `<section class="sheet"><h3>에피소드 공통 관리</h3><p class="sub">표시 제목·보관은 공통으로 관리해. 아래 ↑↓는 기본 에피소드순만 바꿔. 각 책의 수동 순서·팩 위치는 해당 책에서 따로 바꿀 수 있어.</p>${Object.entries(db.episodes).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([ep,e])=>`<div class="packcard"><b>${esc(ep)}</b>${episodeBookSummary(ep)}<label class="fieldlabel">표시 제목<input data-episode-title="${attr(ep)}" value="${attr(e.title)}"></label><label><input type="checkbox" data-episode-hidden="${attr(ep)}" ${e.hidden?'checked':''}> 기본 목록에서 보관</label><div class="row"><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="-1">↑</button><button class="smallbtn" data-action="episode-move" data-episode="${attr(ep)}" data-dir="1">↓</button></div></div>`).join('')||'<p>학습팩을 가져오면 에피소드가 자동 등록돼.</p>'}</section>`}
 function recoveryHTML(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='sawgin-before-v05r'||k.startsWith('sawgin-recovery-v05r-'))keys.push(k);}return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${keys.length}개 · 새 사본 저장 시 최신 ${RECOVERY_LIMIT}개만 유지해.</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${keys.sort().reverse().map(k=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(k)}">${k==='sawgin-before-v05r'?'v0.4 → v0.5R 변경 전 원본':'복구 사본 '+k.replace('sawgin-recovery-v05r-','')}</button></p>`).join('')||'<p class="sub">아직 복구 사본이 없어.</p>'}</section>`}
-function settings(){return `${bookTabs()}${header('Settings & Files.','v0.9.0 · 컬러 아카이브 폴더 · 포켓 링 카드 · 책갈피 가위')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
+function settings(){return `${bookTabs()}${header('Settings & Files.','v0.9.1 · 끈 폴더 홈 · 쪽지 듣기 · 단어 섞어 보기')}${cloudSettingsHTML()}<section class="sheet"><h3>학습 기록 백업</h3><div class="actions"><button class="primary" onclick="backup()">JSON 백업 다운로드</button><button class="secondary" onclick="$('restorefile').click()">JSON 백업 복원</button><input class="hidden" type="file" id="restorefile" accept=".json" onchange="restore(event)"></div><p class="sub">기존 v0.4 백업도 읽어. 복원 전 현재 기록의 복구 사본을 남겨.</p></section>${bundleImportHTML()}${episodeSettings()}${resetLearningHTML()}${recoveryHTML()}<section class="sheet"><h3>학습팩·발음</h3><p class="sub">기존 단어·영작 MD도 지원해. 새 형식은 book: vocab / guide / practice / journal과 여러 줄 설명을 지원해. 같은 팩은 갱신하거나 별도로 추가할 수 있어.</p><p class="sub">GB 음성이 기본이고 US 버튼도 별도로 있어. 음성과 IPA는 별개야. MD에 IPA가 없으면 발음기호를 만들어내지 않아. 기기에 해당 지역 음성이 없으면 안내해.</p><button class="secondary" data-action="test-voice" data-lang="en-GB">GB 음성 테스트</button><button class="secondary" data-action="test-voice" data-lang="en-US">US 음성 테스트</button></section>`}
 function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function backup(){flushJournal();downloadJSON(db,'sawgin-study-backup-'+dateKey()+'.json')}
 async function restore(ev){try{const f=ev.target.files?.[0];if(!f)return;const candidate=hydrate(JSON.parse(await f.text()));if(!confirm('이 백업으로 현재 기록을 교체할까? 먼저 현재 기록의 복구 사본을 남길게.'))return;beforeOverwrite('백업 복원');db=candidate;lockRewards();save();render();toast('백업을 복원했어.')}catch(e){alert('복원 실패: '+e.message)}finally{ev.target.value=''}}
@@ -1056,21 +1056,21 @@ function ipaText(x){return x['발음 기호']||x['IPA GB']||x['GB 발음']||x['�
 function sayWord(x){return x['발음 단어']||x['기본형']||x['정답'];}
 function vocabState(x){const r=db.vocabResults[x.id];return r?.attempts?(r.correct?'ok':'miss'):'new';}
 function tape(id,label=''){return `<button class="vtape" data-action="vpeel" data-id="${attr(id)}" aria-label="가린 내용 보기">${label}</button>`;}
-function vocabRow(x,i){const v=vocabView(),open=vocabPeeled.has(x.id),st=vocabState(x),flag=!!db.reviewFlags[x.id];
+function vocabRow(x,i,ix=i){const v=vocabView(),open=vocabPeeled.has(x.id),st=vocabState(x),flag=!!db.reviewFlags[x.id];
  const word=v==='hide-word'&&!open?tape(x.id):`<button class="vword" data-action="vcard-open" data-index="${i}">${esc(x['정답'])}</button>`;
  const mean=v==='hide-meaning'&&!open?tape(x.id):`<span class="vmean"${v!=='show'?` data-action="vpeel" data-id="${attr(x.id)}" role="button" tabindex="0"`:''}>${esc(x['뜻'])}</span>`;
- return `<div class="vrow" id="vrow-${i}"><span class="vno">${String(i+1).padStart(2,'0')}</span><span class="vw">${word}</span><span class="vm">${mean}</span><button class="vsay" data-action="speak" data-word="${attr(sayWord(x))}" data-lang="${vocabAccent()}" aria-label="듣기 ${attr(x['정답'])}">🔊</button><span class="vst st-${st}${flag?' flag':''}" title="${st==='ok'?'맞힘':st==='miss'?'틀림':'새 단어'}${flag?' · 책갈피':''}"></span></div>`;}
+ return `<div class="vrow" id="vrow-${i}"><span class="vno">${String(ix+1).padStart(2,'0')}</span><span class="vw">${word}</span><span class="vm">${mean}</span><button class="vsay" data-action="speak" data-word="${attr(sayWord(x))}" data-lang="${vocabAccent()}" aria-label="듣기 ${attr(x['정답'])}">🔊</button><span class="vst st-${st}${flag?' flag':''}" title="${st==='ok'?'맞힘':st==='miss'?'틀림':'새 단어'}${flag?' · 책갈피':''}"></span></div>`;}
 vocabList=function(p){
  const key=view.ep+'|'+vocabView();if(key!==vocabPeelKey){vocabPeeled=new Set();vocabPeelKey=key;}
  const known=p.items.filter(x=>vocabState(x)==='ok').length,v=vocabView();
  const modes=[['show','모두 보기'],['hide-meaning','뜻 가리기'],['hide-word','단어 가리기']];
  return `<div class="sheet wordlist"><div class="wl-head"><span>WORD LIST</span><span>${known} / ${p.items.length} KNOWN</span></div>
  <div class="wl-modes" role="group" aria-label="보기 방식">${modes.map(([m,l])=>`<button data-action="vocab-mode" data-vmode="${m}" aria-pressed="${v===m}" class="${v===m?'on':''}">${l}</button>`).join('')}<button class="wl-accent" data-action="vocab-accent" title="목록 🔊 발음">🔊 ${vocabAccent()==='en-GB'?'GB':'US'}</button></div>
- <div class="wl-cols" aria-hidden="true"><span class="vno">NO.</span><span class="vw">WORD</span><span class="vm">MEANING</span><span class="vsay">♪</span><span class="vst-h">✓</span></div>
- ${p.items.map(vocabRow).join('')}
+ <div class="wl-order" role="group" aria-label="순서"><span>ORDER</span><button data-action="vocab-order" data-order="seq" aria-pressed="${db.settings.vocabOrder!=='shuffle'}">순서대로</button><button data-action="vocab-order" data-order="shuffle" aria-pressed="${db.settings.vocabOrder==='shuffle'}">${db.settings.vocabOrder==='shuffle'?'↻ 다시 섞기':'섞어서'}</button></div><div class="wl-cols" aria-hidden="true"><span class="vno">NO.</span><span class="vw">WORD</span><span class="vm">MEANING</span><span class="vsay">♪</span><span class="vst-h">✓</span></div>
+ ${vocabOrderArr(p).map((ix,pos)=>vocabRow(p.items[ix],pos,ix)).join('')}
  <p class="wl-foot">${v==='show'?'TAP WORD FOR CARD':'TAP TAPE TO PEEL · TAP WORD FOR CARD'}</p></div>${vcardIdx!=null?vocabCard(p):''}`;
 };
-function vocabCard(p){const n=p.items.length;vcardIdx=Math.max(0,Math.min(vcardIdx,n-1));const x=p.items[vcardIdx],v=vocabView(),open=vocabPeeled.has(x.id),r=db.vocabResults[x.id],ip=ipaText(x);
+function vocabCard(p){const n=p.items.length;vcardIdx=Math.max(0,Math.min(vcardIdx,n-1));const x=p.items[vocabOrderArr(p)[vcardIdx]],v=vocabView(),open=vocabPeeled.has(x.id),r=db.vocabResults[x.id],ip=ipaText(x);
  const word=v==='hide-word'&&!open?tape(x.id,'TAP TO PEEL'):esc(x['정답']);
  const mean=v==='hide-meaning'&&!open?tape(x.id,'TAP TO PEEL'):esc(x['뜻']);
  const more=`<div class="vc-more"><div><b>NOTE</b><span>${rich(x['설명']||x['학습 메모']||'—')}</span></div>${isVerb(x)?`<div><b>FORMS</b><span>${esc(verbForms(x).join(' · '))}</span></div>`:''}${x['출처']?`<div><b>SOURCE</b><span>${esc(x['출처'])}</span></div>`:''}<div><b>RECORD</b><span>${r?.attempts?`시험 ${r.attempts}회 · 최근 ${r.correct?'맞힘':'틀림'} · 연속 ${r.streak||0}`:'아직 시험 기록 없음'}</span></div></div>`;
@@ -1165,6 +1165,33 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]'
   if(art){art.classList.add('snipping');setTimeout(go,200);}else go();}
  else if(a==='slip-undo'){ev.stopPropagation();if(!snipUndo)return;const {id,meta}=snipUndo;snipUndo=null;markReview(id,true);if(meta)bookmarkMetadata()[id]=meta;save();render();document.getElementById('snipbar')?.classList.remove('show');toast('다시 책갈피에 꽂았어.');}
 },true);
+
+
+/* v0.9.1 · Home: string-tie folder + today's slip side by side · IPA field · pocket accent · vocab list shuffle */
+const TIE_SVG='<svg class="tie" viewBox="0 0 44 22" aria-hidden="true"><path d="M11 11 C18 4 26 18 33 11" fill="none" stroke="#2d241c" stroke-width="1.1"/><path d="M11 11 C20 18 24 2 33 11" fill="none" stroke="#2d241c" stroke-width="1.1"/><circle cx="11" cy="11" r="7" fill="#2d241c"/><circle cx="11" cy="11" r="2.2" fill="#6f5c48"/><circle cx="33" cy="11" r="7" fill="#2d241c"/><circle cx="33" cy="11" r="2.2" fill="#6f5c48"/></svg>';
+const VOL={vocab:'Volume I',guide:'Volume II',writing:'Volume III',journal:'Volume IV'};
+function shortDate(ts){if(!ts)return '—';const d=new Date(ts);return [String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),String(d.getFullYear()).slice(2)].join('.');}
+resumeFolder=function(){
+ let best=null;for(const [mode,m] of Object.entries(db.settings.bookMemory||{})){const p=db.packs[mode]?.[m?.pack];if(p&&BOOKS[mode]&&(!best||(m.at||0)>(best.m.at||0)))best={mode,m,p};}
+ if(!best){const first=Object.keys(db.packs.vocab||{})[0];return `<button class="tie-folder" data-action="book" data-mode="vocab"><span class="tie-info"><span>Start<br>Here —</span><span>Vocabulary<br>Volume I</span></span>${TIE_SVG}<span class="tie-foot"><span class="tie-code">S&amp;G · LIBRARY</span><strong>${first?'첫 학습팩<br>열기':'학습팩<br>가져오기'}</strong><span class="tie-go">${first?'Start reading →':'Settings → MD'}</span></span></button>`;}
+ const [d,t]=count(best.mode,best.m.pack),pos=(best.m.idx||0)+1,where=best.mode==='guide'?pos+'번째 설명':best.mode==='journal'?'글감 목록':best.m.quiz?pos+'번 문제부터':'';
+ const pct=best.mode==='journal'?'':(t?Math.round(d/t*100):0)+'%';
+ const title=esc(best.p.title).replace(' · ','<br>');
+ return `<button class="tie-folder" data-action="open-book-pack" data-mode="${best.mode}" data-pack="${attr(best.m.pack)}" aria-label="이어하기 · ${attr(best.p.title)}"><span class="tie-info"><span>Continue<br>Study —</span><span>${esc(BOOKS[best.mode])}<br>${VOL[best.mode]||''}</span><span>${best.mode==='journal'?t+' prompts':d+' / '+t+'<br>sheets'}</span><span>Last open<br>${shortDate(best.m.at)}</span></span>${TIE_SVG}<span class="tie-foot"><span class="tie-code">${esc(best.p.episode)}</span><strong>${title}</strong>${pct||where?`<span class="tie-pct">${pct}${pct&&where?' · ':''}${esc(where)}</span>`:''}<span class="tie-go">Continue reading →</span></span></button>`;
+};
+todaySlip=function(){const c=slipCandidates();if(!c.length)return '';const s=c[Math.min(c.length-1,Math.floor(slipSeed*c.length))],x=s.x,w=isVerb(x)?verbForms(x)[0]:x['정답'];
+ return `<div class="memo-slip"><span class="memo-holes" aria-hidden="true"><i></i><i></i><i></i><i></i></span><button class="memo-main" data-action="slip-open" data-pack="${attr(s.key)}" data-index="${s.i}" aria-label="오늘의 쪽지 ${attr(w)} 풀기"><span class="memo-eyebrow">TODAY'S SLIP</span><span class="memo-word">${esc(w)}</span><span class="memo-mean">${esc(x['뜻'])}</span><span class="memo-try">TRY →</span></button><button class="memo-say" data-action="speak" data-word="${attr(x['발음 단어']||x['기본형']||x['정답'])}" data-lang="${vocabAccent()}" aria-label="듣기 ${attr(w)}">🔊</button></div>`;};
+const home090=home;
+home=function(){let out=home090();const r=resumeFolder(),s=todaySlip();if(!s)return out;const i=out.indexOf(r);if(i<0)return out;
+ return out.slice(0,i)+`<div class="home-pair">${r}${s}</div>`+out.slice(i+r.length).replace(s,'');};
+const ipa090=ipa;
+ipa=function(x){if(x['발음 기호']&&!x['IPA GB']&&!x['GB 발음']&&!x['영국식 발음']&&!x['발음 GB'])return ipa090({...x,'IPA GB':x['발음 기호']});return ipa090(x);};
+pocketSpeak=function(){const x=pocketItem();if(x)speak(x['발음 단어']||pocketAnswer(x),vocabAccent());};
+let vocabShuffles={};
+function vocabOrderArr(p){const n=p.items.length,base=[...Array(n).keys()];if(db.settings.vocabOrder!=='shuffle')return base;let o=vocabShuffles[view.ep];if(!o||o.length!==n){o=shuffled(base);vocabShuffles[view.ep]=o;}return o;}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;
+ if(a==='vocab-order'){const v=b.dataset.order;if(v==='shuffle'&&db.settings.vocabOrder==='shuffle'){delete vocabShuffles[view.ep];}db.settings.vocabOrder=v;save();render();}
+});
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};
