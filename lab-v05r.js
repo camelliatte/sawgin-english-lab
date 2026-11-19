@@ -643,7 +643,7 @@ const SEALS=[
 const SEAL_SECRET={'sealed-letter':'같은 날 단어·영작·쉐도잉을 모두 하기'};
 function sealDate(v){return v&&typeof v==='object'&&/^\d{4}-\d{2}-\d{2}$/.test(v.at||'')?v.at:'';}
 function earnSeal(key){if(!db.achievements[key]){db.achievements[key]={at:dateKey(),ts:Date.now()};announceSeal([key]);return true;}return false;}
-function announceSeal(keys){if(!v08Ready||!keys.length)return;const names=keys.map(k=>SEALS.find(s=>s[0]===k)?.[1]).filter(Boolean);if(names.length)setTimeout(()=>toast('새 봉인 · '+names.join(', ')),900);}
+function announceSeal(keys){if(!v08Ready||!keys.length)return;const names=keys.map(k=>SEALS.find(s=>s[0]===k)?.[1]).filter(Boolean);if(names.length)setTimeout(()=>toast('새 업적 · '+names.join(', ')),900);}
 const lockRewards071=lockRewards;
 lockRewards=function(){
  const before=new Set(Object.keys(db.achievements||{}));lockRewards071();
@@ -720,8 +720,8 @@ function membershipV8(){
 home=function(){return `<div class="eyebrow">PERSONAL LANGUAGE ARCHIVE</div><h1>My Learning Library.</h1>${resumeFolder()}${todaySlip()}${shelfHTML()}<section class="panel cal-panel"><div class="panelhead"><h3>Study Calendar.</h3><div class="cal-nav"><button onclick="changeMonth(-1)" aria-label="이전 달">‹</button><span>${new Date(new Date().getFullYear(),new Date().getMonth()+calendarOffset,1).toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</span><button onclick="changeMonth(1)" aria-label="다음 달">›</button></div></div>${calendar()}</section>${membershipV8()}`;};
 function openSealSheet(){
  closeSealSheet();const got=SEALS.filter(s=>db.achievements[s[0]]).length;
- const rows=SEALS.map(s=>{const v=db.achievements[s[0]],on=!!v,secret=s[0] in SEAL_SECRET;return `<div class="seal-row${on?' on':''}"><span class="${on?'wax-mini':'wax-empty'}" aria-hidden="true">${esc(s[3])}</span><span class="seal-text"><b>${esc(s[1])}</b><small>${esc(on&&secret?SEAL_SECRET[s[0]]:s[2])}</small></span><span class="seal-when">${on?esc(sealDate(v)||'획득'):'미획득'}</span></div>`;}).join('');
- const el=document.createElement('div');el.id='sealSheet';el.className='seal-overlay';el.innerHTML=`<section class="seal-sheet" role="dialog" aria-modal="true" aria-label="업적 전체"><span class="sheet-grip" aria-hidden="true"></span><div class="sheet-head"><div><span class="eyebrow">ACHIEVEMENT CABINET</span><strong>봉인 ${got} / ${SEALS.length}</strong></div><button class="sheet-close" data-action="seal-close" aria-label="닫기">✕</button></div><div class="seal-list">${rows}</div></section>`;
+ const rows=SEALS.map(s=>{const v=db.achievements[s[0]],on=!!v,secret=s[0] in SEAL_SECRET;return `<div class="seal-row${on?' on':''}"><img class="seal-img${on?'':' off'}" src="fridge/badges/${attr(s[0])}.webp" alt="" aria-hidden="true" loading="lazy"><span class="seal-text"><b>${esc(s[1])}</b><small>${esc(on&&secret?SEAL_SECRET[s[0]]:s[2])}</small></span><span class="seal-when">${on?esc(sealDate(v)||'획득'):'미획득'}</span></div>`;}).join('');
+ const el=document.createElement('div');el.id='sealSheet';el.className='seal-overlay';el.innerHTML=`<section class="seal-sheet" role="dialog" aria-modal="true" aria-label="업적 전체"><span class="sheet-grip" aria-hidden="true"></span><div class="sheet-head"><div><span class="eyebrow">ACHIEVEMENT CABINET</span><strong>업적 ${got} / ${SEALS.length}</strong></div><button class="sheet-close" data-action="seal-close" aria-label="닫기">✕</button></div><div class="seal-list">${rows}</div></section>`;
  el.addEventListener('click',e=>{if(e.target===el)closeSealSheet();});document.body.appendChild(el);el.querySelector('.sheet-close')?.focus();
 }
 function closeSealSheet(){document.getElementById('sealSheet')?.remove();}
@@ -1351,7 +1351,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.3 · Pocket 영수증'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.4 · 냉장고'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
@@ -1471,8 +1471,66 @@ document.addEventListener('input',ev=>{if(ev.target.id!=='rcPasteBox'||!rcSheet)
 document.addEventListener('change',ev=>{const c=ev.target.closest?.('[data-rcsel]');if(!c||!rcSheet)return;const id=c.dataset.rcsel;if(c.checked)rcSheet.sel.add(id);else rcSheet.sel.delete(id);const p=document.getElementById('rcPrev');if(p)p.innerHTML=rcPrevHTML();});
 window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;try{const o=JSON.parse(e.newValue);const merged=mergeMyWords(db.pocketRec,o.pocketRec||{});if(JSON.stringify(merged)!==JSON.stringify(db.pocketRec)){db.pocketRec=merged;if(view.page==='pocket')render();}}catch(_){}});
 
+/* ---------- v1.4 · Home fridge (achievement + level magnets) ---------- */
+const LV_MAGNETS={2:['deco-teapot','티포트'],3:['deco-radcliffe','래드클리프'],4:['deco-scone','스콘'],5:['deco-umbrella','우산'],6:['deco-postbox','우체통'],7:['deco-beans-toast','빈스 토스트'],8:['deco-flatwhite','플랫화이트'],9:['deco-fish-chips','피시앤칩스'],10:['deco-wax-sg','S&G 왁스'],11:['deco-victoria','빅토리아 스펀지'],12:['deco-phonebox','공중전화'],13:['deco-stamp-rose','들장미 우표'],14:['deco-porkpie','포크파이'],15:['deco-bus','이층버스']};
+const FR_MAX=14,FR_PHONE=8;
+const hydrate140=hydrate;
+hydrate=function(s){s=hydrate140(s);if(!s.levelMagnets||typeof s.levelMagnets!=='object'||Array.isArray(s.levelMagnets))s.levelMagnets={};return s;};
+if(!db.levelMagnets||typeof db.levelMagnets!=='object'||Array.isArray(db.levelMagnets))db.levelMagnets={};
+function grantLevelMagnets(){const lv=Math.min(15,levelInfo().level),fresh=[];for(let L=2;L<=lv;L++){if(!db.levelMagnets[L]){db.levelMagnets[L]={at:dateKey(),ts:Date.now()+L};fresh.push(LV_MAGNETS[L][1]);}}if(fresh.length&&v08Ready)setTimeout(()=>toast('새 냉장고 자석 · '+fresh.join(', ')),1400);return fresh.length>0;}
+const lockRewards140=lockRewards;
+lockRewards=function(){const r=lockRewards140.apply(this,arguments);grantLevelMagnets();return r;};
+function frItems(){const out=[];SEALS.forEach(s=>{const v=db.achievements[s[0]];if(v)out.push({id:'a:'+s[0],key:s[0],kind:'ach',img:'fridge/badges/'+s[0]+'.webp',label:s[1],ts:Number(v.ts)||Date.parse(sealDate(v))||0});});
+ Object.entries(db.levelMagnets||{}).forEach(([L,v])=>{const m=LV_MAGNETS[L];if(m)out.push({id:'l:'+L,key:m[0],kind:'lv',img:'fridge/badges/'+m[0]+'.webp',label:'L'+L+' · '+m[1],ts:Number(v.ts)||0});});return out;}
+function frShown(){const all=frItems(),by=Object.fromEntries(all.map(x=>[x.id,x])),custom=db.settings.fridgeMagnets;if(Array.isArray(custom))return custom.map(id=>by[id]).filter(Boolean).slice(0,FR_MAX);return all.sort((a,b)=>b.ts-a.ts).slice(0,FR_MAX);}
+const FR_ROT=[-6,4,-3,7,-5,3,-8,5,-2,6,-4,2,-6,4];
+function frMagnet(x,i){return `<button class="fr-mag s${i}${i>=FR_PHONE?' pc-only':''}" style="--r:${FR_ROT[i]||0}deg" data-action="fr-mag" data-id="${attr(x.id)}" aria-label="${attr(x.label)}"><img src="${attr(x.img)}" alt="" loading="lazy"></button>`;}
+const FR_DOME=typeof RC_DOME==='string'?RC_DOME:'';
+function fridgeHTML(calHTML){const shown=frShown(),up=shown.slice(0,12),low=shown.slice(12,14),got=SEALS.filter(s=>db.achievements[s[0]]).length;
+ const m=membershipV8(),hs=m.indexOf('<div class="member-head">'),he=m.indexOf('<div class="member-sub">'),head=hs>=0&&he>hs?m.slice(hs,he):'';
+ const peb=(c1,c2,cls)=>`<span class="fr-peb ${cls}" style="--c1:${c1};--c2:${c2}"></span>`;
+ return `<section class="fridge" aria-label="냉장고"><div class="fr-door fr-top"><span class="fr-logo">S&amp;G</span>
+  <div class="fr-strip"><img src="fridge/sg4frame_01.webp" alt="Saw &amp; Gin 네컷 사진"><span class="fr-tape"></span></div>
+  <div class="fr-pol"><img src="fridge/polaroid_01.webp" alt="에드와 서진 폴라로이드"><span class="rc-mag fr-dmag" style="width:40px;height:40px">${FR_DOME}</span></div>
+  ${up.map(frMagnet).join('')}<span class="fr-handle"></span></div>
+  <div class="fr-groove"></div>
+  <div class="fr-door fr-bot"><span class="fr-handle"></span><div class="fr-low">
+   <div class="fr-cal">${peb('#c9474a','#7d1418','cal')}${calHTML}</div>
+   <div class="fr-side"><div class="fr-memo">${peb('#fbe58a','#e2b52a','memo')}${head}<div class="fr-memo-foot"><button class="linkbtn" data-action="seal-sheet">업적 전체 ${got} / ${SEALS.length} →</button></div></div>
+    <div class="fr-lowmag pc-only">${low.map((x,j)=>frMagnet(x,12+j)).join('')}</div>
+    <button class="fr-pick" data-action="fr-pick">🧲 자석 고르기</button></div>
+  </div></div></section>`;}
+const home140=home;
+home=function(){const out=home140(),cs=out.indexOf('<section class="panel cal-panel">');if(cs<0)return out;const ms=out.indexOf('<section class="member-card">',cs);if(ms<0)return out;const me=out.indexOf('</section>',ms)+10;
+ const cal=out.slice(cs,ms);return out.slice(0,cs)+fridgeHTML(cal)+out.slice(me);};
+/* picker */
+let frPick=null,frFilter='all';
+function frPickHTML(){const all=frItems(),own=new Set(all.map(x=>x.id)),sel=frPick.sel,custom=Array.isArray(db.settings.fridgeMagnets),since=Number(db.settings.fridgeAt)||0,lv=levelInfo().level;
+ const cell=(id,img,label,owned,secret)=>{const n=sel.indexOf(id)+1,isNew=custom&&owned&&(all.find(x=>x.id===id)?.ts||0)>since&&!n;return `<button class="fp-cell${owned?'':' locked'}${n?(n<=FR_PHONE?' on':' on2'):''}" ${owned?`data-action="fp-toggle" data-id="${attr(id)}"`:'disabled'} aria-label="${attr(owned?label:'아직 없음')}"><span class="fp-img"><img src="${attr(img)}" alt="" loading="lazy">${n?`<b class="fp-n">${n}</b>`:''}${isNew?'<i class="fp-new">NEW</i>':''}</span><span class="fp-l">${esc(secret&&!owned?'???':label)}</span></button>`;};
+ const achs=SEALS.map(s=>cell('a:'+s[0],'fridge/badges/'+s[0]+'.webp',s[1],own.has('a:'+s[0]),s[0] in SEAL_SECRET)).join('');
+ const lvs=Object.entries(LV_MAGNETS).map(([L,m])=>cell('l:'+L,'fridge/badges/'+m[0]+'.webp','L'+L+' · '+m[1],own.has('l:'+L))).join('');
+ const nA=SEALS.filter(s=>own.has('a:'+s[0])).length,nL=Object.keys(LV_MAGNETS).filter(L=>own.has('l:'+L)).length;
+ return `<section class="fp-sheet" role="dialog" aria-modal="true" aria-label="자석 고르기"><span class="sheet-grip" aria-hidden="true"></span><div class="fp-head"><div><span class="eyebrow">FRIDGE · MAGNETS</span><strong>자석 고르기</strong></div><button class="sheet-close" data-action="fp-close" aria-label="닫기">✕</button></div>
+ <p class="fp-sub">누른 순서대로 냉장고에 붙어. <b>1~${FR_PHONE}</b> 폰·PC · <b class="lt">${FR_PHONE+1}~${FR_MAX}</b> PC에서만 · 다시 누르면 빠져</p>
+ <div class="fp-chips">${[['all',`전체 ${nA+nL}/29`],['ach',`업적 ${nA}/15`],['lv',`레벨 ${nL}/14`]].map(([k,l])=>`<button class="${frFilter===k?'on':''}" data-action="fp-filter" data-f="${k}">${l}</button>`).join('')}</div>
+ <div class="fp-body">${frFilter!=='lv'?`<div class="fp-sec"><span>ACHIEVEMENTS · 업적</span><span>${nA} / 15</span></div><div class="fp-grid">${achs}</div>`:''}${frFilter!=='ach'?`<div class="fp-sec"><span>LEVEL MAGNETS · 레벨 자석</span><span>L${lv} · ${nL} / 14</span></div><div class="fp-grid">${lvs}</div>`:''}</div>
+ <div class="fp-foot"><button class="linkbtn" data-action="fp-reset">최근 순으로 돌아가기</button><button class="primary" data-action="fp-save">이대로 붙이기</button></div></section>`;}
+function frPickOpen(){frPick={sel:frShown().map(x=>x.id)};frFilter='all';let el=document.getElementById('frPick');if(!el){el=document.createElement('div');el.id='frPick';el.className='seal-overlay fp-overlay';el.addEventListener('click',e=>{if(e.target===el)frPickClose();});document.body.appendChild(el);}el.innerHTML=frPickHTML();}
+function frPickRefresh(){const el=document.getElementById('frPick');if(el&&frPick){const sc=el.querySelector('.fp-body')?.scrollTop||0;el.innerHTML=frPickHTML();const b=el.querySelector('.fp-body');if(b)b.scrollTop=sc;}}
+function frPickClose(){frPick=null;document.getElementById('frPick')?.remove();}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b||b.disabled)return;const a=b.dataset.action;
+ if(a==='fr-mag'){const id=b.dataset.id;if(id.startsWith('a:'))openSealSheet();else{const x=frItems().find(i=>i.id===id);if(x)toast(x.label+' · 레벨 자석');}}
+ else if(a==='fr-pick')frPickOpen();
+ else if(a==='fp-close')frPickClose();
+ else if(a==='fp-filter'){frFilter=b.dataset.f;frPickRefresh();}
+ else if(a==='fp-toggle'&&frPick){const id=b.dataset.id,i=frPick.sel.indexOf(id);if(i>=0)frPick.sel.splice(i,1);else if(frPick.sel.length>=FR_MAX)toast(`최대 ${FR_MAX}개까지 붙일 수 있어.`);else frPick.sel.push(id);frPickRefresh();}
+ else if(a==='fp-save'&&frPick){db.settings.fridgeMagnets=[...frPick.sel];db.settings.fridgeAt=Date.now();save();frPickClose();render();toast('냉장고에 붙였어.');}
+ else if(a==='fp-reset'){delete db.settings.fridgeMagnets;delete db.settings.fridgeAt;save();frPickClose();render();toast('최근 받은 순으로 붙여 둘게.');}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&frPick)frPickClose();});
+
 const start071=start05;
-start05=function(){start071();v08Ready=true;refreshSaveUI();};
+start05=function(){start071();v08Ready=true;if(grantLevelMagnets()){save();}refreshSaveUI();};
 
 start05();
 {const target=new URLSearchParams(location.search).get('studio');if(['home','review','records','settings'].includes(target)){navigate(target);history.replaceState(null,'',location.pathname);if(target==='settings')document.getElementById('scriptPackSettings')?.scrollIntoView();}}
