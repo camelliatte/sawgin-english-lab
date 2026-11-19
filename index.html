@@ -455,6 +455,19 @@ tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:backgrou
 
 
 /* v1.4 · fridge */
+.fr-ticket{all:unset;cursor:pointer;position:relative;align-self:flex-end;margin:14px 6px 0 0;transform:rotate(-3deg);filter:drop-shadow(0 3px 4px #23181540);transition:transform .15s}
+.fr-ticket:hover{transform:rotate(-3deg) translateY(-2px)}
+.tk-body{display:flex;width:190px;height:74px;box-sizing:border-box;padding:8px 10px 8px 16px;background:#efe2c4;background-image:radial-gradient(#ffffff26 1px,#0000 1.2px);background-size:5px 5px;-webkit-mask:radial-gradient(circle at 0 50%,#0000 9px,#000 9.5px) left/51% 100% no-repeat,radial-gradient(circle at 100% 50%,#0000 9px,#000 9.5px) right/51% 100% no-repeat;mask:radial-gradient(circle at 0 50%,#0000 9px,#000 9.5px) left/51% 100% no-repeat,radial-gradient(circle at 100% 50%,#0000 9px,#000 9.5px) right/51% 100% no-repeat}
+.tk-main{flex:1;display:flex;flex-direction:column;justify-content:center;border-right:1.5px dashed #4a2e2766;padding-right:8px}
+.tk-main b{font:22px Georgia,serif;letter-spacing:.22em;color:#4a2e27;margin:2px 0 1px}
+.tk-top,.tk-sub{font:bold 8px 'Courier New',monospace;letter-spacing:.16em;color:#4a2e27aa;white-space:nowrap}
+.tk-no{width:24px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font:bold 9px 'Courier New',monospace;letter-spacing:.16em;color:#4a2e27aa}
+.tk-peb{left:14px;top:-12px}
+.tier-mags{display:flex;flex-wrap:wrap;gap:4px 4px;margin-top:9px}
+.tm{display:inline-flex;flex-direction:column;align-items:center;width:46px}.tm img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 2px 2px #23181540)}.tm small{font:9px Arial;color:#8a7a6c}
+.tm.off img{filter:grayscale(1) brightness(.25) opacity(.2)}.tm.off small{color:#b5a898}.tm.cur small{color:#4a2e27;font-weight:bold}
+.rc-chg{display:block;font:10.5px 'Courier New',monospace;color:#8a8378}.rc-keep{all:unset;cursor:pointer;color:#a8624f;text-decoration:underline;text-underline-offset:2px;font-size:10.5px}
+
 .fridge{position:relative;margin:30px 0 10px;background:linear-gradient(90deg,#e2d7c1,#efe7d6 6%,#efe7d6 94%,#e2d7c1);border-radius:40px 40px 16px 16px;box-shadow:0 10px 24px #23181530,inset 0 2px 0 #fff8;overflow:hidden}
 .fr-door{position:relative}
 .fr-top{height:400px}
@@ -552,7 +565,7 @@ tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:backgrou
 .rc-sheet-act{display:flex;gap:8px;margin:12px 0 4px}.rc-sheet-act .primary{flex:2;background:#a8624f;border-color:#a8624f}.rc-sheet-act .secondary{flex:1}
 .linkbtn{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:#8a6a5a;font-size:13px}
 .audio-store{margin-top:14px;padding-top:10px;border-top:1px dashed #d8c9b2}.audio-store h4{margin:0 0 6px;font-size:13px}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.4 · FRIDGE</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.4.1 · FRIDGE</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
