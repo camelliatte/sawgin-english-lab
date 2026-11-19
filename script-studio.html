@@ -425,6 +425,17 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .deck-col::-webkit-scrollbar{width:6px}.deck-col::-webkit-scrollbar-thumb{background:#ddd2bf;border-radius:3px}.deck-col:hover::-webkit-scrollbar-thumb{background:#b9a98f}.deck-col::-webkit-scrollbar-track{background:transparent}
 }
 .rl-def[hidden]{display:none!important}
+.aud-box{margin:0 0 12px;padding:10px 12px;border:1px dashed #c9b49a;border-radius:6px;background:#fffaf0;font-size:12.5px;line-height:1.45}
+.aud-box .aud-h{display:block;font:bold 9px var(--sans);letter-spacing:.22em;color:#8a6a5a;margin-bottom:4px}
+.aud-box p{margin:2px 0 6px}.aud-box .warn{color:#8f2b2b}.aud-box .aud-ok{color:#4f6b3a}
+.aud-box button{font-size:12px;padding:5px 10px}
+.aud-bar{height:5px;background:#eadfcd;border-radius:3px;overflow:hidden}.aud-bar i{display:block;height:100%;background:#774223;transition:width .2s}
+.rec-voice{display:inline-block;padding:4px 10px;border-radius:12px;background:#f3e6d3;color:#774223;font-size:12px;font-weight:600;letter-spacing:.02em}
+.rec-part{font-size:10.5px;color:#8a6a5a;margin-left:4px}
+.aud-dot{position:absolute;top:4px;right:4px;z-index:3;width:8px;height:8px;border-radius:50%;border:1.5px solid #fffaf0;background:transparent;box-shadow:0 0 0 1px #23181540}
+.aud-dot.on{background:#E3B23C}
+.crate-item .aud-dot{width:11px;height:11px;top:7px;right:7px}
+
 .spindle{left:121px;top:121px;z-index:2}
 .key{gap:0}.key .led{display:none}
 .key #kPlayIc{font-size:15px;line-height:1;transition:color .2s,text-shadow .2s}
@@ -532,12 +543,13 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
     <div class="ctrl" style="margin-top:10px"><button class="primary" id="apply">적용</button></div>
   </details>
   <div class="card">
+    <div class="aud-box" id="audBox" hidden></div>
     <div class="speakers" id="speakers"></div>
     <p class="hint" id="voiceNote"></p>
   </div>
   <div class="card set-play">
     <div class="sliders">
-      <div class="rg-row">속도 <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.9"><span id="rateV">0.9×</span></div>
+      <div class="rg-row">속도 <input type="range" id="rate" min="0.8" max="1.5" step="0.05" value="1"><span id="rateV">0.9×</span></div>
       <div class="rg-row">줄 사이 쉼 <input type="range" id="gap" min="0" max="3" step="0.25" value="0.5"><span id="gapV">0.5초</span></div>
       <div><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="shadow"> 따라 말하기 (줄마다 대사 길이만큼 멈춤)</label></div>
     </div>
@@ -670,8 +682,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
       const [c]=COLORS[i%COLORS.length];
       const d=document.createElement('div'); d.className='spk';
       const opts = en.map(v=>{const g=gender(v);return `<option value="${esc(v.voiceURI)}"${v.voiceURI===shown?' selected':''}>${/en[-_]GB/i.test(v.lang)?'🇬🇧':'🌐'} ${g==='f'?'여':g==='m'?'남':'·'} | ${esc(v.name)}</option>`}).join('');
-      d.innerHTML=`<span class="name" style="background:${c}">${esc(s||'화자')}</span><select>${opts||'<option>음성 없음</option>'}</select><label title="체크하면 이 역할은 직접 읽어요"><input type="checkbox"${cfg[s].mute?' checked':''}> 내가 읽기</label>`;
-      d.querySelector('select').onchange=e=>{cfg[s].voice=e.target.value; cfg[s].auto=false; store.set('dkCfg',cfg); preview(s);};
+      d.innerHTML=`<span class="name" style="background:${c}">${esc(s||'화자')}</span>${audKind(s)==='all'?'<span class="rec-voice">녹음 음성</span>':'<select>'+(opts||'<option>음성 없음</option>')+'</select>'+(audKind(s)==='some'?'<small class="rec-part">일부 녹음</small>':'')}<label title="체크하면 이 역할은 직접 읽어요"><input type="checkbox"${cfg[s].mute?' checked':''}> 내가 읽기</label>`;
+      const sel=d.querySelector('select'); if(sel) sel.onchange=e=>{cfg[s].voice=e.target.value; cfg[s].auto=false; store.set('dkCfg',cfg); preview(s);};
       d.querySelector('input').onchange=e=>{cfg[s].mute=e.target.checked; store.set('dkCfg',cfg); renderList();};
       box.appendChild(d);
     });
@@ -684,9 +696,9 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
       : `영국식 음성 ${gbCount}개. 더 자연스러운 음성을 원하면 PC 엣지로 열어보세요(Natural 음성). "내가 읽기"를 체크하면 그 역할은 학생이 읽어요.`;
   }
   function preview(s){
-    if(playing||!synth) return;
+    if(playing) return; if(audioPreview(s)) return; if(!synth) return;
     const line=lines.find(l=>l.who===s); if(!line) return;
-    synth.cancel(); const u=makeU(line.text.split(/(?<=[.!?])\s/)[0], s); synth.speak(u);
+    synth.cancel(); audStop(); const u=makeU(line.text.split(/(?<=[.!?])\s/)[0], s); synth.speak(u);
   }
   function loadVoices(){ if(!synth) return; voices=synth.getVoices(); renderSpeakers(); }
   if(synth){ loadVoices(); synth.onvoiceschanged=loadVoices; }
@@ -807,6 +819,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     showLine(cur,0,mute); renderList();
     const gap=+$('gap').value*1000;
     const goNext=(extra)=>{ finishWords(); if(oneShot){ oneShot=false; playing=false; $('play').textContent='▶ 재생'; return; } later(()=>{ if(my!==token) return; cur++; if(loopOn() && (cur>loopB()||cur<loopA())) cur=loopA(); playLine(my); }, gap+(extra||0)); };
+    if(!mute && audioPlay(l, my, goNext)) return;
     if(mute || !synth){
       const ms=estMs(l.text)*1.15;
       animate(l.text, ms, my);
@@ -829,23 +842,23 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   function scrollCur(){ const r=list.querySelector('.row.cur'); if(r && r.scrollIntoView) r.scrollIntoView({block:'center',behavior:'smooth'}); }
 
-  function playOnce(){ if(!lines.length) return; oneShot=true; token++; clearTimers(); synth&&synth.cancel(); playing=true; $('play').textContent='⏸ 일시정지'; const my=token; setTimeout(()=>playLine(my),60); }
+  function playOnce(){ if(!lines.length) return; oneShot=true; token++; clearTimers(); cancelSpeech(); playing=true; $('play').textContent='⏸ 일시정지'; const my=token; setTimeout(()=>playLine(my),60); }
   function start(){
     oneShot=false;
     if(!lines.length) return;
     if(atEnd){ cur=loopOn()?loopA():0; atEnd=false; }
     if(loopOn() && (cur<loopA()||cur>loopB())) cur=loopA();
-    token++; clearTimers(); synth&&synth.cancel();
+    token++; clearTimers(); cancelSpeech();
     playing=true; $('play').textContent='⏸ 일시정지';
     const my=token; setTimeout(()=>playLine(my), 60);
   }
   function pause(){
-    oneShot=false; token++; clearTimers(); synth&&synth.cancel();
+    oneShot=false; token++; clearTimers(); cancelSpeech();
     playing=false; $('play').textContent='▶ 이어서';
     showLine(cur,-1); renderList();
   }
   function stopAll(ended){
-    token++; clearTimers(); synth&&synth.cancel();
+    token++; clearTimers(); cancelSpeech();
     playing=false; $('play').textContent='▶ 재생';
     if(ended){ cur=Math.max(0,lines.length-1); showLine(cur,-1); finishWords(); renderList(); atEnd=true; $('play').textContent='↺ 처음부터'; }
     else { cur=0; showLine(0,-1); renderList(); }
@@ -924,7 +937,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   function dictBody(h){ const b=$('dBody'); if(b) b.innerHTML=h; }
   function sayWord(t, full){
-    if(!synth) return; synth.cancel();
+    audStop(); if(!synth) return; synth.cancel();
     const who=lines[cur]?lines[cur].who:speakers[0];
     const u=makeU(t, who); if(!full) u.rate=Math.min(u.rate,0.85);
     synth.speak(u);
@@ -991,7 +1004,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   function sayToggle(){
     if(listening){ stopListen(); return; }
     const l=lines[cur]; if(!l) return;
-    if(playing) pause(); synth&&synth.cancel();
+    if(playing) pause(); cancelSpeech();
     sayLine=cur; heard=''; partial=''; settled=false;
     if(dic){
       const p=dic.start({language:'en'});
@@ -1039,7 +1052,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     currentSource=value;txt.readOnly=!!p;$('apply').disabled=!!p;$('editBox').hidden=!!p;
     if(p){txt.value=ScriptPacks.toText(p.lines);setTitle(p.title);$('sourceNote').textContent='등록한 대사팩 · '+p.lines.length+'줄 · 수정·삭제와 클라우드 동기화는 Settings에서 해 줘.';}
     else{const draft=store.get('dkScript');txt.value=typeof draft==='string'?draft:SAMPLE;setTitle('직접 입력');if(!isPack)$('sourceNote').textContent='직접 입력 내용과 음성 설정은 이 기기에만 저장돼. 영어만 넣어도 재생할 수 있어.';}
-    store.set('dkStudioSource',currentSource);loadSources();loadLearning(isPack?value.slice(5):'');parse();$('loop').checked=false;loopPick=0;updLoopUI();renderSpeakers();renderList();$('loopA').value='0';$('loopB').value=String(Math.max(0,lines.length-1));showLine(0,-1);ensureKo();afterSource(value);}
+    store.set('dkStudioSource',currentSource);loadSources();loadLearning(isPack?value.slice(5):'');parse();if(p&&lines.length===p.lines.length)lines.forEach((l,i)=>{l.id=p.lines[i].id;});$('loop').checked=false;loopPick=0;updLoopUI();renderSpeakers();renderList();$('loopA').value='0';$('loopB').value=String(Math.max(0,lines.length-1));showLine(0,-1);ensureKo();afterSource(value);}
   $('studioSource').onchange=e=>loadSource(e.target.value);
   $('reloadPacks').onclick=()=>loadSource(currentSource);
   txt.addEventListener('input',()=>{if(currentSource==='direct')store.set('dkScript',txt.value);});
@@ -1225,8 +1238,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   function packIds(){ return Object.keys(catalog); }
   function sleeveHTML(id,active,big){
     const p=catalog[id], code=epCode(id), src=recSrc(code), t=code?epPretty(code):(p&&p.title?p.title.slice(0,8):'S&G');
-    if(!src) return `<span class="sleeve def${active?' on':''}"><span class="sl-t">${esc(t)}</span></span>`;
-    return `<span class="sleeve${active?' on':''}" style="background:${sleeveColor(id)}"><span class="disc"><img src="${esc(src)}" alt="" onerror="this.remove()"></span><span class="sl-t">${esc(t)}</span></span>`;
+    if(!src) return `<span class="sleeve def${active?' on':''}">${audBadge(id)}<span class="sl-t">${esc(t)}</span></span>`;
+    return `<span class="sleeve${active?' on':''}" style="background:${sleeveColor(id)}">${audBadge(id)}<span class="disc"><img src="${esc(src)}" alt="" onerror="this.remove()"></span><span class="sl-t">${esc(t)}</span></span>`;
   }
   function renderRecords(){
     const curId=currentSource.startsWith('pack:')?currentSource.slice(5):'';
@@ -1258,7 +1271,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   $('crateClose').onclick=closeCrate; $('crate').addEventListener('click',e=>{ if(e.target===$('crate')) closeCrate(); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeCrate(); });
   // snap sliders (SPEED / GAP)
-  const SNAPS=[{key:'rate',label:'SPEED',stops:[0.7,0.8,0.9,1.0],fmt:v=>(+v).toFixed(2).replace(/0$/,'')+'×',lab:v=>v.toFixed(1)},{key:'gap',label:'GAP',stops:[0.3,0.5,1,2],fmt:v=>(+v)+'s',lab:v=>String(v)}];
+  const SNAPS=[{key:'rate',label:'SPEED',stops:[0.8,1.0,1.2,1.5],fmt:v=>(+v).toFixed(2).replace(/0$/,'')+'×',lab:v=>v.toFixed(1)},{key:'gap',label:'GAP',stops:[0.3,0.5,1,2],fmt:v=>(+v)+'s',lab:v=>String(v)}];
   function renderSnaps(){
     document.querySelectorAll('[data-snaps]').forEach(box=>{
       box.innerHTML=SNAPS.map(sn=>{ const v=+$(sn.key).value, n=sn.stops.length; let ci=0; sn.stops.forEach((x,k)=>{ if(Math.abs(x-v)<Math.abs(sn.stops[ci]-v)) ci=k; });
@@ -1334,7 +1347,103 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   const deckObs=new MutationObserver(()=>updateDeck());
   deckObs.observe(stage,{childList:true}); deckObs.observe($('play'),{childList:true,characterData:true,subtree:true}); deckObs.observe($('sayBtn'),{childList:true,characterData:true,subtree:true,attributes:true}); deckObs.observe($('ygCopy'),{attributes:true}); deckObs.observe($('ygLink'),{attributes:true}); deckObs.observe(list,{childList:true});
   $('mPrev').innerHTML=ico('prev',18); $('mNext').innerHTML=ico('next',18); $('mLoop').innerHTML=ico('loop',18); $('kPrev').innerHTML=ico('prev',16); $('kNext').innerHTML=ico('next',16);
-  function afterSource(v){ if(String(v).startsWith('pack:')) pushRecent(v.slice(5)); renderRecords(); updateLabel(); updateDeck(); }
+  function afterSource(v){ if(String(v).startsWith('pack:')) pushRecent(v.slice(5)); renderRecords(); updateLabel(); updateDeck(); audOnSource(); }
+
+  // ---------- v1.2 · recorded voice (ElevenLabs mp3) ----------
+  const AUD_CACHE='sg-audio-v1', AUD_BUCKET='sg-audio';
+  const SB_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ',''), SB_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
+  const SILENT='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAABgAAAykAWlpaWlpaWlpaWlpaWlpaWnt7e3t7e3t7e3t7e3t7e3t7nJycnJycnJycnJycnJycnL29vb29vb29vb29vb29vb293t7e3t7e3t7e3t7e3t7e3t7/////////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQCowAAAAAAAAMpso+sIAAAAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NAxKQAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEowAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=';
+  const audKey=(pack,file)=>new URL('./_sgaudio/'+encodeURIComponent(pack)+'/'+file, location.href).href;
+  const currentPack=()=>currentSource.startsWith('pack:')?currentSource.slice(5):'';
+  const mb=b=>((+b||0)/1048576).toFixed(1)+'MB';
+  const aud=new Audio(); aud.preload='auto'; try{ aud.preservesPitch=true; aud.webkitPreservesPitch=true; }catch(e){}
+  let audMap=new Map(), audMeta=null, audServer=null, audLocal=new Set(), audBusy=null, audChecking=false, audSignedOut=false, audErr='', audMsg='', audUnlocked=false;
+  // iOS: unlock the audio element inside the first real tap
+  document.addEventListener('pointerdown',()=>{ if(audUnlocked) return; audUnlocked=true; try{ aud.src=SILENT; const pr=aud.play(); if(pr&&pr.then) pr.then(()=>{ if(aud.src===SILENT) aud.pause(); }).catch(()=>{ audUnlocked=false; }); }catch(e){ audUnlocked=false; } },true);
+  function audStop(){ aud.onended=aud.onerror=null; try{ if(!aud.paused) aud.pause(); }catch(e){} }
+  function cancelSpeech(){ synth&&synth.cancel(); audStop(); }
+  function audFor(l){ return (l&&l.id&&audMap.get(l.id))||''; }
+  function audKind(s){ if(!audMap.size) return ''; const ls=lines.filter(l=>l.who===s), n=ls.filter(l=>audFor(l)).length; return !n?'':n===ls.length?'all':'some'; }
+  function audRate(){ const r=+$('rate').value||1; try{ aud.defaultPlaybackRate=r; aud.playbackRate=r; }catch(e){} }
+  $('rate').addEventListener('input',audRate);
+  function audioPlay(l,my,goNext){
+    const url=audFor(l); if(!url) return false;
+    audStop(); synth&&synth.cancel();
+    aud.src=url; audRate();
+    let t0=performance.now();
+    aud.onplaying=()=>{ t0=performance.now(); aud.onplaying=null; };
+    aud.onended=()=>{ if(my!==token) return; audStop(); finishWords(); const spoken=performance.now()-t0; goNext($('shadow').checked?Math.max(1200,spoken*1.1):0); };
+    aud.onerror=()=>{ if(my!==token) return; audStop(); goNext(0); };
+    const pr=aud.play();
+    if(pr&&pr.catch) pr.catch(err=>{ if(my!==token||!err) return; if(err.name==='NotAllowedError'){ audStop(); pause(); } else if(err.name!=='AbortError'){ audStop(); goNext(0); } });
+    return true;
+  }
+  function audioPreview(s){ const l=lines.find(x=>x.who===s&&audFor(x)); if(!l) return false; cancelSpeech(); aud.src=audFor(l); audRate(); const pr=aud.play(); pr&&pr.catch&&pr.catch(()=>{}); return true; }
+  async function audLoadLocal(pack){
+    audMap.forEach(u=>URL.revokeObjectURL(u)); audMap=new Map(); audMeta=null;
+    if(!pack||!('caches' in window)) return;
+    try{
+      const c=await caches.open(AUD_CACHE), mr=await c.match(audKey(pack,'_meta.json')); if(!mr) return;
+      const meta=await mr.json(), manR=await c.match(audKey(pack,'manifest.json')); if(!manR) return;
+      const man=await manR.json(), m=new Map();
+      for(const ln of (man&&man.lines)||[]){ if(!ln||!/^[A-Za-z0-9_.-]{1,60}\.mp3$/.test(ln.file||'')) continue; const r=await c.match(audKey(pack,ln.file)); if(r) m.set(String(ln.id), URL.createObjectURL(await r.blob())); }
+      if(currentPack()!==pack){ m.forEach(u=>URL.revokeObjectURL(u)); return; }
+      audMap=m; audMeta=meta;
+    }catch(e){}
+  }
+  async function audScanLocal(){ try{ if(!('caches' in window)) return; const c=await caches.open(AUD_CACHE), s=new Set(); (await c.keys()).forEach(r=>{ const m=new URL(r.url).pathname.match(/\/_sgaudio\/([^/]+)\/_meta\.json$/); if(m) s.add(decodeURIComponent(m[1])); }); audLocal=s; }catch(e){} }
+  let sbP=null;
+  function sb(){ if(sbP) return sbP; sbP=new Promise((res,rej)=>{ const go=()=>{ try{ res(window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}})); }catch(e){ sbP=null; rej(e); } }; if(window.supabase&&window.supabase.createClient) return go(); const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'; sc.onload=go; sc.onerror=()=>{ sbP=null; rej(Error('서버 연결 도구를 못 불러왔어. 인터넷 연결을 확인해 줘.')); }; document.head.appendChild(sc); }); return sbP; }
+  async function sbUser(){ const c=await sb(); const {data}=await c.auth.getSession(); return data&&data.session?c:null; }
+  async function audCheckServer(){
+    if(audChecking) return; if(!navigator.onLine){ audRefreshUI(); return; }
+    audChecking=true; audSignedOut=false; audErr=''; audRefreshUI();
+    try{ const c=await sbUser(); if(!c) audSignedOut=true; else { const {data,error}=await c.storage.from(AUD_BUCKET).list('',{limit:1000}); if(error) throw error; audServer=new Set((data||[]).filter(x=>x.id==null).map(x=>x.name)); } }
+    catch(e){ audErr='서버 확인 실패: '+String(e.message||e); }
+    audChecking=false; audRefreshUI(); renderRecords();
+  }
+  async function audDownload(pack){
+    if(audBusy) return; audBusy={done:0,total:0}; audErr=''; audMsg=''; audRefreshUI();
+    try{
+      if(!('caches' in window)) throw Error('이 브라우저는 음성 저장을 지원하지 않아.');
+      const c=await sbUser(); if(!c) throw Error('앱에서 로그인한 다음 받아 줘.');
+      const st=c.storage.from(AUD_BUCKET);
+      const mf=await st.download(pack+'/manifest.json'); if(mf.error||!mf.data) throw Error('이 판의 manifest.json을 못 찾았어.');
+      const manText=await mf.data.text(), man=JSON.parse(manText);
+      const files=((man&&man.lines)||[]).filter(x=>x&&/^[A-Za-z0-9_.-]{1,40}$/.test(String(x.id||''))&&/^[A-Za-z0-9_.-]{1,60}\.mp3$/.test(x.file||''));
+      if(!files.length) throw Error('manifest에 음성 줄이 없어.');
+      audBusy.total=files.length; audRefreshUI();
+      const cache=await caches.open(AUD_CACHE); let bytes=0, i=0, fails=0;
+      const worker=async()=>{ while(i<files.length){ const f=files[i++]; let ok=false; for(let t=0;t<2&&!ok;t++){ try{ const r=await st.download(pack+'/'+f.file); if(!r.error&&r.data){ await cache.put(audKey(pack,f.file), new Response(r.data,{headers:{'Content-Type':'audio/mpeg'}})); bytes+=r.data.size; ok=true; } }catch(e){} } if(!ok) fails++; audBusy.done++; audRefreshUI(); } };
+      await Promise.all([worker(),worker(),worker(),worker()]);
+      if(fails) throw Error(fails+'개 파일을 못 받았어. 다시 받아 줘.');
+      await cache.put(audKey(pack,'manifest.json'), new Response(manText,{headers:{'Content-Type':'application/json'}}));
+      await cache.put(audKey(pack,'_meta.json'), new Response(JSON.stringify({pack,count:files.length,bytes,at:Date.now()}),{headers:{'Content-Type':'application/json'}}));
+      audLocal.add(pack); audMsg='받았어. 이제 이 기기에서 녹음 음성으로 재생돼.';
+      if(currentPack()===pack){ await audLoadLocal(pack); renderSpeakers(); }
+    }catch(e){ audErr=String(e.message||e); }
+    audBusy=null; audRefreshUI(); renderRecords();
+  }
+  function audBadge(id){ return audLocal.has(id)?'<i class="aud-dot on" title="녹음 음성 저장됨"></i>':(audServer&&audServer.has(id))?'<i class="aud-dot" title="녹음 음성 있음 · 아직 안 받음"></i>':''; }
+  function audRefreshUI(){
+    const box=$('audBox'); if(!box) return; const pack=currentPack();
+    if(!pack){ box.hidden=true; return; } box.hidden=false;
+    let h='<b class="aud-h">VOICE · 녹음 음성</b>';
+    if(audBusy) h+=`<p>받는 중… ${audBusy.done} / ${audBusy.total||'?'}</p><div class="aud-bar"><i style="width:${audBusy.total?Math.round(audBusy.done/audBusy.total*100):3}%"></i></div>`;
+    else if(audMeta) h+=`<p>이 기기에 저장됨 · ${audMeta.count}줄 · ${mb(audMeta.bytes)}<br><small>녹음이 있는 줄은 녹음 음성, 없는 줄은 기기 음성으로 읽어. 삭제는 앱 Settings에서.</small></p><button data-aud="get">다시 받기</button>`;
+    else if(audServer&&audServer.has(pack)) h+=`<p>서버에 이 판의 녹음 음성이 있어. 받아 두면 이 기기에서 오프라인으로도 재생돼.</p><button class="primary" data-aud="get">이 EP 음성 받기</button>`;
+    else if(audChecking) h+='<p>서버 확인 중…</p>';
+    else if(audSignedOut) h+='<p>지금은 기기 음성으로 읽어. 녹음 음성을 받으려면 앱에서 로그인해 줘.</p><button data-aud="check">다시 확인</button>';
+    else if(audServer) h+='<p>이 판은 아직 녹음 음성이 없어. 기기 음성으로 읽어.</p><button data-aud="check">다시 확인</button>';
+    else h+='<p>지금은 기기 음성으로 읽어.</p><button data-aud="check">서버 확인</button>';
+    if(audErr) h+=`<p class="warn">${esc(audErr)}</p>`; else if(audMsg&&!audBusy) h+=`<p class="aud-ok">${esc(audMsg)}</p>`;
+    box.innerHTML=h;
+  }
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-aud]'); if(!b) return; e.preventDefault(); const p=currentPack(); if(b.dataset.aud==='get'&&p) audDownload(p); else if(b.dataset.aud==='check') audCheckServer(); });
+  async function audOnSource(){ const p=currentPack(); audErr=''; audMsg=''; audRefreshUI(); await audLoadLocal(p); if(p!==currentPack()) return; audRefreshUI(); renderSpeakers(); if(audServer===null&&p) audCheckServer(); }
+  audScanLocal().then(()=>renderRecords());
+  // SPEED: snap old stored rate (0.7/0.9) to the new stops
+  { const v=+$('rate').value, st=[0.8,1.0,1.2,1.5]; if(!st.includes(v)){ const n=st.reduce((a,b)=>Math.abs(b-v)<Math.abs(a-v)?b:a); $('rate').value=n; $('rate').oninput({target:$('rate')}); store.set('dkRate',n); } }
   setBox.open=true;
   renderSnaps(); renderKo(); renderLastSay(); placeSay();
   loadSources();loadSource(typeof storedSource==='string'?storedSource:'direct',true);
