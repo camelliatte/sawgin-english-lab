@@ -1351,7 +1351,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.4.1 · 냉장고 EDIT 티켓'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5 · 냉장고 위아래 · 스튜디오 책갈피'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
@@ -1537,6 +1537,53 @@ openLevelSheet=function(){openLevelSheet141();const el=document.getElementById('
  el.querySelectorAll('.tier-row').forEach((r,i)=>{const t=TIERS[i];if(!t)return;const a=Math.max(2,t[2]),b=t[3]||15;let h='';for(let L=a;L<=b;L++){const m=LV_MAGNETS[L];if(!m)continue;const own=!!db.levelMagnets[L];h+=`<span class="tm${own?'':' off'}${L===lv?' cur':''}" title="L${L} · ${attr(m[1])}"><img src="fridge/badges/${m[0]}.webp" alt="" loading="lazy"><small>L${L}</small></span>`;}
   const txt=r.querySelector('.seal-text');if(txt)txt.insertAdjacentHTML('beforeend',`<span class="tier-mags">${h}</span>`);});
  const p=el.querySelector('.tier-xp');if(p)p.insertAdjacentHTML('beforeend',` · 레벨 자석 ${Object.keys(db.levelMagnets||{}).length} / 14`);};
+/* ---------- v1.5 · fridge swap (functions up, collection down) + 4-book shelf ---------- */
+for(let i=SHELF.length-1;i>=0;i--)if(SHELF[i].mode==='pocket'||SHELF[i].mode==='studio')SHELF.splice(i,1);
+const shelfHTML150=shelfHTML;
+shelfHTML=function(){return shelfHTML150().replace('THE SHELF · 6 VOLUMES','THE SHELF · '+SHELF.length+' VOLUMES');};
+const FR_SLOTS=[[46,40,66,-8],[54.5,98,58,6],[62.5,32,70,-3],[72.5,100,54,12],[79,22,64,-6],[87,76,72,4],[47,170,60,9],[57.8,212,72,-5],[67.8,170,62,3],[75.5,236,58,-10],[84,174,70,7],[50,276,56,-4],[61.6,320,66,10],[81.4,310,60,-7]];
+const FR_MSLOTS=[[72.8,34,48,-7],[85,92,40,8],[71.7,140,52,-3],[84.5,198,42,10],[73.9,240,46,5],[34.4,222,50,-9],[51.7,258,44,6],[11.1,316,54,4]];
+function frSlotMag(x,i){const p=FR_SLOTS[i]||FR_SLOTS[0],m=FR_MSLOTS[i]||FR_MSLOTS[0];return `<button class="fr-mag${i>=FR_PHONE?' pc-only':''}" style="--x:${p[0]}%;--y:${p[1]}px;--s:${p[2]}px;--r:${p[3]}deg;--mx:${m[0]}%;--my:${m[1]}px;--ms:${m[2]}px;--mr:${m[3]}deg" data-action="fr-mag" data-id="${attr(x.id)}" aria-label="${attr(x.label)}"><img src="${attr(x.img)}" alt="" loading="lazy"></button>`;}
+function frLastStudio(){let v='';try{v=JSON.parse(localStorage.getItem('dkStudioSource')||'""')||'';}catch(e){}const id=String(v).startsWith('pack:')?String(v).slice(5):'';const m=id.toUpperCase().match(/S\d+_EP\d+(?:_\d+)?/),code=m?m[0]:'';const em=code.match(/EP(\d+)(?:_(\d+))?/);return {code,label:em?'EP'+em[1]+(em[2]?'-'+em[2]:''):'S&G'};}
+function frLP(){const s=frLastStudio();return `<a class="fr-lp" href="./script-studio.html" aria-label="Script Studio 열기${s.code?' · '+attr(s.label):''}"><span class="fr-disc"><span class="fr-lbl"><span class="fr-lbl-t">${esc(s.label)}</span>${s.code?`<img src="records/${attr(s.code)}.webp" alt="" onerror="this.remove()">`:''}</span><span class="fr-hole"></span></span></a>`;}
+function frReceipt(){const t=typeof rcTileHTML==='function'?rcTileHTML():'';const n=typeof rcLive==='function'?rcLive().length:0;
+ return t.replace('class="pk-rc" data-action="rc-open"','class="fr-rc" data-action="pocket-home"').replace(/aria-label="[^"]*"/,`aria-label="Pocket Cards 열기 · 미정리 단어 ${n}개"`).replace(/<span class="pk-label">[\s\S]*?<\/span><\/button>$/,'</button>');}
+fridgeHTML=function(calHTML){const shown=frShown(),got=SEALS.filter(s=>db.achievements[s[0]]).length;
+ const m=membershipV8(),hs=m.indexOf('<div class="member-head">'),he=m.indexOf('<div class="member-sub">'),head=hs>=0&&he>hs?m.slice(hs,he):'';
+ const peb=(c1,c2,cls)=>`<span class="fr-peb ${cls}" style="--c1:${c1};--c2:${c2}"></span>`,n=frItems().length;
+ return `<section class="fridge v15" aria-label="냉장고"><div class="fr-door fr-top"><span class="fr-logo">S&amp;G</span>
+  <div class="fr-fn">
+   <div class="fr-cal">${peb('#c9474a','#7d1418','cal')}${calHTML}</div>
+   ${frLP()}
+   ${frReceipt()}
+   <div class="fr-memo">${peb('#5a6b96','#1f2a44','memo')}${head}<div class="fr-memo-foot"><button class="linkbtn" data-action="seal-sheet">업적 전체 ${got} / ${SEALS.length} →</button></div></div>
+   <button class="fr-ticket" data-action="fr-pick" aria-label="자석 고르기"><span class="tk-body"><span class="tk-main"><span class="tk-top">ADMIT ONE · FRIDGE</span><b>EDIT</b><span class="tk-sub">MAGNETS ${n} / 29</span></span><span class="tk-no">No.${String(n).padStart(4,'0')}</span></span><span class="fr-peb tk-peb" style="--c1:#c2cdb4;--c2:#5f6f55"></span></button>
+  </div><span class="fr-handle"></span></div>
+  <div class="fr-groove"></div>
+  <div class="fr-door fr-bot"><span class="fr-handle"></span>
+   <div class="fr-strip"><img src="fridge/sg4frame_01.webp" alt="Saw &amp; Gin 네컷 사진"><span class="fr-tape"></span></div>
+   <div class="fr-pol"><img src="fridge/polaroid_01.webp" alt="에드와 서진 폴라로이드"><span class="rc-mag fr-dmag" style="width:40px;height:40px">${FR_DOME}</span></div>
+   ${shown.map(frSlotMag).join('')}
+  </div></section>`;};
+
+/* ---------- v1.5 · in-place save from Script Studio (hidden frame runs the normal manual save) ---------- */
+if(new URLSearchParams(location.search).get('autosave')==='1'&&window.parent!==window){
+ let lastCS='';const cs150=cloudStatus;cloudStatus=function(m){lastCS=String(m||'');return cs150.apply(this,arguments);};
+ const post=(ok,msg)=>{try{parent.postMessage({sgAutosave:1,ok,msg},location.origin);}catch(e){}};
+ const t0=Date.now();let running=false;
+ const tick=setInterval(async()=>{
+  if(running)return;
+  if(cloudUser&&!cloudBusy){running=true;clearInterval(tick);let err=null;const oa=window.alert;window.alert=m=>{err=String(m||'');};
+   try{await cloudPushManual();}catch(e){err=String(e.message||e);}window.alert=oa;
+   if(err)post(false,err.replace(/^서버 저장 실패:\s*/,''));
+   else if(/취소/.test(lastCS))post(false,'저장 취소 · 기기 기록 유지');
+   else if(/같아/.test(lastCS))post(true,'이미 서버와 같아');
+   else if(/완료/.test(lastCS))post(true,'서버 저장 완료');
+   else post(false,lastCS||'저장하지 못했어');return;}
+  if(/로컬 모드|확인 실패/.test(lastCS)&&Date.now()-t0>2500||Date.now()-t0>15000){clearInterval(tick);post(false,'로그인이 안 돼 있어. 앱 Settings에서 로그인해 줘.');}
+ },200);
+}
+
 const start071=start05;
 start05=function(){start071();v08Ready=true;if(grantLevelMagnets()){save();}refreshSaveUI();};
 

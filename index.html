@@ -565,7 +565,58 @@ tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:backgrou
 .rc-sheet-act{display:flex;gap:8px;margin:12px 0 4px}.rc-sheet-act .primary{flex:2;background:#a8624f;border-color:#a8624f}.rc-sheet-act .secondary{flex:1}
 .linkbtn{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:#8a6a5a;font-size:13px}
 .audio-store{margin-top:14px;padding-top:10px;border-top:1px dashed #d8c9b2}.audio-store h4{margin:0 0 6px;font-size:13px}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.4.1 · FRIDGE</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+
+/* v1.5 · fridge swap */
+@media(min-width:681px){.shelf{grid-template-columns:repeat(4,minmax(0,180px));column-gap:24px;justify-content:center}.shelf .bk-guide{font-size:20px;white-space:nowrap}.shelf .bk-small{letter-spacing:.08em;white-space:nowrap}.shelf .bk-plate{padding-left:10px;padding-right:10px}}
+.fridge.v15 .fr-top{height:auto;padding:64px 4.5% 92px}
+.fr-fn{display:grid;grid-template-columns:36% minmax(0,1fr) 25%;grid-template-areas:"cal lp rc" "cal memo rc" "cal memo tk" ". memo tk";column-gap:4%;row-gap:0;align-items:start}
+.fridge.v15 .fr-cal{grid-area:cal;flex:none;width:auto}
+.fr-cal .cal-panel{padding:16px 14px!important}
+.fr-lp{grid-area:lp;justify-self:center;display:block;width:156px;margin-top:4px;text-decoration:none;transition:transform .2s}
+.fr-lp:hover{transform:rotate(14deg)}
+.fr-disc{position:relative;display:block;width:100%;aspect-ratio:1;border-radius:50%;background:repeating-radial-gradient(circle,#151515 0 1.5px,#262626 1.5px 3px);box-shadow:0 6px 9px #23181560,inset 0 0 0 2px #0a0a0a}
+.fr-disc::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 30deg,#fff0 0 10%,#ffffff22 14%,#fff0 20% 55%,#ffffff1a 60%,#fff0 66%)}
+.fr-lbl{position:absolute;left:31%;top:31%;width:38%;height:38%;border-radius:50%;overflow:hidden;background:#efe2c4;display:flex;align-items:center;justify-content:center}
+.fr-lbl-t{font:bold 10px Georgia,serif;letter-spacing:.06em;color:#4a2e27}.fr-lbl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fr-hole{position:absolute;left:48.5%;top:48.5%;width:3%;height:3%;border-radius:50%;background:#e8e2d4;box-shadow:inset 0 1px 1px #0006;z-index:2}
+.fr-rc{all:unset;grid-area:rc;cursor:pointer;display:block;justify-self:end;width:100%;max-width:176px}
+.fr-rc .rc-mini{width:100%;margin:16px 0 0;transform:rotate(3deg)}
+.fridge.v15 .fr-memo{grid-area:memo;margin-top:42px;transform:rotate(-1.5deg)}
+.fridge.v15 .fr-ticket{grid-area:tk;justify-self:end;align-self:start;margin:34px 0 0}
+.fr-bot{height:430px}
+.fridge.v15 .fr-strip{left:10.7%;top:166px;width:10.5%}
+.fridge.v15 .fr-pol{left:23.4%;top:82px;width:16%}
+.fridge.v15 .fr-bot .fr-mag{left:var(--x);top:var(--y);width:var(--s);height:var(--s);transform:rotate(var(--r))}
+.fridge.v15 .fr-bot .fr-mag:hover{transform:rotate(var(--r)) scale(1.06)}
+@media(max-width:899px){
+ .fridge.v15 .fr-top{height:auto;padding:58px 5% 70px}
+ .fr-fn{grid-template-columns:minmax(0,1fr) 38%;grid-template-areas:"cal rc" "memo lp" "tk lp";column-gap:5%}
+ .fr-cal .cal-panel{padding:10px 8px!important}
+ .fr-lp{width:100%;max-width:108px;margin-top:34px}
+ .fr-rc{max-width:none}.fr-rc .rc-mini{margin-top:12px}
+ .fridge.v15 .fr-memo{margin-top:30px;transform:rotate(-1deg)}
+ .fridge.v15 .fr-ticket{justify-self:start;margin:28px 0 0 8px;transform:rotate(-3deg) scale(.86);transform-origin:0 0}
+ .fr-bot{height:390px}
+ .fridge.v15 .fr-strip{left:7.8%;top:126px;width:21.7%}
+ .fridge.v15 .fr-pol{left:33%;top:62px;width:33%}
+ .fridge.v15 .fr-bot .fr-mag{left:var(--mx);top:var(--my);width:var(--ms);height:var(--ms);transform:rotate(var(--mr))}
+}
+
+.fridge.v15 .fr-cal .panelhead{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:nowrap;margin-bottom:8px}
+.fridge.v15 .fr-cal .panelhead h3{font-size:17px;margin:0;white-space:nowrap}
+.fridge.v15 .fr-cal .cal-nav{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:12px}.fridge.v15 .fr-cal .cal-nav button{min-height:0;min-width:0;padding:2px 6px;font-size:12px}
+.fridge.v15 .fr-cal .week{gap:4px}.fridge.v15 .fr-cal .day{min-height:0;height:30px;font-size:11px;padding:0;display:flex;align-items:center;justify-content:center}
+.fridge.v15 .fr-memo .member-head h3{font-size:15px}
+.fridge.v15 .tk-peb{left:-8px;top:-14px}
+@media(max-width:899px){
+ .fridge.v15 .fr-cal .panelhead h3{font-size:12.5px}
+ .fridge.v15 .fr-cal .cal-nav,.fridge.v15 .fr-cal .cal-nav button{font-size:9.5px}.fridge.v15 .fr-cal .cal-nav button{padding:1px 3px}
+ .fridge.v15 .fr-cal .week{gap:2px}.fridge.v15 .fr-cal .weeklabel{font-size:8px}.fridge.v15 .fr-cal .day{height:19px;font-size:9px}
+ .fridge.v15 .fr-memo{padding:14px 10px 10px}
+ .fridge.v15 .fr-memo .member-head{flex-wrap:wrap;gap:6px}.fridge.v15 .fr-memo .member-head h3{font-size:14px}.fridge.v15 .fr-memo .member-xp{font-size:10px}
+}
+.fridge.v15 .fr-memo .member-badge{font-size:10.5px;padding:4px 7px}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.5 · FRIDGE</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
