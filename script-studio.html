@@ -1354,7 +1354,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   const SB_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ',''), SB_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
   const SILENT='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAABgAAAykAWlpaWlpaWlpaWlpaWlpaWnt7e3t7e3t7e3t7e3t7e3t7nJycnJycnJycnJycnJycnL29vb29vb29vb29vb29vb293t7e3t7e3t7e3t7e3t7e3t7/////////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQCowAAAAAAAAMpso+sIAAAAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NAxKQAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEowAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=';
   const audKey=(pack,file)=>new URL('./_sgaudio/'+encodeURIComponent(pack)+'/'+file, location.href).href;
-  const currentPack=()=>currentSource.startsWith('pack:')?currentSource.slice(5):'';
+  const audFolder=id=>epCode(id)||String(id||'');
+  const currentPack=()=>currentSource.startsWith('pack:')?audFolder(currentSource.slice(5)):'';
   const mb=b=>((+b||0)/1048576).toFixed(1)+'MB';
   const aud=new Audio(); aud.preload='auto'; try{ aud.preservesPitch=true; aud.webkitPreservesPitch=true; }catch(e){}
   let audMap=new Map(), audMeta=null, audServer=null, audLocal=new Set(), audBusy=null, audChecking=false, audSignedOut=false, audErr='', audMsg='', audUnlocked=false;
@@ -1424,7 +1425,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     }catch(e){ audErr=String(e.message||e); }
     audBusy=null; audRefreshUI(); renderRecords();
   }
-  function audBadge(id){ return audLocal.has(id)?'<i class="aud-dot on" title="녹음 음성 저장됨"></i>':(audServer&&audServer.has(id))?'<i class="aud-dot" title="녹음 음성 있음 · 아직 안 받음"></i>':''; }
+  function audBadge(id){ id=audFolder(id); return audLocal.has(id)?'<i class="aud-dot on" title="녹음 음성 저장됨"></i>':(audServer&&audServer.has(id))?'<i class="aud-dot" title="녹음 음성 있음 · 아직 안 받음"></i>':''; }
   function audRefreshUI(){
     const box=$('audBox'); if(!box) return; const pack=currentPack();
     if(!pack){ box.hidden=true; return; } box.hidden=false;
