@@ -421,7 +421,38 @@ tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:backgrou
 .vc-icons .vc-cover[aria-pressed=true] span{background:#3e4d57;border-color:#3e4d57}
 .q-main{margin:10px 0 0;font:22px/1.45 'Noto Serif KR',Georgia,serif;color:#231815}
 .q-note{margin:6px 0 14px;font:12px/1.6 'Noto Serif KR',serif;color:#8a7a6b}
-</style></style><style>/* v0.9.9 */.voice-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:10px 0}.voice-row label{display:flex;flex-direction:column;gap:5px;font:12px Arial,sans-serif;letter-spacing:.06em;flex:1 1 240px;min-width:0}.voice-row select{min-height:40px;max-width:100%}</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.0.2 · TURNTABLE STUDIO</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+</style></style><style>/* v0.9.9 */.voice-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:10px 0}.voice-row label{display:flex;flex-direction:column;gap:5px;font:12px Arial,sans-serif;letter-spacing:.06em;flex:1 1 240px;min-width:0}.voice-row select{min-height:40px;max-width:100%}</style><style>/* v1.1 Pocket MY WORDS */
+.pk-add{all:unset;box-sizing:border-box;height:204px;margin-top:40px;border:1.5px dashed #c9b7a5;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#a8624f;font:13px 'Noto Serif KR',Georgia,serif;cursor:pointer}
+.pk-add b{font:30px Georgia,serif;font-weight:normal}
+.pk-add:focus-visible{outline:2px solid #a8624f;outline-offset:3px}
+.pocket-modes.five button{font-size:12.5px;padding:0 2px}
+.mw-tools{display:flex;gap:8px;margin:0 0 14px}
+.pk-list .wordlist{background:#fbeee8;border-color:#ecd3c8;box-shadow:3px 4px 0 #e8d8cc}
+.pk-list .wl-head{color:#7a4436}.pk-list .wl-head span+span,.pk-list .wl-cols,.pk-list .wl-order,.pk-list .wl-foot{color:#a8624f}
+.pk-list .wl-modes{border-color:#d9b3a5}.pk-list .wl-modes button{border-left-color:#d9b3a5;color:#7a4436}.pk-list .wl-modes button.on{background:#7a4436;color:#fff4ee}
+.pk-list .wl-order button{border-color:#d9b3a5;color:#7a4436}.pk-list .wl-order button[aria-pressed=true]{background:#7a4436;color:#fff4ee}
+.pk-list .wl-cols{border-bottom-color:#7a4436}.pk-list .vrow{border-bottom-color:#e0bfb2}
+.pk-list .vno{color:#a8624f}.pk-list .vword{text-decoration-color:#d9b3a5}
+.pk-list .vtape{background-color:#f2d9cf;background-image:radial-gradient(#d4a594 1.1px,transparent 1.3px)}
+.pk-list .vc-band{background:#f6ddd3}.pk-list .vc-band .vc-top,.pk-list .vc-prog i{color:#7a4436}.pk-list .vc-bar b{background:#a8624f}
+.pk-list .vst{border-color:#d4b5a8}.pk-list .vst.st-ok{background:#a8624f;border-color:#7a4436}.pk-list .vst.st-miss{background:#4d0e12;border-color:#4d0e12}
+.mw-overlay{position:fixed;inset:0;z-index:60;background:#23181566;display:flex;align-items:flex-end;justify-content:center}
+.mw-sheet{width:min(560px,100%);max-height:92vh;overflow:auto;background:#fbf8f1;border-radius:14px 14px 0 0;padding:16px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px #23181550;color:#231815}
+@media(min-width:700px){.mw-overlay{align-items:center}.mw-sheet{border-radius:8px}}
+.mw-sheet header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.mw-sheet .eyebrow{color:#a8624f}
+.mw-f{display:flex;flex-direction:column;gap:4px;margin:9px 0;font:bold 9px Arial,sans-serif;letter-spacing:.12em;color:#a8624f}
+.mw-f input,.mw-f textarea,.mw-f select{font:14px Georgia,'Noto Serif KR',serif;letter-spacing:0;color:#231815;padding:8px 10px;border:1px solid #e0cbbf;background:#fff;border-radius:3px;min-height:38px;box-sizing:border-box;width:100%}
+.mw-f textarea[data-mwpaste]{background:#fbeee8;font:12px/1.5 'Courier New',monospace}
+.mw-two{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.mw-src{font:12px Georgia,serif;color:#7a6a5c;margin:6px 0 0}
+.mw-sheet .actions{margin-top:14px;justify-content:flex-end}
+.danger{color:#8f2a26!important;border-color:#d9b3a5!important}
+.mw-write input{width:100%;box-sizing:border-box;font:20px Georgia,serif;text-align:center;padding:12px;margin:14px 0 4px;border:1px solid #d9b3a5;border-radius:6px;background:#fffdf9}
+.pocket-result small{display:block;margin-top:6px;font:italic 13px Georgia,serif;opacity:.85}
+.mw-undo{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;background:#231815;color:#f4f0e8;padding:10px 12px 10px 16px;border-radius:24px;font:13px 'Noto Serif KR',serif;display:flex;gap:12px;align-items:center;box-shadow:0 6px 18px #2318154d}
+.mw-undo[hidden]{display:none}.mw-undo button{min-height:0;padding:6px 12px;border-radius:16px;border:0;background:#f4f0e8;color:#231815;font:12px Arial}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.1 · POCKET MY WORDS</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;

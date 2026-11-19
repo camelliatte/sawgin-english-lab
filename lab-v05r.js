@@ -214,6 +214,7 @@ async function cloudPushManual(){
    if(!confirm(msg)){cloudStatus('서버 저장 취소 · 기기 기록 유지');return;}
    downloadJSON(remote,'sawgin-server-before-overwrite-'+dateKey()+'.json');
   }
+  if(remote&&remote.myWords){const merged=mergeMyWords(db.myWords,remote.myWords);if(JSON.stringify(merged)!==JSON.stringify(db.myWords)){db.myWords=merged;localStorage.setItem(KEY,JSON.stringify(db));}}
   const timestamp=new Date(Math.max(Date.now(),data?.updated_at?Date.parse(data.updated_at)+1:0)).toISOString();
   const snapshot=JSON.parse(JSON.stringify(db));snapshot.cloudOwner=cloudUser.id;
   const preferences={...(data?.preferences||{}),cloud_state:snapshot,cloud_updated_at:timestamp};
@@ -231,10 +232,10 @@ async function cloudPullManual(){
   const {data,error}=await readCloud();if(error)throw error;
   const remote=data?.preferences?.cloud_state;if(!remote){cloudStatus('서버에 저장된 기록 없음');alert('서버에 저장된 학습 기록이 없어.');return;}
   if(!validState(remote))throw Error('서버 기록 형식이 올바르지 않아.');
-  const normalized=hydrate(JSON.parse(JSON.stringify(remote)));flushJournal();
+  const normalized=hydrate(JSON.parse(JSON.stringify(remote)));flushJournal();normalized.myWords=mergeMyWords(normalized.myWords,db.myWords);
   if(syncEqual(db,normalized)){setSyncBase(data.updated_at);cloudStatus('기기·서버 기록 동일');toast('이미 같은 기록이야');return;}
   const base=getSyncBase(),unchanged=!!base&&syncHash(db)===base.localHash;
-  if(!unchanged){if(!confirm('서버 기록으로 이 기기의 학습 기록 전체를 교체할까?\n\n확인을 누르면 현재 기기 기록 JSON을 먼저 다운로드해. 자동 병합은 하지 않아.')){cloudStatus('서버 불러오기 취소');return;}backup();}
+  if(!unchanged){if(!confirm('서버 기록으로 이 기기의 학습 기록 전체를 교체할까?\n\n확인을 누르면 현재 기기 기록 JSON을 먼저 다운로드해. Pocket 내 단어만 합치고, 나머지는 서버 기록으로 바뀌어.')){cloudStatus('서버 불러오기 취소');return;}backup();}
   beforeOverwrite('서버 기록 불러오기');
   normalized.cloudOwner=cloudUser.id;
   localStorage.setItem(KEY,JSON.stringify(normalized));db=normalized;
@@ -750,29 +751,33 @@ function pocketOptions(p,x){
  return shuffled([answer,...pick]);
 }
 function pocketHome(){
- const keys=packList('vocab'),mode=db.settings.pocketMode||'choice';
- return `<div class="eyebrow">VOLUME V · ONE-HAND EDITION</div><h1>Pocket Cards.</h1><p class="sub">이동 중에 엄지로 고르고 넘기는 단어 연습이야. 기존 단어 MD를 그대로 써.</p><div class="pocket-modes" role="tablist" aria-label="풀이 방식">${Object.entries(POCKET_MODES).map(([k,l])=>`<button role="tab" aria-selected="${mode===k}" data-action="pocket-mode-pref" data-pmode="${k}">${l}</button>`).join('')}</div>${keys.length?`<div class="pocket-list">${keys.map(k=>{const p=db.packs.vocab[k];return `<button class="pocket-pack" data-action="pocket-start" data-pack="${attr(k)}"><span class="eyebrow">${esc(p.episode)}</span><strong>${esc(p.title)}</strong><small>${p.items.length}개 · ${esc(POCKET_MODES[mode])} 시작 →</small></button>`;}).join('')}</div>`:'<div class="empty">단어 학습팩이 없어.<small>Settings에서 통합 MD를 가져오면 바로 쓸 수 있어.</small></div>'}<p class="sub">‘쓰기’는 Vocabulary 책의 단어 시험으로 열려. 이 책의 결과는 진도·복습 일정에 섞지 않고 따로 기록하고, 학습 달력에는 표시돼.</p>`;
+ const keys=myKeys();
+ const shelf=keys.map((k,i)=>{const n=myItems(k).length,c=PK_COVERS[i%PK_COVERS.length],ink=folderTextColor(c)!=='#231815'?'#D9BD84':'#4A2E27';return `<button class="pk-bundle" data-action="pocket-start" data-pack="${attr(k)}" style="--pk-c:${c};--pk-ink:${ink}" aria-label="${attr(myLabel(k))} · 내 단어 ${n}개 · 열기">${pkRingSVG(false,'pb'+i)}<span class="pk-edge"></span><span class="pk-cover"><span class="pk-hole"></span><span class="pk-spec"><b>POCKET CARDS</b><span>TYPE&nbsp;&nbsp;MY WORDS</span><span>STOCK NO. ${esc(k)}</span><span>SIZE&nbsp;&nbsp;${n} SHEETS</span></span></span>${pkRingSVG(true,'pb'+i)}<span class="pk-label">${esc(myShort(k))} · 내 단어 ${n} <i>· 열기 →</i></span></button>`;}).join('');
+ return `<div class="eyebrow">VOLUME V · ONE-HAND EDITION</div><h1>Pocket Cards.</h1><p class="sub">내가 모은 단어 카드야. 스크립트에서 ＋로 추가하고 엄지로 넘겨.</p><div class="pk-shelf">${shelf}<button class="pk-add" data-action="mw-new" aria-label="단어 추가"><b>＋</b>단어 추가</button></div>${keys.length?'':'<p class="sub">아직 내 단어가 없어. 스크립트 스튜디오에서 단어를 누르고 ＋ Pocket, 또는 여기서 직접 추가해.</p>'}${mwFormHTML()}`;
 }
-function pocketStart(key,pmode,order){const p=db.packs.vocab[key];if(!p)return;const pm=pmode||db.settings.pocketMode||'choice';const o=order&&order.length?order:shuffled(p.items.map((_,i)=>i));if(pm!=='card'&&new Set(p.items.map(x=>normAnswer(pocketAnswer(x)))).size<2)return toast('보기를 만들려면 서로 다른 단어가 2개 이상 필요해.');view={page:'pocket',mode:'vocab',ep:key,pmode:pm,order:o,pos:0,picked:null,flipped:false,opts:null,done:false,session:{right:0,wrong:0,wrongIdx:[]}};pocketPrepare();render();scrollTo(0,0);if(pm==='listen')pocketSpeak();}
-function pocketItem(){const p=db.packs.vocab[view.ep];return p?.items[view.order[view.pos]];}
-function pocketPrepare(){const p=db.packs.vocab[view.ep],x=pocketItem();view.picked=null;view.flipped=false;view.opts=x&&view.pmode!=='card'?pocketOptions(p,x):null;}
+function pocketStart(key,pmode,order){const p=pocketPack(key);if(!p.items.length&&pmode!=='list'&&pmode!==undefined){toast('이 묶음에 단어가 없어.');}const pm=pmode||(p.items.length?db.settings.pocketMode||'list':'list');const o=order&&order.length?order:shuffled(p.items.map((_,i)=>i));if((pm==='choice'||pm==='listen')&&new Set([...p.items,...pocketPool()].map(x=>normAnswer(pocketAnswer(x)))).size<2)return toast('보기를 만들려면 서로 다른 단어가 2개 이상 필요해.');view={page:'pocket',mode:'vocab',ep:key,pmode:pm,order:o,pos:0,picked:null,flipped:false,opts:null,done:false,session:{right:0,wrong:0,wrongIdx:[]}};pocketPrepare();render();scrollTo(0,0);if(pm==='listen')pocketSpeak();}
+function pocketItem(){const p=pocketPack(view.ep);return p.items[view.order[view.pos]];}
+function pocketPrepare(){const p=pocketPack(view.ep),x=pocketItem();view.picked=null;view.flipped=false;view.typed='';view.opts=x&&(view.pmode==='choice'||view.pmode==='listen')?pocketOptions({items:[...p.items,...pocketPool()]},x):null;}
 var pocketSpeak;
 var pocketRecord;
 function pocketPick(i){if(view.picked!==null||!view.opts)return;const x=pocketItem(),ok=normAnswer(view.opts[i])===normAnswer(pocketAnswer(x));view.picked=i;pocketRecord(ok);render();}
 function pocketCard(ok){pocketRecord(ok);pocketNext();}
 var pocketNext;
 function pocketSession(){
- const p=db.packs.vocab[view.ep];if(!p)return pocketHome();
- const tabs=`<div class="pocket-modes" role="tablist" aria-label="풀이 방식"><button role="tab" aria-selected="false" data-action="pocket-write">쓰기</button>${Object.entries(POCKET_MODES).map(([k,l])=>`<button role="tab" aria-selected="${view.pmode===k}" data-action="pocket-mode" data-pmode="${k}">${l}</button>`).join('')}</div>`;
- const top=`<div class="pocket-top"><button class="smallbtn" data-action="pocket-home">← 목록</button><span class="pocket-src"><span class="eyebrow">VOLUME V · POCKET CARDS</span><span>${esc(p.title)}</span></span></div>${tabs}`;
- if(view.done){const s=view.session,n=s.right+s.wrong,wrong=[...new Set(s.wrongIdx)];return `${top}<article class="sheet summary"><div class="eyebrow">SET COMPLETE · ${esc(POCKET_MODES[view.pmode])}</div><div class="big">${s.right} / ${n}</div><p class="sub">${wrong.length?(view.pmode==='card'?`다시 볼 카드 ${wrong.length}장`:`틀린 ${wrong.length}개`):'전부 알았어!'}</p><div class="actions center">${wrong.length?`<button class="primary" data-action="pocket-retry">다시 볼 것만 (${wrong.length})</button>`:''}<button class="${wrong.length?'secondary':'primary'}" data-action="pocket-again">섞어서 다시</button><button class="secondary" data-action="pocket-home">목록으로</button></div></article>`;}
+ const p=pocketPack(view.ep);
+ const tabs=`<div class="pocket-modes five" role="tablist" aria-label="보기 방식">${Object.entries(POCKET_TABS).map(([k,l])=>`<button role="tab" aria-selected="${view.pmode===k}" data-action="pocket-mode" data-pmode="${k}">${l}</button>`).join('')}</div>`;
+ const top=`<div class="pocket-top"><button class="smallbtn" data-action="pocket-home">← Pocket</button><span class="pocket-src"><span class="eyebrow">VOLUME V · POCKET CARDS</span><span>${esc(myShort(view.ep))} · 내 단어 ${p.items.length}</span></span></div>${tabs}`;
+ if(view.pmode==='list')return top+mwListHTML(p);
+ if(!p.items.length)return top+`<div class="empty">이 묶음에 단어가 없어.<small>목록에서 ＋ 단어 추가로 넣어 줘.</small></div>`;
+ if(view.pmode==='write'&&!view.done)return top+mwWriteHTML(p);
+ if(view.done){const s=view.session,n=s.right+s.wrong,wrong=[...new Set(s.wrongIdx)];return `${top}<article class="sheet summary"><div class="eyebrow">SET COMPLETE · ${esc(POCKET_TABS[view.pmode])}</div><div class="big">${s.right} / ${n}</div><p class="sub">${wrong.length?(view.pmode==='card'?`다시 볼 카드 ${wrong.length}장`:`틀린 ${wrong.length}개`):'전부 알았어!'}</p><div class="actions center">${wrong.length?`<button class="primary" data-action="pocket-retry">다시 볼 것만 (${wrong.length})</button>`:''}<button class="${wrong.length?'secondary':'primary'}" data-action="pocket-again">섞어서 다시</button><button class="secondary" data-action="pocket-mode" data-pmode="list">목록으로</button></div></article>`;}
  const x=pocketItem(),n=view.order.length,answered=view.picked!==null,answer=pocketAnswer(x);
- const head=`<div class="pocket-progress"><span>VOCABULARY · ${esc(x['난이도']||'B1–B2')}</span><span>${view.pos+1} / ${n}</span></div><div class="bar thin"><div class="fill blue" style="width:${(view.pos+(answered?1:0))/n*100}%"></div></div>`;
- if(view.pmode==='card'){return `${top}${head}<button class="pocket-card${view.flipped?' flipped':''}" data-action="pocket-flip" aria-label="카드 뒤집기">${view.flipped?`<span class="eyebrow">ANSWER</span><strong>${esc(isVerb(x)?verbForms(x).join(' · '):answer)}</strong><span class="pc-mean">${esc(x['뜻'])}</span>${x['예문 또는 결합']?`<i>${esc(x['예문 또는 결합'])}</i>`:''}`:`<span class="eyebrow">무슨 표현일까?</span><strong>${esc(x['뜻'])}</strong>${x['품사']?`<small>${esc(x['품사'])}</small>`:''}<span class="pc-hint">눌러서 뒤집기</span>`}</button>${view.flipped?`<div class="row tts">${ipa(x)}</div>`:''}<div class="pocket-thumb two">${view.flipped?`<button class="secondary" data-action="pocket-card" data-ok="0">다시 볼래</button><button class="primary" data-action="pocket-card" data-ok="1">알았어 →</button>`:`<button class="primary" data-action="pocket-flip">뒤집기</button>`}</div>`;}
+ const head=`<div class="pocket-progress"><span>MY WORDS · ${esc(POCKET_TABS[view.pmode]||'')}</span><span>${view.pos+1} / ${n}</span></div><div class="bar thin"><div class="fill blue" style="width:${(view.pos+(answered?1:0))/n*100}%"></div></div>`;
+ if(view.pmode==='card'){return `${top}${head}`+pkWrap(`<button class="pocket-card${view.flipped?' flipped':''}" data-action="pocket-flip" aria-label="카드 뒤집기">${view.flipped?`<span class="eyebrow">ANSWER</span><strong>${esc(isVerb(x)?verbForms(x).join(' · '):answer)}</strong><span class="pc-mean">${esc(x['뜻'])}</span>${x['예문 또는 결합']?`<i>${esc(x['예문 또는 결합'])}</i>`:''}`:`<span class="eyebrow">무슨 표현일까?</span><strong>${esc(x['뜻'])}</strong>${x['품사']?`<small>${esc(x['품사'])}</small>`:''}<span class="pc-hint">눌러서 뒤집기</span>`}</button>`)+`${view.flipped?`<div class="row tts">${ipa(x)}</div>`:''}<div class="pocket-thumb two">${view.flipped?`<button class="secondary" data-action="pocket-card" data-ok="0">다시 볼래</button><button class="primary" data-action="pocket-card" data-ok="1">알았어 →</button>`:`<button class="primary" data-action="pocket-flip">뒤집기</button>`}</div>`;}
  const listen=view.pmode==='listen',okIdx=view.opts.findIndex(o=>normAnswer(o)===normAnswer(answer));
  const prompt=listen?`<span class="eyebrow">들리는 표현은?</span><button class="secondary pocket-replay" data-action="pocket-replay">🔊 다시 듣기</button>${answered?`<span class="pq-mean">${esc(x['뜻'])}</span>`:''}`:`<span class="eyebrow">이 뜻에 맞는 표현은?</span><strong>${esc(x['뜻'])}</strong>${x['품사']?`<small>${esc(x['품사'])}</small>`:''}`;
  const result=answered?`<div class="pocket-result ${view.picked===okIdx?'ok':'bad'}">${view.picked===okIdx?'정답! ':'다시 볼 단어 · 정답은 '}<b>${esc(answer)}</b></div>`:'';
- return `${top}${head}<section class="pocket-q">${prompt}</section>${result}<div class="pocket-options">${view.opts.map((o,i)=>{const cls=!answered?'':i===okIdx?' right':i===view.picked?' wrong':' dim';return `<button class="pocket-opt${cls}" data-action="pocket-pick" data-i="${i}" ${answered?'aria-disabled="true"':''}><span>${i+1}</span>${esc(o)}</button>`;}).join('')}</div><div class="pocket-thumb two"><button class="secondary" data-action="pocket-giveup" ${answered?'disabled':''}>모르겠어 · 정답 보기</button><button class="primary" data-action="pocket-next" ${answered?'':'disabled'}>${view.pos>=n-1?'결과 보기':'다음 →'}</button></div>`;
+ return `${top}${head}`+pkWrap(`<section class="pocket-q">${prompt}</section>`)+`${result}<div class="pocket-options">${view.opts.map((o,i)=>{const cls=!answered?'':i===okIdx?' right':i===view.picked?' wrong':' dim';return `<button class="pocket-opt${cls}" data-action="pocket-pick" data-i="${i}" ${answered?'aria-disabled="true"':''}><span>${i+1}</span>${esc(o)}</button>`;}).join('')}</div><div class="pocket-thumb two"><button class="secondary" data-action="pocket-giveup" ${answered?'disabled':''}>모르겠어 · 정답 보기</button><button class="primary" data-action="pocket-next" ${answered?'':'disabled'}>${view.pos>=n-1?'결과 보기':'다음 →'}</button></div>`;
 }
 function pocketPage(){return view.ep?pocketSession():pocketHome();}
 const render071=render;
@@ -786,7 +791,8 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]'
  else if(a==='pocket-mode-pref'){db.settings.pocketMode=b.dataset.pmode;save();render();}
  else if(a==='pocket-start')pocketStart(b.dataset.pack);
  else if(a==='pocket-mode'){db.settings.pocketMode=b.dataset.pmode;save();pocketStart(view.ep,b.dataset.pmode);}
- else if(a==='pocket-write'){const key=view.ep;navigate('pack','vocab',key);startQuiz('shuffle');}
+ else if(a==='pocket-write-check'){mwWriteCheck();}
+ else if(a==='pocket-write-pass'){mwWriteCheck(true);}
  else if(a==='pocket-pick'){pocketPick(Number(b.dataset.i));}
  else if(a==='pocket-giveup'){if(view.picked===null){view.picked=-1;pocketRecord(false);render();}}
  else if(a==='pocket-next'){if(view.picked!==null)pocketNext();}
@@ -808,10 +814,8 @@ const navigate08=navigate;
 navigate=function(page,mode,ep){if(page==='home')slipSeed=Math.random();navigate08(page,mode,ep);};
 
 /* Pocket Cards: no right/wrong record; only a separate practice count for the calendar and Records. */
-pocketRecord=function(ok){const x=pocketItem();if(!x)return;const k=dateKey(),a=db.activity[k]??={writing:0,vocab:0};a.pocket=(a.pocket||0)+1;if(ok)view.session.right++;else{view.session.wrong++;view.session.wrongIdx.push(view.order[view.pos]);}save();};
+pocketRecord=function(ok){const x=pocketItem();if(!x)return;mwRecord(x.id,ok);const k=dateKey(),a=db.activity[k]??={writing:0,vocab:0};a.pocket=(a.pocket||0)+1;if(ok)view.session.right++;else{view.session.wrong++;view.session.wrongIdx.push(view.order[view.pos]);}save();};
 pocketNext=function(){if(view.pos>=view.order.length-1){view.done=true;render();scrollTo(0,0);return;}view.pos++;pocketPrepare();render();if(view.pmode==='listen')pocketSpeak();};
-const pocketHome08=pocketHome;
-pocketHome=function(){return pocketHome08().replace(/<p class="sub">‘쓰기’는[^<]*<\/p>/,'<p class="sub">‘쓰기’는 Vocabulary 책의 단어 시험으로 열려. 이 책은 맞고 틀린 결과를 남기지 않고, 풀이 횟수만 따로 세서 학습 달력과 Records에 표시해.</p>');};
 calendar=function(){const now=new Date(),shown=new Date(now.getFullYear(),now.getMonth()+calendarOffset,1),y=shown.getFullYear(),m=shown.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();let cells='';for(let i=0;i<first;i++)cells+='<span></span>';for(let d=1;d<=days;d++){const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,a=db.activity[key],done=a&&((a.writing||0)+(a.vocab||0)+(a.studio||0)+(a.pocket||0))>0;cells+=`<div class="day ${done?'done':''} ${calendarOffset===0&&d===now.getDate()?'today':''}" title="${esc(key)} · 단어 ${a?.vocab||0} · 영작 ${a?.writing||0} · Pocket ${a?.pocket||0} · 쉐도잉 ${a?.studio||0}">${d}</div>`}return `<div class="week">${['M','T','W','T','F','S','S'].map(d=>`<span class="weeklabel">${d}</span>`).join('')}${cells}</div>`};
 const records08=records;
 records=function(){const out=records08();if(recordsTab!=='study')return out;const n=Object.values(db.activity||{}).reduce((s,a)=>s+(Number(a?.pocket)||0),0),i=out.indexOf('<section class="loan-card">');const line=`<p class="pocket-count">Pocket Cards 풀이 <b>${n}</b>회 · 단어 응시와 따로 세</p>`;return i<0?out+line:out.slice(0,i)+line+out.slice(i);};
@@ -1071,7 +1075,7 @@ function vocabCard(p){const n=p.items.length;vcardIdx=Math.max(0,Math.min(vcardI
   <p class="vc-swipe" aria-hidden="true">← SWIPE →</p></div>
  <div class="vc-icons"><button data-action="vcard-more" aria-expanded="${vcardMore}"><span>ⓘ</span>자세히</button><button data-action="speak" data-word="${attr(sayWord(x))}" data-lang="en-GB"><span>GB</span>영국</button><button data-action="speak" data-word="${attr(sayWord(x))}" data-lang="en-US"><span>US</span>미국</button><label><input type="checkbox" data-review="${attr(x.id)}" ${db.reviewFlags[x.id]?'checked':''}><span>🔖</span>책갈피</label></div>
  ${vcardMore?more:''}</section></div></div>`;}
-function vcardGo(d){const p=db.packs.vocab?.[view.ep];if(!p||vcardIdx==null)return;const j=vcardIdx+d;if(j<0||j>=p.items.length){const c=document.querySelector('.vcard');c?.classList.add('bump');setTimeout(()=>c?.classList.remove('bump'),220);return;}vcardIdx=j;render();}
+function vcardGo(d){const p=view.page==='pocket'?pocketPack(view.ep):db.packs.vocab?.[view.ep];if(!p||vcardIdx==null)return;const j=vcardIdx+d;if(j<0||j>=p.items.length){const c=document.querySelector('.vcard');c?.classList.add('bump');setTimeout(()=>c?.classList.remove('bump'),220);return;}vcardIdx=j;render();}
 function vcardClose(){const i=vcardIdx;vcardIdx=null;vcardMore=false;render();document.getElementById('vrow-'+i)?.scrollIntoView({block:'center'});}
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;
  if(a==='vocab-mode'){db.settings.vocabView=b.dataset.vmode;save();render();}
@@ -1083,7 +1087,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]'
  else if(a==='vcard-step'){vcardGo(Number(b.dataset.dir));}
  else if(a==='vcard-more'){vcardMore=!vcardMore;render();}
 });
-document.addEventListener('keydown',ev=>{if(vcardIdx==null||view.page!=='pack'||view.mode!=='vocab')return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')&&document.activeElement.type!=='checkbox')return;
+document.addEventListener('keydown',ev=>{if(vcardIdx==null||!((view.page==='pack'&&view.mode==='vocab')||view.page==='pocket'))return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')&&document.activeElement.type!=='checkbox')return;
  if(ev.key==='ArrowRight'){ev.preventDefault();vcardGo(1);}else if(ev.key==='ArrowLeft'){ev.preventDefault();vcardGo(-1);}else if(ev.key==='Escape'){vcardClose();}});
 let vdrag=null,vcardDragged=false;
 document.addEventListener('pointerdown',ev=>{const c=ev.target.closest('.vcard');if(!c||ev.button>0)return;vdrag={x:ev.clientX,y:ev.clientY,c,dx:0,lock:null};vcardDragged=false;});
@@ -1115,17 +1119,7 @@ folderStack=function(mode,keys,sort){
 const PK_COVERS=['#400C0F','#56431F','#ABBBC3','#774223','#C2B087','#D8D8B4'];
 function pkCover(key){const keys=packList('vocab'),i=Math.max(0,keys.indexOf(key)),hex=PK_COVERS[i%PK_COVERS.length],light=folderTextColor(hex)!=='#231815';return {hex,ink:light?'#D9BD84':'#4A2E27'};}
 function pkRingSVG(front,id){return front?`<svg class="pk-ring front" viewBox="0 0 120 130" aria-hidden="true"><defs><linearGradient id="${id}f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f8e85"/><stop offset=".45" stop-color="#f4f3ee"/><stop offset=".7" stop-color="#bebcb2"/><stop offset="1" stop-color="#85847b"/></linearGradient><clipPath id="${id}c"><rect x="33" y="40" width="40" height="40"/></clipPath></defs><g transform="rotate(-18 33 73)"><g clip-path="url(#${id}c)"><ellipse cx="34" cy="43" rx="17" ry="32" fill="none" stroke="#23181533" stroke-width="5"/><ellipse cx="33" cy="41" rx="17" ry="32" fill="none" stroke="url(#${id}f)" stroke-width="4.4"/></g></g></svg>`:`<svg class="pk-ring back" viewBox="0 0 120 130" aria-hidden="true"><defs><linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f8e85"/><stop offset=".45" stop-color="#e9e8e2"/><stop offset=".7" stop-color="#b3b1a7"/><stop offset="1" stop-color="#85847b"/></linearGradient></defs><g transform="rotate(-18 33 73)"><ellipse cx="33" cy="41" rx="17" ry="32" fill="none" stroke="url(#${id}b)" stroke-width="4.4"/></g></svg>`;}
-const pocketHome089=pocketHome;
-pocketHome=function(){
- let out=pocketHome089();const keys=packList('vocab'),mode=db.settings.pocketMode||'choice';if(!keys.length)return out;
- const list=`<div class="pk-shelf">${keys.map((k,i)=>{const p=db.packs.vocab[k],c=pkCover(k);return `<button class="pk-bundle" data-action="pocket-start" data-pack="${attr(k)}" style="--pk-c:${c.hex};--pk-ink:${c.ink}" aria-label="${attr(p.title)} · ${p.items.length}장 · ${attr(POCKET_MODES[mode])} 시작">${pkRingSVG(false,'pb'+i)}<span class="pk-edge"></span><span class="pk-cover"><span class="pk-hole"></span><span class="pk-spec"><b>POCKET CARDS</b><span>TYPE&nbsp;&nbsp;WORD CARD</span><span>STOCK NO. ${esc(p.episode)}</span><span>SIZE&nbsp;&nbsp;${p.items.length} SHEETS</span></span></span>${pkRingSVG(true,'pb'+i)}<span class="pk-label">${esc(p.title)} <i>· ${esc(POCKET_MODES[mode])} →</i></span></button>`;}).join('')}</div>`;
- return out.replace(/<div class="pocket-list">[\s\S]*?<\/button><\/div>/,list);
-};
 function pkWrap(inner){const c=pkCover(view.ep),no=String(view.pos+1).padStart(2,'0');return `<div class="pk-stage" style="--pk-c:${c.hex}">${pkRingSVG(false,'ps')}<span class="pk-sheet s2"></span><span class="pk-sheet s1"></span><div class="pk-card" id="pkcard"><span class="pk-hole"></span>${inner}<span class="pk-no">No. ${no}</span></div>${pkRingSVG(true,'ps')}</div><p class="pk-swipe" aria-hidden="true">${view.pmode==='card'?(view.flipped?'↑ 위로 밀면 알았어 · 다음':'탭해서 뒤집기 · ↑ 위로 밀어도 돼'):(view.picked!==null?'↑ 위로 밀면 다음':'')}</p>`;}
-const pocketSession089=pocketSession;
-pocketSession=function(){let out=pocketSession089();if(!view.ep||view.done)return out;
- if(view.pmode==='card')return out.replace(/<button class="pocket-card[\s\S]*?<\/button>/,m=>pkWrap(m));
- return out.replace(/<section class="pocket-q">[\s\S]*?<\/section>/,m=>pkWrap(m));};
 function pkSwipeUp(){if(view.page!=='pocket'||!view.ep||view.done)return false;
  if(view.pmode==='card'){if(!view.flipped){view.flipped=true;render();return true;}pocketCard(true);return true;}
  if(view.picked!==null){pocketNext();return true;}return false;}
@@ -1353,9 +1347,74 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.0.2 · 정리 버전'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.1 · Pocket 내 단어장'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
+
+/* v1.1 · Pocket = MY WORDS */
+const POCKET_TABS={list:'목록',write:'쓰기',choice:'고르기',card:'카드',listen:'듣기'};
+const hydrate110=hydrate;
+hydrate=function(s){s=hydrate110(s);if(!s.myWords||typeof s.myWords!=='object'||Array.isArray(s.myWords))s.myWords={};return s;};
+if(!db.myWords||typeof db.myWords!=='object'||Array.isArray(db.myWords))db.myWords={};
+function mwCode(id){const m=String(id||'').toUpperCase().match(/S\d+_EP\d+(?:_\d+)?/);return m?m[0]:'';}
+function mwLive(){return Object.values(db.myWords||{}).filter(w=>w&&!w.deleted&&w.word);}
+function myKeys(){const ks=[...new Set(mwLive().map(w=>w.ep||'MISC'))];const num=k=>k==='MISC'?'~':k.replace(/\d+/g,d=>d.padStart(4,'0'));return ks.sort((a,b)=>{const x=num(a),y=num(b);return x<y?-1:x>y?1:0;});}
+function myShort(k){if(!k||k==='MISC')return '기타';const m=k.match(/EP(\d+)(?:_(\d+))?/);return m?'EP'+m[1]+(m[2]?'-'+m[2]:''):k;}
+function myLabel(k){if(!k||k==='MISC')return '기타 · 에피소드 없음';return epLabel(k)||myShort(k);}
+function myItems(k){return mwLive().filter(w=>(w.ep||'MISC')===k).sort((a,b)=>(a.addedAt||'').localeCompare(b.addedAt||'')).map(w=>({id:w.id,'정답':w.word,'뜻':w.meaning||'','품사':w.pos||'','발음 기호':w.ipa||'','예문 또는 결합':w.example||'','설명':w.memo||'','허용 정답':w.alt||'','출처':w.src?.sentence?(w.src.sentence+(w.src.line?' · L'+w.src.line:'')+(w.src.who?' '+w.src.who:'')):'','난이도':''}));}
+function pocketPack(k){return {episode:k&&k!=='MISC'?k:'',title:myLabel(k),items:myItems(k||'MISC')};}
+function pocketPool(){const out=[];Object.values(db.packs?.vocab||{}).forEach(p=>(p.items||[]).forEach(x=>out.push(x)));return out;}
+function mwNewId(){return 'mw_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function mergeMyWords(a,b){const out={...(a||{})};Object.values(b||{}).forEach(w=>{if(!w||!w.id)return;const cur=out[w.id];if(!cur||String(w.updatedAt||'')>String(cur.updatedAt||''))out[w.id]=w;});return out;}
+function mwRecord(id,ok){const w=db.myWords?.[id];if(!w)return;const r=w.res||(w.res={attempts:0,correct:false,streak:0});r.attempts++;r.correct=!!ok;r.streak=ok?(r.streak||0)+1:0;r.last=new Date().toISOString();}
+const vocabState110=vocabState;
+vocabState=function(x){if(String(x?.id||'').startsWith('mw_')){const r=db.myWords?.[x.id]?.res;return r?.attempts?(r.correct?'ok':'miss'):'new';}return vocabState110(x);};
+/* GPT [POCKET] block parser */
+function parsePocketBlock(t){const o={};const map={'단어':'word','발음 기호':'ipa','발음':'ipa','품사':'pos','뜻':'meaning','예문':'example','메모':'memo','허용 정답':'alt'};String(t||'').split(/\n/).forEach(l=>{const m=l.replace(/^\s*[-*]\s*/,'').match(/^([^:：]{1,8})\s*[:：]\s*(.*)$/);if(m&&map[m[1].trim()]&&m[2].trim())o[map[m[1].trim()]]=m[2].trim();});return o;}
+/* add / edit form (sheet) */
+let mwForm=null;
+function mwEpOptions(cur){const eps=new Set(Object.values(db.packs?.vocab||{}).map(p=>p.episode).filter(Boolean));myKeys().forEach(k=>k!=='MISC'&&eps.add(k));if(cur&&cur!=='MISC')eps.add(cur);const list=[...eps].sort();return list.map(e=>`<option value="${attr(e)}"${e===cur?' selected':''}>${esc(epLabel(e)||myShort(e))}</option>`).join('')+`<option value="MISC"${!cur||cur==='MISC'?' selected':''}>기타 (에피소드 없음)</option>`;}
+function mwFormHTML(){if(!mwForm)return '';const w=mwForm,f=(k,l,ph='',big=false)=>`<label class="mw-f"><span>${l}</span>${big?`<textarea data-mwf="${k}" rows="2" placeholder="${attr(ph)}">${esc(w[k]||'')}</textarea>`:`<input data-mwf="${k}" value="${attr(w[k]||'')}" placeholder="${attr(ph)}">`}</label>`;
+ return `<div class="mw-overlay" data-action="mw-cancel-bg"><section class="mw-sheet" role="dialog" aria-modal="true" aria-label="내 단어 ${w.id?'수정':'추가'}"><header><span class="eyebrow">＋ POCKET · ${w.id?'EDIT':'NEW'}</span><button class="vc-x" data-action="mw-cancel" aria-label="닫기">✕</button></header>
+ <label class="mw-f"><span>GPT 답 붙여 넣기</span><textarea data-mwpaste rows="3" placeholder="[POCKET] 블록을 통째로 붙여 넣으면 아래 칸이 채워져"></textarea></label>
+ ${f('word','단어 *','surprisingly')}${f('meaning','뜻 *','의외로, 놀랍게도')}<div class="mw-two">${f('ipa','발음 기호','/səˈpraɪ.zɪŋ.li/')}${f('pos','품사','부사')}</div>${f('example','예문','',true)}${f('memo','메모','',true)}${f('alt','허용 정답 ( | 로 구분)','')}
+ <label class="mw-f"><span>묶음</span><select data-mwf="ep">${mwEpOptions(w.ep)}</select></label>${w.src?.sentence?`<p class="mw-src">“${esc(w.src.sentence)}”${w.src.line?' · L'+w.src.line:''}</p>`:''}
+ <div class="actions">${w.id?`<button class="secondary danger" data-action="mw-del" data-id="${attr(w.id)}">✂ 삭제</button>`:''}<button class="primary" data-action="mw-save">${w.id?'저장':'＋ 추가'}</button></div></section></div>`;}
+function mwOpen(w){mwForm=JSON.parse(JSON.stringify(w||{ep:view.page==='pocket'&&view.ep?view.ep:'MISC'}));render();setTimeout(()=>document.querySelector('[data-mwf="word"]')?.focus(),30);}
+function mwReadForm(){document.querySelectorAll('[data-mwf]').forEach(el=>{mwForm[el.dataset.mwf]=el.value.trim();});}
+function mwSave(){mwReadForm();if(!mwForm.word||!mwForm.meaning)return toast('단어와 뜻은 꼭 넣어 줘.');const now=new Date().toISOString(),id=mwForm.id||mwNewId(),old=db.myWords[id]||{};
+ db.myWords[id]={...old,...mwForm,id,ep:mwForm.ep==='MISC'?'':mwForm.ep,addedAt:old.addedAt||now,updatedAt:now};delete db.myWords[id].deleted;const wasNew=!mwForm.id;mwForm=null;save();render();toast(wasNew?'Pocket에 넣었어.':'고쳤어.');}
+let mwUndo=null;
+function mwDelete(id){const w=db.myWords[id];if(!w)return;mwUndo={...w};db.myWords[id]={id,deleted:true,updatedAt:new Date().toISOString()};mwForm=null;vcardIdx=null;save();render();mwUndoBar();}
+function mwUndoBar(){let el=document.getElementById('mwUndo');if(!el){el=document.createElement('div');el.id='mwUndo';el.className='mw-undo';document.body.appendChild(el);}el.innerHTML=`✂ 단어를 뺐어 <button data-action="mw-undo">되돌리기</button>`;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true;mwUndo=null;},5000);}
+document.addEventListener('input',ev=>{const t=ev.target;if(!t.matches?.('[data-mwpaste]')||!mwForm)return;const o=parsePocketBlock(t.value);if(!Object.keys(o).length)return;mwReadForm();Object.assign(mwForm,Object.fromEntries(Object.entries(o).filter(([k,v])=>v&&!(k==='word'&&mwForm.word))));document.querySelectorAll('[data-mwf]').forEach(el=>{if(mwForm[el.dataset.mwf]!=null&&el.tagName!=='SELECT')el.value=mwForm[el.dataset.mwf];});toast('칸을 채웠어. 확인하고 추가해 줘.');});
+/* list tab */
+function mwListHTML(p){return `<div class="mw-tools"><button class="primary" data-action="mw-new">＋ 단어 추가</button><button class="secondary" data-action="mw-export">MD 내보내기</button></div>`+(p.items.length?`<div class="pk-list">${mwCardFix(vocabList(p).replace('<span>WORD LIST</span>','<span>MY WORD LIST</span>'))}</div>`:`<div class="empty">아직 단어가 없어.<small>＋ 단어 추가, 또는 스크립트 스튜디오에서 단어를 누르고 ＋ Pocket.</small></div>`)+mwFormHTML();}
+function mwCardFix(h){h=h.replace(/<label class="vc-ribbon"[\s\S]*?<\/label>/,'');const i=h.indexOf('<div class="vc-icons">');if(i<0)return h;const j=h.indexOf('</div>',i);const id=(h.match(/data-action="speak" data-word="[^"]*"/)&&vcardIdx!=null)?(pocketPack(view.ep).items[vocabOrderArr(pocketPack(view.ep))[vcardIdx]]||{}).id:'';return h.slice(0,j)+`<button data-action="mw-edit" data-id="${attr(id||'')}"><span>✎</span>수정</button><button data-action="mw-del" data-id="${attr(id||'')}"><span>✂</span>빼기</button>`+h.slice(j);}
+/* write tab */
+function mwWriteHTML(p){const x=pocketItem(),n=view.order.length,answered=view.picked!==null;if(!x)return '';const answer=pocketAnswer(x),ok=view.picked===1;
+ const head=`<div class="pocket-progress"><span>MY WORDS · 쓰기</span><span>${view.pos+1} / ${n}</span></div><div class="bar thin"><div class="fill blue" style="width:${(view.pos+(answered?1:0))/n*100}%"></div></div>`;
+ const q=pkWrap(`<section class="pocket-q"><span class="eyebrow">뜻을 보고 영어로 써 봐</span><strong>${esc(x['뜻'])}</strong>${x['품사']?`<small>${esc(x['품사'])}</small>`:''}</section>`);
+ const input=`<div class="mw-write"><input id="mwAns" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="영어로 입력" value="${attr(view.typed||'')}" ${answered?'disabled':''}></div>`;
+ const result=answered?`<div class="pocket-result ${ok?'ok':'bad'}">${ok?'정답! ':(view.picked===-1?'패스 · 정답은 ':'다시 볼 단어 · 정답은 ')}<b>${esc(answer)}</b>${x['예문 또는 결합']?`<small>${esc(x['예문 또는 결합'])}</small>`:''}</div>`:'';
+ return head+q+input+result+`<div class="pocket-thumb two">${answered?`<button class="primary" data-action="pocket-next">${view.pos>=n-1?'결과 보기':'다음 →'}</button>`:`<button class="secondary" data-action="pocket-write-pass">모르겠어 · 패스</button><button class="primary" data-action="pocket-write-check">확인</button>`}</div>`;}
+function mwWriteCheck(pass){if(view.picked!==null)return;const x=pocketItem();if(!x)return;const v=(document.getElementById('mwAns')?.value||'').trim();if(!pass&&!v)return toast('답을 써 줘.');view.typed=v;
+ const goods=[pocketAnswer(x),...String(x['허용 정답']||'').split('|')].map(s=>normAnswer(s)).filter(Boolean),ok=!pass&&goods.includes(normAnswer(v));view.picked=pass?-1:(ok?1:0);pocketRecord(ok);render();}
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target?.id==='mwAns'){ev.preventDefault();mwWriteCheck();}});
+/* export */
+function mwExport(k){const items=k?mwLive().filter(w=>(w.ep||'MISC')===k):mwLive();const md=['# S&G Pocket · MY WORDS'+(k?' · '+myShort(k):''),'',...items.map(w=>[`## ${w.id}`,`- 에피소드: ${w.ep||'MISC'}`,`- 단어: ${w.word}`,`- 뜻: ${w.meaning||''}`,w.ipa?`- 발음 기호: ${w.ipa}`:'',w.pos?`- 품사: ${w.pos}`:'',w.example?`- 예문: ${w.example}`:'',w.memo?`- 메모: ${w.memo}`:'',w.alt?`- 허용 정답: ${w.alt}`:'',w.src?.sentence?`- 출처: ${w.src.sentence}${w.src.line?' · L'+w.src.line:''}`:'',''].filter((l,i,a)=>l!==''||i===a.length-1).join('\n'))].join('\n');
+ const blob=new Blob([md],{type:'text/markdown'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`sawgin-mywords-${k?myShort(k):'all'}-${dateKey()}.md`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);toast('MD로 내보냈어.');}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;
+ if(a==='mw-new'){mwOpen(null);}
+ else if(a==='mw-edit'){const w=db.myWords[b.dataset.id];if(w){vcardIdx=null;mwOpen(w);}}
+ else if(a==='mw-save'){mwSave();}
+ else if(a==='mw-cancel'||(a==='mw-cancel-bg'&&ev.target===b)){mwForm=null;render();}
+ else if(a==='mw-del'){mwDelete(b.dataset.id);}
+ else if(a==='mw-undo'){if(mwUndo){db.myWords[mwUndo.id]={...mwUndo,updatedAt:new Date().toISOString()};mwUndo=null;save();render();}const el=document.getElementById('mwUndo');if(el)el.hidden=true;}
+ else if(a==='mw-export'){mwExport(view.page==='pocket'?view.ep:null);}
+});
+/* words added from Script Studio (other tab) */
+window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;try{const o=JSON.parse(e.newValue);const merged=mergeMyWords(db.myWords,o.myWords||{});if(JSON.stringify(merged)!==JSON.stringify(db.myWords)){db.myWords=merged;if(view.page==='pocket')render();}}catch(_){}});
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;refreshSaveUI();};

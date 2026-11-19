@@ -449,6 +449,18 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .deck-knob{position:absolute;left:18px;top:18px;width:32px;height:32px;border-radius:50%;background:conic-gradient(from 0deg,#f8f2e6,#d9ccb6,#f8f2e6,#d9ccb6,#f8f2e6);box-shadow:0 2px 4px #0006,inset 0 0 0 3px #efe7d9;transform:rotate(-30deg);pointer-events:none}
 .deck-knob i{position:absolute;left:50%;top:3px;width:2px;height:8px;margin-left:-1px;background:#6b5440;border-radius:1px}
 .deck-logo{left:14px;bottom:10px;font:bold 7.5px Georgia,serif;letter-spacing:.22em;background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#3e2617;filter:none;text-shadow:0 1px 0 #a3714d99,0 -1px 0 #1c0f0899}
+</style><style>/* v1.1 */
+.k.vv.mw{text-decoration-style:dotted;text-decoration-color:#a8624f;text-decoration-thickness:2px}
+#dict .vtag.mine{background:#a8624f}
+.mw-addbtn{border-color:#d9b3a5!important;color:#a8624f!important}
+.mw-form{margin-top:12px;padding:12px;background:#fbeee8;border:1px solid #ecd3c8;border-radius:4px;color:#231815}
+.mw-form .mw-h{margin:0 0 8px;font:bold 9px Arial;letter-spacing:.16em;color:#a8624f}
+.mw-form textarea{width:100%;box-sizing:border-box;font:12px/1.5 'Courier New',monospace;padding:8px;border:1px solid #e0cbbf;background:#fff}
+.mw-form label{display:flex;flex-direction:column;gap:3px;margin-top:8px;font:bold 9px Arial;letter-spacing:.1em;color:#a8624f}
+.mw-form input{font:14px Georgia,'Noto Serif KR',serif;padding:7px 9px;border:1px solid #e0cbbf;background:#fff;min-height:0}
+.mw-form .mw-2{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
+.mw-form .ctrl{margin-top:10px}
+.legend .lg-m{color:#a8624f;text-decoration:underline dotted;text-underline-offset:3px}
 </style></head>
 <body>
 <main>
@@ -575,7 +587,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
   </aside>
   <section class="studio-board" aria-label="대본"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i><div class="studio-paper" id="studioPaper">
   <div class="card" id="list"></div>
-  <p class="studio-version">S&G · SCRIPT STUDIO · v1.0.2</p></div></section>
+  <p class="studio-version">S&G · SCRIPT STUDIO · v1.1</p></div></section>
   </div>
 </main>
 
@@ -725,7 +737,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
           const m=p.match(/^([^A-Za-z0-9']*)(.*?)([^A-Za-z0-9']*)$/);
           const rev=revealed.has(i+'-'+wi);
           html+=`<span class="k blank${rev?' rev':''}" data-l="${i}" data-w="${wi}">${esc(m[1])}<span class="bw">${esc(m[2])}</span>${esc(m[3])}</span>`;
-        } else { const vi=vmap[wi]; html+=`<span class="k${vi!=null?' vv':''}" data-l="${i}" data-w="${wi}"${vi!=null?` data-vi="${vi}"`:''}>${esc(p)}</span>`; }
+        } else { const vi=vmap[wi]; html+=`<span class="k${vi!=null?(VOCAB[vi].mine?' vv mw':' vv'):''}" data-l="${i}" data-w="${wi}"${vi!=null?` data-vi="${vi}"`:''}>${esc(p)}</span>`; }
         wi++;
       } else html+=p;
       pos+=p.length;
@@ -892,7 +904,8 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const data=(PRESET_DICT[key] && PRESET_KO[sentence]) ? PRESET_DICT[key] : (cache[ck]||null);
     openDict(word, sentence, data);
     if(data) return;
-    dictBody(`<p class="hint">단어장에 없는 단어야. 질문 문구를 복사해서 GPT(S&amp;G 영어 학습)에 붙여 넣어 봐.</p><div class="ctrl"><button class="primary" id="dCopy">⧉ 단어 질문 복사</button></div>`);
+    dictBody(`<p class="hint">단어장에 없는 단어야. 질문을 복사해서 GPT(S&amp;G 영어 학습)에 물어보고, 답을 ＋ Pocket에 붙여 넣으면 내 단어장에 들어가.</p><div class="ctrl"><button class="primary" id="dCopy">⧉ 단어 질문 복사</button><button id="dAdd" class="mw-addbtn">＋ Pocket</button></div><div id="mwBox"></div>`);
+    $('dAdd').onclick=()=>openMwForm(word, sentence);
     $('dCopy').onclick=()=>copyText(qWord(word, sentence),'단어 질문을 복사했어.');
   }
   function openDict(word, sentence, d){
@@ -1050,14 +1063,19 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     VOCAB=[];TERMS=[];CORE=[];
     if(!packId) return;
     let raw=null; try{ raw=JSON.parse(localStorage.getItem(LAB_KEY)||'null'); }catch(e){}
-    const packs=raw&&raw.packs; if(!packs) return;
+    const packs=raw&&raw.packs; if(!packs) return; myWordCount=Object.keys(raw.myWords||{}).length;
     const want=nk(epCode(packId)||packId), mine=p=>p&&Array.isArray(p.items)&&nk(p.episode||p.ep)===want;
     Object.values(packs.vocab||{}).filter(mine).forEach(p=>p.items.forEach(x=>{
       const vi=VOCAB.push(x)-1, terms=new Set();
       [x['정답'],x['기본형'],x['과거형'],x['과거분사'],x['발음 단어'],...String(x['허용 정답']||'').split('|')].forEach(t=>{ const toks=String(t||'').split(/\s+/).map(tokN).filter(Boolean); if(toks.length&&toks.join(' ').length>=2) terms.add(toks.join(' ')); });
       terms.forEach(t=>TERMS.push({toks:t.split(' '),vi}));
     }));
-    TERMS.sort((a,b)=>b.toks.length-a.toks.length);
+    Object.values(raw.myWords||{}).filter(w=>w&&!w.deleted&&w.word&&nk(w.ep||'')===want).forEach(w=>{
+      const vi=VOCAB.push({'정답':w.word,'뜻':w.meaning||'','품사':w.pos||'','발음 기호':w.ipa||'','예문 또는 결합':w.example||'','설명':w.memo||'',mine:true,id:w.id})-1, terms=new Set();
+      [w.word,...String(w.alt||'').split('|')].forEach(t=>{ const toks=String(t||'').split(/\s+/).map(tokN).filter(Boolean); if(toks.length&&toks.join(' ').length>=2) terms.add(toks.join(' ')); });
+      terms.forEach(t=>TERMS.push({toks:t.split(' '),vi}));
+    });
+    TERMS.sort((a,b)=>b.toks.length-a.toks.length || (VOCAB[a.vi].mine?1:0)-(VOCAB[b.vi].mine?1:0));
     const seen=new Set(), add=t=>plainV(t).split(/\n+/).map(l=>l.replace(/^\s*(\d+[.)]|[-•])\s*/,'')).forEach(l=>{ const n=sentN(l); if(n.split(' ').length>=3&&!seen.has(n)){ seen.add(n); CORE.push(n); } });
     Object.values(packs.writing||{}).filter(mine).forEach(p=>p.items.forEach(x=>{
       if(x['원문 영어']) add(x['원문 영어']);
@@ -1081,7 +1099,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   function coreLine(text){ if(!marksOn||!CORE.length) return false; const n=' '+sentN(text)+' '; return CORE.some(c=>n.includes(' '+c+' ')); }
 
   function epLabel(){ const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null; return p?(p.title||currentSource.slice(5)):'직접 입력한 문장'; }
-  function qWord(word,sentence){ return `[S&G 영어 학습] 단어 질문\n에피소드: ${epLabel()}\n단어: ${word}\n문장: ${sentence}\n\n이 문장에서의 뜻, 영국식 발음(IPA), 품사, 비슷한 표현, 예문 2개를 알려줘.`; }
+  function qWord(word,sentence){ return `[S&G 영어 학습] 단어 질문\n에피소드: ${epLabel()}\n단어: ${word}\n문장: ${sentence}\n\n이 문장에서의 뜻, 영국식 발음(IPA), 품사, 비슷한 표현, 예문 2개를 알려줘.\n\n마지막에 앱에 붙여 넣을 블록도 줘. 형식은 정확히 이대로:\n[POCKET]\n단어:\n발음 기호: (영국식 IPA)\n품사:\n뜻: (이 문장에서의 뜻, 짧게)\n예문:\n메모: (한 줄)`; }
   function qLine(i){ const l=lines[i]; if(!l) return ''; return `[S&G 영어 학습] 문장 질문\n에피소드: ${epLabel()}\n화자: ${l.who||'-'}\n영어: ${l.text}${l.ko?`\n의역: ${l.ko}`:''}${l.lit?`\n직역: ${l.lit}`:''}\n\n문장 구조, 핵심 표현, 영국식으로 바꿔 말하는 방법을 설명해줘.`; }
   function qSel(s){ const l=lines[lastSelRow>=0?lastSelRow:cur]; return `[S&G 영어 학습] 표현 질문\n에피소드: ${epLabel()}\n표현: ${s}${l?`\n문장: ${l.text}`:''}\n\n이 문장에서의 뜻, 영국식 발음, 쓰임, 비슷한 표현, 예문 2개를 알려줘.`; }
   function sToast(msg){ const t=$('sToast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
@@ -1092,12 +1110,35 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   function hasSel(){ try{ const s=window.getSelection(); return !!(s&&!s.isCollapsed&&String(s).trim()); }catch(e){ return false; } }
   function vText(t){ return esc(plainV(t)).replace(/\n/g,'<br>'); }
+  let myWordCount=0;
+  function parsePocket(t){ const o={}, map={'단어':'word','발음 기호':'ipa','발음':'ipa','품사':'pos','뜻':'meaning','예문':'example','메모':'memo'}; String(t||'').split(/\n/).forEach(l=>{ const m=l.replace(/^\s*[-*]\s*/,'').match(/^([^:：]{1,8})\s*[:：]\s*(.*)$/); if(m&&map[m[1].trim()]&&m[2].trim()) o[map[m[1].trim()]]=m[2].trim(); }); return o; }
+  function openMwForm(word,sentence){
+    const box=$('mwBox'); if(!box) return; const li=lastSelRow>=0&&lines[lastSelRow]&&lines[lastSelRow].text===sentence?lastSelRow:lines.findIndex(l=>l.text===sentence), l=lines[li]||{};
+    const code=epCode(currentSource.startsWith('pack:')?currentSource.slice(5):'');
+    box.innerHTML=`<div class="mw-form"><p class="mw-h">＋ POCKET · ${esc(code?epPretty(code):'기타')}</p><textarea id="mwPaste" rows="3" placeholder="GPT 답의 [POCKET] 블록을 통째로 붙여 넣어"></textarea>
+      <label>단어<input id="mwWord" value="${esc(word)}"></label><label>뜻<input id="mwMean"></label><div class="mw-2"><label>발음 기호<input id="mwIpa"></label><label>품사<input id="mwPos"></label></div><label>예문<input id="mwEx"></label><label>메모<input id="mwMemo"></label>
+      <div class="ctrl"><button class="primary" id="mwSave">＋ ${esc(code?epPretty(code):'기타')} 묶음에 추가</button></div></div>`;
+    $('mwPaste').addEventListener('input',e=>{ const o=parsePocket(e.target.value); if(o.meaning) $('mwMean').value=o.meaning; if(o.ipa) $('mwIpa').value=o.ipa; if(o.pos) $('mwPos').value=o.pos; if(o.example) $('mwEx').value=o.example; if(o.memo) $('mwMemo').value=o.memo; if(o.word&&!$('mwWord').value) $('mwWord').value=o.word; });
+    $('mwSave').onclick=()=>{
+      const w={word:$('mwWord').value.trim(),meaning:$('mwMean').value.trim(),ipa:$('mwIpa').value.trim(),pos:$('mwPos').value.trim(),example:$('mwEx').value.trim(),memo:$('mwMemo').value.trim()};
+      if(!w.word||!w.meaning){ sToast('단어와 뜻은 꼭 넣어 줘.'); return; }
+      let raw=null; try{ raw=JSON.parse(localStorage.getItem(LAB_KEY)||'null'); }catch(e){}
+      if(!raw||typeof raw!=='object'){ sToast('앱 기록을 찾지 못했어. 앱을 한 번 열어 줘.'); return; }
+      if(!raw.myWords||typeof raw.myWords!=='object'||Array.isArray(raw.myWords)) raw.myWords={};
+      const now=new Date().toISOString(), id='mw_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      raw.myWords[id]={id,...w,ep:code,src:{sentence,line:li>=0?li+1:null,who:l.who||''},addedAt:now,updatedAt:now};
+      try{ localStorage.setItem(LAB_KEY,JSON.stringify(raw)); }catch(e){ sToast('저장 공간이 부족해서 못 넣었어.'); return; }
+      loadLearning(currentSource.startsWith('pack:')?currentSource.slice(5):''); renderList(); dict.classList.remove('open');
+      sToast('Pocket에 넣었어. 앱에서 저장하면 서버에도 올라가.');
+    };
+    setTimeout(()=>$('mwPaste').focus(),30);
+  }
   function openVocab(x,sentence){
     const verb=!!(x['기본형']||x['과거형']||x['과거분사']);
     const head=verb?[x['기본형']||x['정답'],x['과거형'],x['과거분사']].filter(Boolean).join(' · '):x['정답'];
     const say=x['발음 단어']||x['기본형']||x['정답'], gb=x['IPA GB']||x['GB 발음']||x['영국식 발음']||x['발음 GB']||'';
     dict.dataset.word=say; dict.dataset.sent=sentence;
-    dictInner.innerHTML=`<div class="top"><span class="vtag">단어장</span><span class="word">${esc(head)}</span>${gb?`<span class="ipa">${esc(gb)}</span>`:''}${x['품사']?`<span class="pos">${esc(x['품사'])}</span>`:''}<button id="dSay" title="발음 듣기">🔊</button><a class="yg" href="${esc(ygUrl(say))}" target="_blank" rel="noopener">🎬 실제 발음</a><button class="close" id="dClose">닫기</button></div><div id="dBody"></div>`;
+    dictInner.innerHTML=`<div class="top"><span class="vtag${x.mine?' mine':''}">${x.mine?'내 단어':'단어장'}</span><span class="word">${esc(head)}</span>${gb?`<span class="ipa">${esc(gb)}</span>`:''}${x['품사']?`<span class="pos">${esc(x['품사'])}</span>`:''}<button id="dSay" title="발음 듣기">🔊</button><a class="yg" href="${esc(ygUrl(say))}" target="_blank" rel="noopener">🎬 실제 발음</a><button class="close" id="dClose">닫기</button></div><div id="dBody"></div>`;
     $('dClose').onclick=()=>dict.classList.remove('open');
     $('dSay').onclick=()=>sayWord(say);
     let h=`<div class="ctx">${vText(x['뜻'])}</div>`;
