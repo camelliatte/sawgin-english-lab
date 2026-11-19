@@ -425,6 +425,16 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
  .deck-col::-webkit-scrollbar{width:6px}.deck-col::-webkit-scrollbar-thumb{background:#ddd2bf;border-radius:3px}.deck-col:hover::-webkit-scrollbar-thumb{background:#b9a98f}.deck-col::-webkit-scrollbar-track{background:transparent}
 }
 .rl-def[hidden]{display:none!important}
+.dict-act{flex-wrap:wrap;gap:8px}.rc-addbtn{background:#2a2622!important;color:#f4efe4!important;border-color:#2a2622!important}
+.mw-fmt{float:right;min-height:0;padding:3px 8px;font-size:11px;margin-top:-3px}
+.rc-toast{position:fixed;z-index:40;left:50%;top:18px;transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:#231815;color:#f4ead6;font:13px var(--sans);padding:9px 10px 9px 14px;border-radius:20px;box-shadow:0 4px 10px #0003;transition:.2s;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+.rc-toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}.rc-toast button{all:unset;cursor:pointer;color:#e2c48a;margin-left:8px;font-size:12.5px}
+@media(max-width:959px){
+ .studio-desk{overflow:visible!important;display:flex;flex-direction:column}
+ .studio-desk>.desk-paper{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:2px}
+ .studio-desk .desk-head{position:sticky;top:-26px;z-index:5;background:var(--card);margin:-26px -14px 0;padding:26px 14px 8px;border-bottom:1px solid var(--line2)}
+ .studio-desk .menu-close{z-index:6}
+}
 .aud-box{margin:0 0 12px;padding:10px 12px;border:1px dashed #c9b49a;border-radius:6px;background:#fffaf0;font-size:12.5px;line-height:1.45}
 .aud-box .aud-h{display:block;font:bold 9px var(--sans);letter-spacing:.22em;color:#8a6a5a;margin-bottom:4px}
 .aud-box p{margin:2px 0 6px}.aud-box .warn{color:#8f2b2b}.aud-box .aud-ok{color:#4f6b3a}
@@ -917,9 +927,10 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const data=(PRESET_DICT[key] && PRESET_KO[sentence]) ? PRESET_DICT[key] : (cache[ck]||null);
     openDict(word, sentence, data);
     if(data) return;
-    dictBody(`<p class="hint">단어장에 없는 단어야. 질문을 복사해서 GPT(S&amp;G 영어 학습)에 물어보고, 답을 ＋ Pocket에 붙여 넣으면 내 단어장에 들어가.</p><div class="ctrl"><button class="primary" id="dCopy">⧉ 단어 질문 복사</button><button id="dAdd" class="mw-addbtn">＋ Pocket</button></div><div id="mwBox"></div>`);
+    dictBody(`<p class="hint">단어장에 없는 단어야. 뜻만 궁금하면 바로 물어보고, 넣을 거면 뜻을 붙여 넣거나 영수증에 담아 뒀다가 Pocket에서 몰아서 정리해.</p><div class="ctrl dict-act"><button class="primary" id="dCopy">⧉ 바로 물어보기</button><button id="dAdd" class="mw-addbtn">＋ 뜻 붙여넣기</button><button id="dRc" class="rc-addbtn">🧾 영수증에 담기</button></div><div id="mwBox"></div>`);
     $('dAdd').onclick=()=>openMwForm(word, sentence);
-    $('dCopy').onclick=()=>copyText(qWord(word, sentence),'단어 질문을 복사했어.');
+    $('dRc').onclick=()=>rcAdd(word, sentence);
+    $('dCopy').onclick=()=>copyText(qWordShort(word, sentence),'질문을 복사했어. (Pocket에는 안 들어가)');
   }
   function openDict(word, sentence, d){
     dict.dataset.word=word; dict.dataset.sent=sentence;
@@ -1113,6 +1124,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
 
   function epLabel(){ const p=currentSource.startsWith('pack:')?catalog[currentSource.slice(5)]:null; return p?(p.title||currentSource.slice(5)):'직접 입력한 문장'; }
   function qWord(word,sentence){ return `[S&G 영어 학습] 단어 질문\n에피소드: ${epLabel()}\n단어: ${word}\n문장: ${sentence}\n\n이 문장에서의 뜻, 영국식 발음(IPA), 품사, 비슷한 표현, 예문 2개를 알려줘.\n\n마지막에 앱에 붙여 넣을 블록도 줘. 형식은 정확히 이대로:\n[POCKET]\n단어:\n발음 기호: (영국식 IPA)\n품사:\n뜻: (이 문장에서의 뜻, 짧게)\n예문:\n메모: (한 줄)`; }
+  function qWordShort(word,sentence){ return `[S&G 영어 학습] 단어 질문\n에피소드: ${epLabel()}\n단어: ${word}\n문장: ${sentence}\n\n이 문장에서의 뜻, 영국식 발음(IPA), 품사, 비슷한 표현, 예문 2개를 알려줘.`; }
   function qLine(i){ const l=lines[i]; if(!l) return ''; return `[S&G 영어 학습] 문장 질문\n에피소드: ${epLabel()}\n화자: ${l.who||'-'}\n영어: ${l.text}${l.ko?`\n의역: ${l.ko}`:''}${l.lit?`\n직역: ${l.lit}`:''}\n\n문장 구조, 핵심 표현, 영국식으로 바꿔 말하는 방법을 설명해줘.`; }
   function qSel(s){ const l=lines[lastSelRow>=0?lastSelRow:cur]; return `[S&G 영어 학습] 표현 질문\n에피소드: ${epLabel()}\n표현: ${s}${l?`\n문장: ${l.text}`:''}\n\n이 문장에서의 뜻, 영국식 발음, 쓰임, 비슷한 표현, 예문 2개를 알려줘.`; }
   function sToast(msg){ const t=$('sToast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
@@ -1128,9 +1140,10 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   function openMwForm(word,sentence){
     const box=$('mwBox'); if(!box) return; const li=lastSelRow>=0&&lines[lastSelRow]&&lines[lastSelRow].text===sentence?lastSelRow:lines.findIndex(l=>l.text===sentence), l=lines[li]||{};
     const code=epCode(currentSource.startsWith('pack:')?currentSource.slice(5):'');
-    box.innerHTML=`<div class="mw-form"><p class="mw-h">＋ POCKET · ${esc(code?epPretty(code):'기타')}</p><textarea id="mwPaste" rows="3" placeholder="GPT 답의 [POCKET] 블록을 통째로 붙여 넣어"></textarea>
+    box.innerHTML=`<div class="mw-form"><p class="mw-h">＋ POCKET · ${esc(code?epPretty(code):'기타')} <button type="button" class="mw-fmt" id="mwFmt">⧉ 형식 질문 복사</button></p><textarea id="mwPaste" rows="3" placeholder="GPT 답의 [POCKET] 블록을 통째로 붙여 넣어"></textarea>
       <label>단어<input id="mwWord" value="${esc(word)}"></label><label>뜻<input id="mwMean"></label><div class="mw-2"><label>발음 기호<input id="mwIpa"></label><label>품사<input id="mwPos"></label></div><label>예문<input id="mwEx"></label><label>메모<input id="mwMemo"></label>
       <div class="ctrl"><button class="primary" id="mwSave">＋ ${esc(code?epPretty(code):'기타')} 묶음에 추가</button></div></div>`;
+    $('mwFmt').onclick=()=>copyText(qWord(word,sentence),'[POCKET] 형식 질문을 복사했어.');
     $('mwPaste').addEventListener('input',e=>{ const o=parsePocket(e.target.value); if(o.meaning) $('mwMean').value=o.meaning; if(o.ipa) $('mwIpa').value=o.ipa; if(o.pos) $('mwPos').value=o.pos; if(o.example) $('mwEx').value=o.example; if(o.memo) $('mwMemo').value=o.memo; if(o.word&&!$('mwWord').value) $('mwWord').value=o.word; });
     $('mwSave').onclick=()=>{
       const w={word:$('mwWord').value.trim(),meaning:$('mwMean').value.trim(),ipa:$('mwIpa').value.trim(),pos:$('mwPos').value.trim(),example:$('mwEx').value.trim(),memo:$('mwMemo').value.trim()};
@@ -1146,6 +1159,28 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     };
     setTimeout(()=>$('mwPaste').focus(),30);
   }
+  // ---------- v1.3 · receipt (unsorted words) ----------
+  function rcAdd(word,sentence){
+    let raw=null; try{ raw=JSON.parse(localStorage.getItem(LAB_KEY)||'null'); }catch(e){}
+    if(!raw||typeof raw!=='object'){ sToast('앱 기록을 찾지 못했어. 앱을 한 번 열어 줘.'); return; }
+    if(!raw.pocketRec||typeof raw.pocketRec!=='object'||Array.isArray(raw.pocketRec)) raw.pocketRec={};
+    const live=Object.values(raw.pocketRec).filter(x=>x&&!x.deleted&&x.word);
+    const code=epCode(currentSource.startsWith('pack:')?currentSource.slice(5):'');
+    const key=w=>String(w||'').toLowerCase().replace(/[’]/g,"'").replace(/[^a-z0-9' -]/g,'').trim();
+    if(live.some(x=>key(x.word)===key(word)&&(x.ep||'')===code)){ sToast('이미 영수증에 있어.'); dict.classList.remove('open'); return; }
+    if(live.length>=50){ sToast('영수증이 꽉 찼어 (50개). Pocket에서 먼저 정리해 줘.'); return; }
+    const li=lastSelRow>=0&&lines[lastSelRow]&&lines[lastSelRow].text===sentence?lastSelRow:lines.findIndex(l=>l.text===sentence), l=lines[li]||{};
+    const now=new Date().toISOString(), id='rc_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    raw.pocketRec[id]={id,word,sentence,line:li>=0?li+1:null,who:l.who||'',ep:code,addedAt:now,updatedAt:now};
+    try{ localStorage.setItem(LAB_KEY,JSON.stringify(raw)); }catch(e){ sToast('저장 공간이 부족해서 못 담았어.'); return; }
+    dict.classList.remove('open'); rcToast(word,live.length+1,id);
+  }
+  function rcToast(word,n,id){
+    let el=$('rcToast'); if(!el){ el=document.createElement('div'); el.id='rcToast'; el.className='rc-toast'; document.body.appendChild(el); }
+    el.innerHTML=`🧾 <b>${esc(word)}</b> 영수증에 담았어 · ${n}/50 <button type="button">되돌리기</button>`; el.classList.add('show');
+    el.querySelector('button').onclick=()=>{ try{ const raw=JSON.parse(localStorage.getItem(LAB_KEY)||'null'); if(raw&&raw.pocketRec&&raw.pocketRec[id]){ raw.pocketRec[id]={id,deleted:true,updatedAt:new Date().toISOString()}; localStorage.setItem(LAB_KEY,JSON.stringify(raw)); } }catch(e){} el.classList.remove('show'); sToast('영수증에서 뺐어.'); };
+    clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),4500);
+  }
   function openVocab(x,sentence){
     const verb=!!(x['기본형']||x['과거형']||x['과거분사']);
     const head=verb?[x['기본형']||x['정답'],x['과거형'],x['과거분사']].filter(Boolean).join(' · '):x['정답'];
@@ -1157,9 +1192,9 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     let h=`<div class="ctx">${vText(x['뜻'])}</div>`;
     if(x['예문 또는 결합']) h+=`<div class="h">예문 · 결합</div><div class="vex">${vText(x['예문 또는 결합'])}</div>`;
     if(x['학습 메모']||x['설명']) h+=`<div class="tip">💡 ${vText(x['학습 메모']||x['설명'])}</div>`;
-    h+=`<div class="ctrl" style="margin-top:12px"><button id="dCopy">⧉ 단어 질문 복사</button></div>`;
+    h+=`<div class="ctrl" style="margin-top:12px"><button id="dCopy">⧉ 바로 물어보기</button></div>`;
     dictBody(h); dict.classList.add('open');
-    $('dCopy').onclick=()=>copyText(qWord(say,sentence),'단어 질문을 복사했어.');
+    $('dCopy').onclick=()=>copyText(qWordShort(say,sentence),'질문을 복사했어.');
   }
 
   // loop: tap start line → end line

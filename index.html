@@ -452,8 +452,46 @@ tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:backgrou
 .pocket-result small{display:block;margin-top:6px;font:italic 13px Georgia,serif;opacity:.85}
 .mw-undo{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;background:#231815;color:#f4f0e8;padding:10px 12px 10px 16px;border-radius:24px;font:13px 'Noto Serif KR',serif;display:flex;gap:12px;align-items:center;box-shadow:0 6px 18px #2318154d}
 .mw-undo[hidden]{display:none}.mw-undo button{min-height:0;padding:6px 12px;border-radius:16px;border:0;background:#f4f0e8;color:#231815;font:12px Arial}
+
+/* v1.3 · Pocket receipt */
+.pk-rc{all:unset;box-sizing:border-box;position:relative;display:block;min-height:250px;cursor:pointer}
+.rc-mini{position:relative;display:block;width:140px;margin:22px auto 0;transform:rotate(-2deg)}
+.rc-mag{position:absolute;left:50%;top:-16px;transform:translateX(-50%);z-index:3;border-radius:50%;background:radial-gradient(circle at 35% 30%,#33426a,#1f2a44 70%);box-shadow:0 3px 5px #23181555,inset 0 -3px 4px #0004,inset 0 2px 3px #ffffff55;overflow:hidden;display:block}
+.rc-mag::after{content:'';position:absolute;left:20%;top:12%;width:40%;height:20%;border-radius:50%;background:#ffffff40;transform:rotate(-25deg)}
+.rc-paper{filter:drop-shadow(0 3px 4px #23181530)}
+.rc-teeth{display:block!important;height:5px!important;margin:0!important;padding:0!important;font-size:0;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='9' height='5'><path d='M0 5L4.5 0L9 5Z' fill='%23fbfaf5'/></svg>") repeat-x 0 0/9px 5px}
+.rc-teeth.bot{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='9' height='5'><path d='M0 0L4.5 5L9 0Z' fill='%23fbfaf5'/></svg>")}
+.rc-body{background:#fbfaf5;padding:10px 14px 10px;font:12px/1.5 'Courier New',monospace;color:#2a2622}
+.rc-body hr{border:0;border-top:1.5px dashed #9a9389;margin:8px 0}
+.rc-paper.sm .rc-body{padding:20px 11px 8px;font-size:9px;line-height:1.55}
+.rc-ttl{display:block;text-align:center;font:bold 10px 'Courier New',monospace;letter-spacing:.12em}.rc-st{display:block;text-align:center;font-size:8px;color:#6b645a}
+.rc-mrow{display:flex;gap:4px}.rc-mrow>span:first-child{width:15px;color:#8a8378}.rc-mrow .w{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rc-more{display:block;color:#8a8378}.rc-empty{display:block;text-align:center;color:#8a8378;letter-spacing:.2em;padding:8px 0}
+.rc-tot{display:flex;justify-content:space-between;font-size:10px}
+.pk-rc .pk-label{position:static;display:block;margin-top:10px}
+.rc-long{position:relative;max-width:420px;margin:26px auto 110px}
+.rc-long .rc-mag{top:-20px}.rc-long .rc-body{padding-top:28px}
+.rc-h1{text-align:center;font:bold 20px 'Courier New',monospace;letter-spacing:.14em;margin-top:6px}.rc-h1.sm{font-size:17px}
+.rc-sub{text-align:center;font-size:10.5px;color:#5a544b}
+.rc-meta{display:flex;justify-content:space-between;font-size:10.5px;margin-top:8px}
+.rc-sec{display:flex;justify-content:space-between;font-weight:bold;font-size:11px;margin-top:8px}
+.rc-it{display:flex;gap:8px;padding:5px 0}.rc-n{width:20px;flex:none;color:#8a8378}.rc-iw{flex:1;min-width:0}
+.rc-wl{display:flex;justify-content:space-between;align-items:center;gap:6px}.rc-wl b{font-size:13px;overflow-wrap:anywhere}
+.rc-cut{all:unset;cursor:pointer;color:#b29a84;font-size:14px;padding:0 4px}.rc-cut:hover{color:#8f2b2b}
+.rc-sn{font-size:10.5px;color:#7a7368;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rc-none{text-align:center;letter-spacing:.2em;padding:18px 0;color:#8a8378}.rc-none small{display:block;letter-spacing:0;margin-top:6px;font-family:var(--sans,Arial)}
+.rc-sum{display:flex;justify-content:space-between;font-size:10.5px;color:#5a544b}.rc-sum.big{font-weight:bold;font-size:13px;color:#2a2622}
+.rc-foot{text-align:center;font-size:10.5px;color:#5a544b}.rc-bar{display:block;margin:8px auto 0}.rc-code{text-align:center;font-size:9px;letter-spacing:.3em;color:#5a544b}
+.rc-bar-actions{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:8px;justify-content:center;padding:12px 16px calc(14px + env(safe-area-inset-bottom));background:#f3efe8ee;border-top:1px solid #d8cdbb}
+.rc-bar-actions button{flex:1;max-width:220px}
+.rc-sheet{max-width:460px}.rc-sheet .mw-head{display:flex;justify-content:space-between;align-items:center;font:bold 10px Arial;letter-spacing:.14em;color:#a8624f}.rc-sheet textarea{width:100%;box-sizing:border-box;font:12px/1.5 'Courier New',monospace;margin:8px 0}
+.rc-co{display:flex;gap:8px;padding:5px 0;align-items:flex-start;cursor:pointer}.rc-co.off{color:#9a9389}.rc-co input{margin-top:3px;accent-color:#a8624f}
+.rc-cw{flex:1;min-width:0}.rc-cl{display:flex;justify-content:space-between;gap:6px}.rc-cl small{font-size:10px;color:#8a8378}
+.rc-cm{display:block;font:12px 'Noto Serif KR',serif;color:#4a4036}.rc-co.off .rc-cm{color:#b0563f}
+.rc-sheet-act{display:flex;gap:8px;margin:12px 0 4px}.rc-sheet-act .primary{flex:2;background:#a8624f;border-color:#a8624f}.rc-sheet-act .secondary{flex:1}
+.linkbtn{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:#8a6a5a;font-size:13px}
 .audio-store{margin-top:14px;padding-top:10px;border-top:1px dashed #d8c9b2}.audio-store h4{margin:0 0 6px;font-size:13px}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.2.1 · RECORDED VOICE</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.3 · POCKET RECEIPT</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
