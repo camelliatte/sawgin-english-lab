@@ -73,12 +73,9 @@ function epLabel(ep){return db.episodes[ep]?.title||ep}
 var bookTabs;
 function navigate(page,mode,ep){
  flushJournal();rememberLocation();const m=modeOf(mode||view.mode||'vocab');
- const oldEpisode=view.ep&&db.packs[view.mode]?.[view.ep]?.episode;
  view={page,mode:m,ep:ep||null,idx:0,quiz:false,reveal:false};lessonIdx=0;editPacks=false;selectedPacks.clear();
  if(page==='library'){
-  const memory=db.settings.bookMemory[m]||{};
   view.filterEpisode=ep||'';
-  if(ep&&oldEpisode===ep)view.filterEpisode=oldEpisode;
  }else if(page==='pack'&&ep){const memory=db.settings.bookMemory[m]||{},length=db.packs[m]?.[ep]?.items?.length||1;if(memory.pack===ep){view.idx=Math.max(0,Math.min(memory.idx||0,length-1));lessonIdx=view.idx;view.quiz=!!memory.quiz;}db.settings.bookMemory[m]={episode:db.packs[m]?.[ep]?.episode||'',pack:ep,idx:view.idx,quiz:view.quiz};save();}
  render();scrollTo(0,0);
 }
@@ -133,7 +130,7 @@ function finishImport(choice,key){
   db.packs[p.mode][instance]={episode:p.ep,instanceId:instance,sourceId:p.sourceId,title:displayTitle,version:p.version,items,ownedIds:[...new Set([...(old?.ownedIds||[]),...(old?.items||[]).map(x=>x.id),...items.map(x=>x.id)])],updatedAt:Date.now()};
   db.episodes[p.ep]??={title:p.ep,hidden:false,order:Object.keys(db.episodes).length};
   const order=db.settings.manualOrder[p.mode]??=Object.keys(db.packs[p.mode]);if(!order.includes(instance))order.push(instance);
-  pendingImport=null;cloudClose();save();navigate('library',p.mode,p.ep);toast('학습팩을 가져왔어');nextImport();
+  pendingImport=null;cloudClose();save();navigate('library',p.mode);toast('학습팩을 가져왔어');nextImport();
  }catch(e){alert(e.message)}
 }
 function rich(text){return `<div class="rich">${esc(text)}</div>`}
@@ -269,7 +266,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]'
  if(a==='book-episode'){navigate('library',b.dataset.mode,b.dataset.episode);if(b.dataset.mode==='journal')journalFilter=b.dataset.episode;render();return;}
  if(a==='book'){navigate('library',b.dataset.mode);return;}
  if(a==='open-pack'){navigate('pack',view.mode,b.dataset.pack);return;}
- if(a==='back-library'){const ep=db.packs[view.mode]?.[view.ep]?.episode;navigate('library',view.mode,ep);return;}
+ if(a==='back-library'){const ep=view.mode==='journal'?db.packs.journal?.[view.ep]?.episode:undefined;navigate('library',view.mode,ep);return;}
  if(a==='toggle-edit'){editPacks=!editPacks;selectedPacks.clear();render();return;}
  if(a==='select-all'){packList(view.mode).forEach(k=>selectedPacks.add(k));render();return;}
  if(a==='clear-select'){selectedPacks.clear();render();return;}
@@ -424,9 +421,15 @@ function vocabQuiz(p,x){if(view.done)return summaryHTML(p);const order=sessionOr
 function quizActionsHTML(g){const last=sessionPos()>=sessionOrder().length-1;return g?`<button class="primary" data-action="quiz-next">${last?'세트 끝 · 결과 보기':'다음 →'}</button><span class="keyhint">Enter</span>`:`<button class="primary" data-action="grade">채점하기</button><button class="secondary" onclick="view.reveal=!view.reveal;renderReveal()">답안 ${view.reveal?'숨기기':'보기'}</button><span class="keyhint">Enter로 채점</span>`}
 function gradeHTML(x,g){const verb=isVerb(x),forms=verb?verbForms(x):[x['정답']],names=['기본형','과거형','과거분사'];
  return `<div class="note grade ${g.correct?'ok':'bad'}"><b>${g.correct?'✓ 정답':'✗ 다시 볼 단어'}</b>${g.parts.map((v,i)=>`<div class="cmp">${verb?`<small>${names[i]}</small>`:''}${g.ok[i]?`<span class="ok">✓ ${esc(v)}</span>${verb||normAnswer(v)===normAnswer(forms[i])?'':` <span class="muted">(기본 답: ${esc(forms[i])})</span>`}`:`<span class="bad"><s>${esc(v)}</s></span> → <b>${esc(forms[i])}</b>`}</div>`).join('')}${!g.correct&&!verb&&x['허용 정답']?`<p class="sub">허용 정답: ${esc(x['허용 정답'].split('|').map(s=>s.trim()).join(', '))}</p>`:''}${ipa(x)}${x['예문 또는 결합']?rich(x['예문 또는 결합']):''}${x['학습 메모']||x['설명']?`<p class="sub">${esc(x['학습 메모']||x['설명'])}</p>`:''}${x['출처']?`<p class="sub src-note">출처 · ${esc(x['출처'])}</p>`:''}</div>`}
+function matchesVocabAnswer(item,value){
+ const answer=normAnswer(value);
+ const primary=plain(item['정답']);
+ const candidates=[primary,...primary.split(/[|/,，]/),...plain(item['허용 정답']).split('|')];
+ return Boolean(answer)&&candidates.some(candidate=>normAnswer(candidate)===answer);
+}
 function gradeVocab(){const x=currentItem();if(!x||view.done||view.graded?.id===x.id)return;const verb=isVerb(x),ids=verb?['useranswer','pastanswer','participleanswer']:['useranswer'],parts=ids.map(id=>plain($(id)?.value).trim());
  const empty=ids.find((id,i)=>!parts[i]);if(empty){toast(verb?'세 가지 형태를 모두 써 줘.':'먼저 답안을 써 줘.');$(empty)?.focus();return;}
- const ok=verb?parts.map((v,i)=>alternatives(verbForms(x)[i]).includes(normAnswer(v))):[[x['정답'],...(x['허용 정답']||'').split('|')].some(a=>normAnswer(a)&&normAnswer(a)===normAnswer(parts[0]))];
+ const ok=verb?parts.map((v,i)=>alternatives(verbForms(x)[i]).includes(normAnswer(v))):[matchesVocabAnswer(x,parts[0])];
  const correct=ok.every(Boolean),r=db.vocabResults[x.id]||{attempts:0,streak:0};
  r.attempts++;r.correct=correct;r.streak=correct?r.streak+1:0;r.last=dateKey();r.next=nextDate(!correct||db.reviewFlags[x.id]?1:[1,3,7,14,30][Math.min(r.streak-1,4)]);db.vocabResults[x.id]=r;
  activity('vocab');if(correct)db.xpAwards['vocab:'+x.id]??=verb?10:5;
@@ -510,7 +513,7 @@ function beginReview(filter){const mode=view.mode,key=view.ep,r=reviewData(),sk=
 function currentReview(){const s=reviewData().sessions[reviewKey(view.mode,view.ep)],p=db.packs[view.mode]?.[view.ep];if(!s||!p)return null;const index=Math.max(0,Math.min(view.reviewIndex||0,s.ids.length-1)),id=s.ids[index],x=p.items.find(x=>x.id===id);return x?{s,p,index,id,x}:null;}
 function resumeReview(){const s=reviewData().sessions[reviewKey(view.mode,view.ep)];if(!s)return;const i=s.ids.findIndex(id=>!s.results[id]);view.reviewIndex=i<0?0:i;view.reviewScreen='quiz';render();}
 function reviewQuiz(){const q=currentReview();if(!q)return `<div class="empty">원본 문항이 변경됐어. 폴더에서 세트를 취소하고 다시 시작해 줘.</div><button class="secondary" data-v6="review-detail">폴더로</button>`;const {s,x,id,index}=q,v=view.mode==='vocab',verb=v&&isVerb(x),result=s.results[id],draft=s.drafts[id]||[],fields=verb?['기본형','과거형','과거분사']:['답안'];return `<div class="quizbar"><button class="secondary" data-v6="review-detail">← 복습 폴더</button><span>${esc(s.title)} · ${index+1}/${s.ids.length}</span></div><article class="sheet"><div class="eyebrow">${s.kind==='all'?'전체':'선택'} 복습 · ${Object.keys(s.results).length}/${s.ids.length} 완료</div><h2>${esc(v?x['뜻']:x['제목']||'문장을 만들어 봐')}</h2>${v?'':examples(x)+rich(x['지시']||x['한국어']||'')+(x['문제']?rich(x['문제']):'')+(x['조각']?'<div class="note">조각: '+esc(x['조각'])+'</div>':'')+(x['선택지']?'<div class="note">선택지: '+esc(x['선택지'])+'</div>':'')}${fields.map((l,i)=>`<label class="fieldlabel">${l}${v?`<input class="answer short" data-v6answer="${i}" value="${attr(result?.parts[i]??draft[i]??'')}" ${result?'readonly':''} autocomplete="off" autocapitalize="off" spellcheck="false">`:`<textarea class="answer" data-v6answer="${i}" ${result?'readonly':''}>${esc(result?.parts[i]??draft[i]??'')}</textarea>`}</label>`).join('')}<p class="keyhint">${v?'Enter로 확인 · 동사는 다음 칸으로 이동':'Ctrl / ⌘ + Enter로 저장'}</p><label class="review-toggle"><input type="checkbox" data-review="${attr(id)}" ${db.reviewFlags[id]?'checked':''}> 책갈피</label><div class="actions"><button class="primary" data-v6="review-submit" ${result?'disabled':''}>${result?'✓ 이번 세트에서 완료':v?'답안 확인':'복습 답안 저장'}</button></div>${result?`<div class="note"><b>${v?(result.correct?'✓ 정답':'다시 살펴봐'):result.correct===true?'예시와 일치':result.correct===false?'예시와 비교해 봐':'저장했어 · 예시 답안은 여러 표현 중 하나야.'}</b>${rich(v?(verb?verbForms(x).join(' · '):x['정답']):x['정답']||x['기준 영어']||'자유롭게 쓴 답안을 살펴봐.')}${rich(x['해설']||x['설명']||'')}${v?ipa(x):(db.feedback[id]?'<p class="sub">원래 학습 답안의 첨삭 · 이번 복습 답안의 평가가 아니야.</p>':'')+feedbackHTML(id)}</div>`:''}<div class="actions"><button class="secondary" data-v6="review-step" data-dir="-1" ${index===0?'disabled':''}>← 이전</button><button class="secondary" data-v6="review-step" data-dir="1" ${index===s.ids.length-1?'disabled':''}>다음 →</button><button class="primary" data-v6="review-finish" ${Object.keys(s.results).length===s.ids.length?'':'disabled'}>세트 완료</button></div></article>`;}
-function saveReviewAnswer(){const q=currentReview();if(!q||q.s.results[q.id])return;const parts=[...document.querySelectorAll('[data-v6answer]')].map(el=>el.value.trim());if(!parts.length||parts.some(v=>!v))return toast('답안을 모두 써 줘.');const {s,x,id}=q,v=view.mode==='vocab',objective=v||['blank','phrase','order','choice'].includes(x['문제 유형']);const correct=!objective?null:v&&isVerb(x)?parts.every((p,i)=>alternatives(verbForms(x)[i]).includes(normAnswer(p))):[v?x['정답']:x['정답']||x['기준 영어'],...(x['허용 정답']||'').split('|')].some(a=>normAnswer(a)&&normAnswer(a)===normAnswer(parts[0]));s.results[id]={parts,correct,at:Date.now()};const r=reviewData(),prev=r.items[id]||{count:0};r.items[id]={count:prev.count+1,last:dateKey(),correct};activity(v?'vocab':'writing');save();render();}
+function saveReviewAnswer(){const q=currentReview();if(!q||q.s.results[q.id])return;const parts=[...document.querySelectorAll('[data-v6answer]')].map(el=>el.value.trim());if(!parts.length||parts.some(v=>!v))return toast('답안을 모두 써 줘.');const {s,x,id}=q,v=view.mode==='vocab',objective=v||['blank','phrase','order','choice'].includes(x['문제 유형']);const correct=!objective?null:v&&isVerb(x)?parts.every((p,i)=>alternatives(verbForms(x)[i]).includes(normAnswer(p))):v?matchesVocabAnswer(x,parts[0]):[x['정답']||x['기준 영어'],...(x['허용 정답']||'').split('|')].some(a=>normAnswer(a)&&normAnswer(a)===normAnswer(parts[0]));s.results[id]={parts,correct,at:Date.now()};const r=reviewData(),prev=r.items[id]||{count:0};r.items[id]={count:prev.count+1,last:dateKey(),correct};activity(v?'vocab':'writing');save();render();}
 function finishReview(){const q=currentReview();if(!q)return;const {s}=q;if(s.ids.some(id=>!s.results[id]))return toast('모든 항목을 풀고 완료해 줘.');const r=reviewData();if(!r.logs.some(l=>l.id===s.id))r.logs.push({...s,date:dateKey(),finishedAt:Date.now()});delete r.sessions[reviewKey(s.mode,s.pack)];save();view.reviewScreen='detail';render();toast('복습 기록을 남겼어.');}
 review=function(){reviewData();if(view.reviewScreen==='quiz')return reviewQuiz();if(view.reviewScreen==='detail')return reviewFolderDetail();if(view.reviewScreen==='folders')return reviewFolders();return reviewCabinets();};
 const submit05=submitAnswer;
@@ -1069,7 +1072,7 @@ function vocabCard(p){const n=p.items.length;vcardIdx=Math.max(0,Math.min(vcardI
  const mean=v==='hide-meaning'&&!open?tape(x.id,'TAP TO PEEL'):esc(x['뜻']);
  const more=`<div class="vc-more"><div><b>NOTE</b><span>${rich(x['설명']||x['학습 메모']||'—')}</span></div>${isVerb(x)?`<div><b>FORMS</b><span>${esc(verbForms(x).join(' · '))}</span></div>`:''}${x['출처']?`<div><b>SOURCE</b><span>${esc(x['출처'])}</span></div>`:''}<div><b>RECORD</b><span>${r?.attempts?`시험 ${r.attempts}회 · 최근 ${r.correct?'맞힘':'틀림'} · 연속 ${r.streak||0}`:'아직 시험 기록 없음'}</span></div></div>`;
  return `<div class="vcard-overlay" data-action="vcard-close-bg"><div class="vcard-wrap"><span class="vcard-stack" aria-hidden="true"></span><section class="vcard" role="dialog" aria-modal="true" aria-label="단어 카드 ${vcardIdx+1} / ${n}">
- <header class="vc-band"><div class="vc-top"><span>WORD CARD · ${esc(epLabel(p.episode))}</span><button class="vc-x" data-action="vcard-close" aria-label="닫기">✕</button></div><div class="vc-prog"><i>${String(vcardIdx+1).padStart(2,'0')} / ${n}</i><span class="vc-bar"><b style="width:${(vcardIdx+1)/n*100}%"></b></span>${v!=='show'?`<em>${v==='hide-meaning'?'뜻 가리기':'단어 가리기'}</em>`:''}</div></header>
+ <header class="vc-band"><div class="vc-top"><span>${esc(p.episode.replace(/^S\d+_/i,'').replace(/_/g,'-'))}</span><button class="vc-x" data-action="vcard-close" aria-label="닫기">✕</button></div><div class="vc-prog"><i>${String(vcardIdx+1).padStart(2,'0')} / ${n}</i><span class="vc-bar"><b style="width:${(vcardIdx+1)/n*100}%"></b></span>${v!=='show'?`<em>${v==='hide-meaning'?'뜻 가리기':'단어 가리기'}</em>`:''}</div></header>
  <div class="vc-body" id="vcbody"><button class="vc-nav prev" data-action="vcard-step" data-dir="-1" ${vcardIdx===0?'disabled':''} aria-label="이전 단어">‹</button><button class="vc-nav next" data-action="vcard-step" data-dir="1" ${vcardIdx===n-1?'disabled':''} aria-label="다음 단어">›</button>
   <div class="vc-word">${word}</div>
   <button class="vc-ipa" data-action="speak" data-word="${attr(sayWord(x))}" data-lang="${vocabAccent()}">${ip?esc(ip)+' ':''}🔊${ip?'':' '+(vocabAccent()==='en-GB'?'GB':'US')}</button>
@@ -1157,7 +1160,7 @@ const VOL={vocab:'Volume I',guide:'Volume II',writing:'Volume III',journal:'Volu
 function shortDate(ts){if(!ts)return '—';const d=new Date(ts);return [String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),String(d.getFullYear()).slice(2)].join('.');}
 
 todaySlip=function(){const c=slipCandidates();if(!c.length)return '';const s=c[Math.min(c.length-1,Math.floor(slipSeed*c.length))],x=s.x,w=isVerb(x)?verbForms(x)[0]:x['정답'];
- return `<div class="memo-slip"><span class="memo-holes" aria-hidden="true"><i></i><i></i><i></i><i></i></span><button class="memo-main" data-action="slip-open" data-pack="${attr(s.key)}" data-index="${s.i}" aria-label="오늘의 쪽지 ${attr(w)} 풀기"><span class="memo-eyebrow">TODAY'S SLIP</span><span class="memo-word">${esc(w)}</span><span class="memo-mean">${esc(x['뜻'])}</span><span class="memo-try">TRY →</span></button><button class="memo-say" data-action="speak" data-word="${attr(x['발음 단어']||x['기본형']||x['정답'])}" data-lang="${vocabAccent()}" aria-label="듣기 ${attr(w)}">🔊</button></div>`;};
+ return `<div class="memo-slip"><span class="memo-holes" aria-hidden="true"><i></i><i></i><i></i><i></i></span><button class="memo-main" data-slip="open" data-mode="vocab" aria-label="단어 책갈피 목록 열기"><span class="memo-eyebrow">TODAY'S SLIP</span><span class="memo-word">${esc(w)}</span><span class="memo-mean">${esc(x['뜻'])}</span><span class="memo-try">책갈피 목록 →</span></button><button class="memo-say" data-action="speak" data-word="${attr(x['발음 단어']||x['기본형']||x['정답'])}" data-lang="${vocabAccent()}" aria-label="듣기 ${attr(w)}">🔊</button></div>`;};
 const home090=home;
 home=function(){let out=home090();const r=resumeFolder(),s=todaySlip();if(!s)return out;const i=out.indexOf(r);if(i<0)return out;
  return out.slice(0,i)+`<div class="home-pair">${r}${s}</div>`+out.slice(i+r.length).replace(s,'');};
@@ -1351,7 +1354,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.1 · 스튜디오 마스킹테이프 책갈피'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.3 · 홈 단어 책갈피'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
