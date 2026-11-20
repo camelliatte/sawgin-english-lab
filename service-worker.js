@@ -1,4 +1,4 @@
-const CACHE='sawgin-lab-shell-v150-fridge2-20261119';
+const CACHE='sawgin-lab-shell-v151-bookmark-20261120';
 const OWN='sawgin-lab-shell-';
 const ASSETS=['./index.html','./lab-v05r.js','./script-studio.html','./script-packs.js','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));

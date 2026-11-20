@@ -483,14 +483,22 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .mw-form .ctrl{margin-top:10px}
 .legend .lg-m{color:#a8624f;text-decoration:underline dotted;text-underline-offset:3px}
 
-/* v1.5 · in-place save + ribbon bookmark */
+/* v1.5 · in-place save + tape bookmark */
 .studio-nav-bar #stSave{display:inline-flex;align-items:center;justify-content:center;color:var(--soil);background:transparent;border:1px solid var(--line2);border-radius:4px;padding:9px 12px;font:12px Arial,sans-serif;white-space:nowrap;min-height:0;box-shadow:none;cursor:pointer}
 .studio-nav-bar #stSave:disabled{opacity:.6;cursor:wait}
 @media(max-width:560px){.studio-nav-bar #stSave{font-size:11px;padding:9px 5px;min-height:38px}}
 .bmset{position:absolute;right:-4px;top:42px;min-height:0;padding:3px 6px;border:0;background:transparent;box-shadow:none;color:var(--muted);opacity:.3;cursor:pointer;line-height:0}
 .bmset:hover,.bmset:focus-visible{opacity:.9;color:#c2443f;background:transparent}
 .bmset.on{opacity:1;color:#c2443f}
-.bm-rib{position:absolute;z-index:2;pointer-events:none;line-height:0}.bm-rib svg{display:block;overflow:visible}
+.bm-on .bm-speaker{position:relative;isolation:isolate}
+.bm-on .bm-speaker::before{
+  content:"";position:absolute;inset:-4px -6px;z-index:-1;pointer-events:none;
+  background:
+    repeating-linear-gradient(135deg,#a35f54 0 3px,transparent 3px 6px,#52657a 6px 9px,transparent 9px 12px) top/100% 2px no-repeat,
+    repeating-linear-gradient(135deg,#a35f54 0 3px,transparent 3px 6px,#52657a 6px 9px,transparent 9px 12px) bottom/100% 2px no-repeat,
+    #efe2c4;
+  clip-path:polygon(0 0,100% 0,97% 21%,100% 38%,96% 57%,100% 75%,97% 100%,0 100%);
+}
 .bm-go{display:block;margin:7px 0 0 auto;min-height:0;padding:2px 2px 3px;border:0;border-bottom:1.5px solid #c2443f;border-radius:0;background:transparent;box-shadow:none;font:italic 12.5px Georgia,serif;letter-spacing:.04em;color:#b8383c;cursor:pointer}
 .bm-go:hover{background:transparent;color:#8f2a27}
 @media(max-width:959px){.bmset{right:-10px;opacity:.38}}
@@ -737,7 +745,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
       if(loopPick===2 && i===pickA) r.classList.add('loopPickA');
       const isCore=coreLine(l.text); if(isCore) r.classList.add('core');
       r.dataset.i=i;
-      r.innerHTML=`<span class="tag" style="--tagc:${c}">${esc(l.who||'화자')}${cfg[l.who]&&cfg[l.who].mute?' 🙋':''}${best[l.text]!=null?` <span class="bs">${best[l.text]}%</span>`:''}</span><span class="txt">${isCore?CHECK_SVG:''}${wordsHtml(i).html}<span class="ko">${koHtml(l)}</span></span><button class="qcopy" data-q="${i}" title="문장 질문 복사" aria-label="문장 질문 복사">⧉</button>`;
+      r.innerHTML=`<span class="tag" style="--tagc:${c}"><span class="bm-speaker">${esc(l.who||'화자')}</span>${cfg[l.who]&&cfg[l.who].mute?' 🙋':''}${best[l.text]!=null?` <span class="bs">${best[l.text]}%</span>`:''}</span><span class="txt">${isCore?CHECK_SVG:''}${wordsHtml(i).html}<span class="ko">${koHtml(l)}</span></span><button class="qcopy" data-q="${i}" title="문장 질문 복사" aria-label="문장 질문 복사">⧉</button>`;
       r.onclick=e=>{ if(hasSel()) return; if(e.target.closest('.qcopy')) return; if(loopPick){ pickLoop(i); return; } cur=i; if(playing){ start(); } else { showLine(i,-1); renderList(); playOnce(); } };
       list.appendChild(r);
     });
@@ -1171,49 +1179,24 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     };
     setTimeout(()=>$('mwPaste').focus(),30);
   }
-  // ---------- v1.5 · ribbon bookmark (one per pack) ----------
+  // ---------- v1.5.1 · tape bookmark (one per pack) ----------
   const BM_KEY='dkBookmark';
   function bmAll(){ const o=store.get(BM_KEY); return o&&typeof o==='object'&&!Array.isArray(o)?o:{}; }
   function bmGet(){ const v=bmAll()[currentSource]; return Number.isInteger(v)&&v>=0&&v<lines.length?v:-1; }
   function bmSet(i){ const o=bmAll(); if(i<0) delete o[currentSource]; else o[currentSource]=i; store.set(BM_KEY,o); }
   const BM_ICON='<svg viewBox="0 0 12 16" width="10" height="13" aria-hidden="true"><path d="M1 0h10v15l-5-3.6L1 15z" fill="currentColor"/></svg>';
   let bmObs=null, bmRaf=0;
-  function bmRibbon(row){
-    const ks=row.querySelectorAll('.txt > .k'); if(!ks.length) return;
-    const paper=$('studioPaper'), pr=paper.getBoundingClientRect(), rr=row.getBoundingClientRect(), lk=ks[ks.length-1].getBoundingClientRect();
-    if(!rr.width) return;
-    const right=pr.left+paper.clientLeft+paper.clientWidth;
-    let x0=lk.right+7, y=lk.top+lk.height*.56;
-    if(right-x0<70){ x0=rr.left+rr.width*.5; y=lk.bottom+5; }
-    const L=Math.max(30,Math.round(right-x0)), H=11, F=9, w=t=>Math.sin(t*Math.PI*1.25+.5)*2.6-t*3;
-    let top='',bot='';
-    for(let i=0;i<=30;i++){ const t=i/30,x=t*(L-F); top+=` L${x.toFixed(1)} ${w(t).toFixed(1)}`; }
-    for(let i=30;i>=0;i--){ const t=i/30,x=t*(L-F); bot+=` L${x.toFixed(1)} ${(w(t)+H).toFixed(1)}`; }
-    const y1=w(1), y0=w(0);
-    const svg=`<svg width="${L+10}" height="${H+26}" viewBox="-10 -12 ${L+10} ${H+26}" aria-hidden="true">
-     <defs><linearGradient id="bmR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4554d"/><stop offset=".45" stop-color="#c2443f"/><stop offset="1" stop-color="#982d2a"/></linearGradient>
-     <linearGradient id="bmF" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a8332f"/><stop offset=".55" stop-color="#7c2522"/><stop offset="1" stop-color="#5a1716"/></linearGradient>
-     <filter id="bmS" x="-5%" y="-60%" width="110%" height="220%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.1" flood-color="#2a1210" flood-opacity=".32"/></filter></defs>
-     <g filter="url(#bmS)"><path d="M-8 ${(y0-1).toFixed(1)} L0 ${y0.toFixed(1)}${top}${bot} L-8 ${(y0+H+1).toFixed(1)} L-2.5 ${(y0+H/2).toFixed(1)} Z" fill="url(#bmR)"/>
-     <path d="M${L-F} ${y1.toFixed(1)} Q${L-2} ${(y1-.6).toFixed(1)} ${L} ${(y1+2).toFixed(1)} L${L} ${(y1+H-2).toFixed(1)} Q${L-2} ${(y1+H+.6).toFixed(1)} ${L-F} ${(y1+H).toFixed(1)} Z" fill="url(#bmF)"/></g>
-     <line x1="${L-F}" y1="${(y1+.6).toFixed(1)}" x2="${L-F}" y2="${(y1+H-.6).toFixed(1)}" stroke="#f0a49c" stroke-opacity=".55" stroke-width=".9"/>
-     <path d="M0 ${(y0+3).toFixed(1)}${top.replace(/ L(-?[\d.]+) (-?[\d.]+)/g,(m,a,b)=>' L'+a+' '+(+b+3).toFixed(1)).replace(/^ L[^L]+/,'')}" stroke="#fff" stroke-opacity=".22" stroke-width="1.2" fill="none"/></svg>`;
-    const el=document.createElement('span'); el.className='bm-rib'; el.style.left=(x0-rr.left-10)+'px'; el.style.top=(y-rr.top-12)+'px'; el.innerHTML=svg; row.appendChild(el);
-  }
   function bmPaint(){
     bmRaf=0; const at=bmGet();
-    list.querySelectorAll('.bm-rib').forEach(x=>x.remove());
     list.querySelectorAll('.row').forEach(r=>{ const i=+r.dataset.i; let b=r.querySelector('.bmset');
       if(!b){ b=document.createElement('button'); b.type='button'; b.className='bmset'; b.innerHTML=BM_ICON; r.appendChild(b); }
       const on=i===at; b.classList.toggle('on',on); const lb=on?'책갈피 빼기':'이 줄에 책갈피'; b.title=lb; b.setAttribute('aria-label',lb); r.classList.toggle('bm-on',on); });
-    const row=at>=0?list.querySelector(`.row[data-i="${at}"]`):null; if(row) bmRibbon(row);
     const t=document.querySelector('#title .ph-title');
     if(t){ let g=document.querySelector('#title .bm-go'); if(at<0){ if(g) g.remove(); } else { if(!g){ g=document.createElement('button'); g.type='button'; g.className='bm-go'; t.after(g); } const tx=`LINE ${at+1} 로 →`; if(g.textContent!==tx) g.textContent=tx; } }
     if(bmObs) bmObs.takeRecords();
   }
   function bmQueue(){ if(!bmRaf) bmRaf=requestAnimationFrame(bmPaint); }
   bmObs=new MutationObserver(bmQueue); bmObs.observe($('studioPaper'),{childList:true,subtree:true});
-  window.addEventListener('resize',bmQueue); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(bmQueue);
   document.addEventListener('click',e=>{
     const b=e.target.closest&&e.target.closest('.bmset');
     if(b){ e.stopPropagation(); e.preventDefault(); const i=+b.closest('.row').dataset.i; if(bmGet()===i){ bmSet(-1); sToast('책갈피를 뺐어.'); } else { bmSet(i); sToast(`책갈피 꽂았어 · LINE ${i+1}`); } bmPaint(); return; }
