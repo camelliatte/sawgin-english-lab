@@ -551,7 +551,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
   <g stroke="#55544e" stroke-width=".8"><circle cx="27" cy="63" r="5" fill="url(#cRivet)"/><circle cx="173" cy="63" r="5" fill="url(#cRivet)"/></g>
   <g fill="#ffffffaa"><circle cx="25.5" cy="61.5" r="1.4"/><circle cx="171.5" cy="61.5" r="1.4"/></g>
 </svg></div><div class="desk-paper">
-  <div class="desk-head"><button class="menu-close" id="menuClose" aria-label="닫기">✕</button><p class="eyebrow">SCRIPT STUDIO · <span class="pc-only">SETTINGS</span><span class="mobile-only">MENU</span></p><h1><span class="pc-only">Settings.</span><span class="mobile-only">Menu.</span></h1>
+  <div class="desk-head"><button class="menu-close" id="menuClose" aria-label="닫기">✕</button><p class="eyebrow">SCRIPT STUDIO · <span class="pc-only">SETTINGS</span><span class="mobile-only">MENU</span></p><h1><span class="pc-only">Settings.</span><span class="mobile-only">Menu.</span></h1></div>
   <section class="quick mobile-only" id="quick" aria-label="빠른 메뉴">
    <h4>RECORDS</h4><div class="rec-row q" data-recrow></div><button class="q-crate" data-crate>판 전체 ›</button>
    <h4>PLAY · 재생</h4><div class="snaps" data-snaps></div>
@@ -561,7 +561,6 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
    <h4>LAST SAY</h4><div class="lastsay" data-lastsay></div>
   </section>
   <h4 class="set-h">CAST · PRACTICE · SCRIPT</h4>
-  </div>
   <section class="card studio-source"><label for="studioSource">연습 자료</label><div class="ctrl"><select id="studioSource" aria-label="연습 자료"><option value="direct">직접 입력한 문장</option></select><button id="reloadPacks">목록 새로고침</button><a class="studio-settings" href="./?studio=settings">Settings · 대사팩 관리 →</a></div><p class="hint" id="sourceNote"></p></section>
   <details class="studio-set" id="studioSet">
     <summary><span class="set-sum" id="setSummary"></span><span class="set-btn">⚙ 설정</span></summary>
@@ -1450,7 +1449,9 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   const currentPack=()=>currentSource.startsWith('pack:')?audFolder(currentSource.slice(5)):'';
   const mb=b=>((+b||0)/1048576).toFixed(1)+'MB';
   const aud=new Audio(); aud.preload='auto'; try{ aud.preservesPitch=true; aud.webkitPreservesPitch=true; }catch(e){}
-  let audMap=new Map(), audMeta=null, audServer=null, audLocal=new Set(), audBusy=null, audChecking=false, audSignedOut=false, audErr='', audMsg='', audUnlocked=false;
+  let audMap=new Map(), audMeta=null, audServer=null, audLocal=new Set(), audChecking=false, audSignedOut=false, audServerError='', audUnlocked=false;
+  const audDownloads=new Map();
+  let audLoadRequest=0;
   // iOS: unlock the audio element inside the first real tap
   document.addEventListener('pointerdown',()=>{ if(audUnlocked) return; audUnlocked=true; try{ aud.src=SILENT; const pr=aud.play(); if(pr&&pr.then) pr.then(()=>{ if(aud.src===SILENT) aud.pause(); }).catch(()=>{ audUnlocked=false; }); }catch(e){ audUnlocked=false; } },true);
   function audStop(){ aud.onended=aud.onerror=null; try{ if(!aud.paused) aud.pause(); }catch(e){} }
@@ -1473,6 +1474,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   }
   function audioPreview(s){ const l=lines.find(x=>x.who===s&&audFor(x)); if(!l) return false; cancelSpeech(); aud.src=audFor(l); audRate(); const pr=aud.play(); pr&&pr.catch&&pr.catch(()=>{}); return true; }
   async function audLoadLocal(pack){
+    const request=++audLoadRequest;
     audMap.forEach(u=>URL.revokeObjectURL(u)); audMap=new Map(); audMeta=null;
     if(!pack||!('caches' in window)) return;
     try{
@@ -1480,7 +1482,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
       const meta=await mr.json(), manR=await c.match(audKey(pack,'manifest.json')); if(!manR) return;
       const man=await manR.json(), m=new Map();
       for(const ln of (man&&man.lines)||[]){ if(!ln||!/^[A-Za-z0-9_.-]{1,60}\.mp3$/.test(ln.file||'')) continue; const r=await c.match(audKey(pack,ln.file)); if(r) m.set(String(ln.id), URL.createObjectURL(await r.blob())); }
-      if(currentPack()!==pack){ m.forEach(u=>URL.revokeObjectURL(u)); return; }
+      if(request!==audLoadRequest||currentPack()!==pack){ m.forEach(u=>URL.revokeObjectURL(u)); return; }
       audMap=m; audMeta=meta;
     }catch(e){}
   }
@@ -1490,13 +1492,15 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
   async function sbUser(){ const c=await sb(); const {data}=await c.auth.getSession(); return data&&data.session?c:null; }
   async function audCheckServer(){
     if(audChecking) return; if(!navigator.onLine){ audRefreshUI(); return; }
-    audChecking=true; audSignedOut=false; audErr=''; audRefreshUI();
+    audChecking=true; audSignedOut=false; audServerError=''; audRefreshUI();
     try{ const c=await sbUser(); if(!c) audSignedOut=true; else { const {data,error}=await c.storage.from(AUD_BUCKET).list('',{limit:1000}); if(error) throw error; audServer=new Set((data||[]).filter(x=>x.id==null).map(x=>x.name)); } }
-    catch(e){ audErr='서버 확인 실패: '+String(e.message||e); }
+    catch(e){ audServerError='서버 확인 실패: '+String(e.message||e); }
     audChecking=false; audRefreshUI(); renderRecords();
   }
   async function audDownload(pack){
-    if(audBusy) return; audBusy={done:0,total:0}; audErr=''; audMsg=''; audRefreshUI();
+    if(audDownloads.get(pack)?.busy) return;
+    const download={busy:true,done:0,total:0,error:'',message:''};
+    audDownloads.set(pack,download); audRefreshUI();
     try{
       if(!('caches' in window)) throw Error('이 브라우저는 음성 저장을 지원하지 않아.');
       const c=await sbUser(); if(!c) throw Error('앱에서 로그인한 다음 받아 줘.');
@@ -1505,35 +1509,52 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
       const manText=await mf.data.text(), man=JSON.parse(manText);
       const files=((man&&man.lines)||[]).filter(x=>x&&/^[A-Za-z0-9_.-]{1,40}$/.test(String(x.id||''))&&/^[A-Za-z0-9_.-]{1,60}\.mp3$/.test(x.file||''));
       if(!files.length) throw Error('manifest에 음성 줄이 없어.');
-      audBusy.total=files.length; audRefreshUI();
+      download.total=files.length; if(currentPack()===pack) audRefreshUI();
       const cache=await caches.open(AUD_CACHE); let bytes=0, i=0, fails=0;
-      const worker=async()=>{ while(i<files.length){ const f=files[i++]; let ok=false; for(let t=0;t<2&&!ok;t++){ try{ const r=await st.download(pack+'/'+f.file); if(!r.error&&r.data){ await cache.put(audKey(pack,f.file), new Response(r.data,{headers:{'Content-Type':'audio/mpeg'}})); bytes+=r.data.size; ok=true; } }catch(e){} } if(!ok) fails++; audBusy.done++; audRefreshUI(); } };
+      const worker=async()=>{ while(i<files.length){ const f=files[i++]; let ok=false; for(let t=0;t<2&&!ok;t++){ try{ const r=await st.download(pack+'/'+f.file); if(!r.error&&r.data){ await cache.put(audKey(pack,f.file), new Response(r.data,{headers:{'Content-Type':'audio/mpeg'}})); bytes+=r.data.size; ok=true; } }catch(e){} } if(!ok) fails++; download.done++; if(currentPack()===pack) audRefreshUI(); } };
       await Promise.all([worker(),worker(),worker(),worker()]);
       if(fails) throw Error(fails+'개 파일을 못 받았어. 다시 받아 줘.');
       await cache.put(audKey(pack,'manifest.json'), new Response(manText,{headers:{'Content-Type':'application/json'}}));
       await cache.put(audKey(pack,'_meta.json'), new Response(JSON.stringify({pack,count:files.length,bytes,at:Date.now()}),{headers:{'Content-Type':'application/json'}}));
-      audLocal.add(pack); audMsg='받았어. 이제 이 기기에서 녹음 음성으로 재생돼.';
-      if(currentPack()===pack){ await audLoadLocal(pack); renderSpeakers(); }
-    }catch(e){ audErr=String(e.message||e); }
-    audBusy=null; audRefreshUI(); renderRecords();
+      audLocal.add(pack); download.message='받았어. 이제 이 기기에서 녹음 음성으로 재생돼.';
+      if(currentPack()===pack){
+        await audLoadLocal(pack);
+        if(currentPack()===pack) renderSpeakers();
+      }
+    }catch(e){ download.error=String(e.message||e); }
+    finally{
+      download.busy=false;
+      if(currentPack()===pack) audRefreshUI();
+      renderRecords();
+    }
   }
   function audBadge(id){ id=audFolder(id); return audLocal.has(id)?'<i class="aud-dot on" title="녹음 음성 저장됨"></i>':(audServer&&audServer.has(id))?'<i class="aud-dot" title="녹음 음성 있음 · 아직 안 받음"></i>':''; }
   function audRefreshUI(){
     const box=$('audBox'); if(!box) return; const pack=currentPack();
     if(!pack){ box.hidden=true; return; } box.hidden=false;
     let h='<b class="aud-h">VOICE · 녹음 음성</b>';
-    if(audBusy) h+=`<p>받는 중… ${audBusy.done} / ${audBusy.total||'?'}</p><div class="aud-bar"><i style="width:${audBusy.total?Math.round(audBusy.done/audBusy.total*100):3}%"></i></div>`;
+    const download=audDownloads.get(pack);
+    if(download?.busy) h+=`<p>받는 중… ${download.done} / ${download.total||'?'}</p><div class="aud-bar"><i style="width:${download.total?Math.round(download.done/download.total*100):3}%"></i></div>`;
     else if(audMeta) h+=`<p>이 기기에 저장됨 · ${audMeta.count}줄 · ${mb(audMeta.bytes)}<br><small>녹음이 있는 줄은 녹음 음성, 없는 줄은 기기 음성으로 읽어. 삭제는 앱 Settings에서.</small></p><button data-aud="get">다시 받기</button>`;
     else if(audServer&&audServer.has(pack)) h+=`<p>서버에 이 판의 녹음 음성이 있어. 받아 두면 이 기기에서 오프라인으로도 재생돼.</p><button class="primary" data-aud="get">이 EP 음성 받기</button>`;
     else if(audChecking) h+='<p>서버 확인 중…</p>';
     else if(audSignedOut) h+='<p>지금은 기기 음성으로 읽어. 녹음 음성을 받으려면 앱에서 로그인해 줘.</p><button data-aud="check">다시 확인</button>';
     else if(audServer) h+='<p>이 판은 아직 녹음 음성이 없어. 기기 음성으로 읽어.</p><button data-aud="check">다시 확인</button>';
     else h+='<p>지금은 기기 음성으로 읽어.</p><button data-aud="check">서버 확인</button>';
-    if(audErr) h+=`<p class="warn">${esc(audErr)}</p>`; else if(audMsg&&!audBusy) h+=`<p class="aud-ok">${esc(audMsg)}</p>`;
+    const error=download?.error||audServerError;
+    if(error) h+=`<p class="warn">${esc(error)}</p>`;
+    else if(download?.message&&!download.busy) h+=`<p class="aud-ok">${esc(download.message)}</p>`;
     box.innerHTML=h;
   }
   document.addEventListener('click',e=>{ const b=e.target.closest('[data-aud]'); if(!b) return; e.preventDefault(); const p=currentPack(); if(b.dataset.aud==='get'&&p) audDownload(p); else if(b.dataset.aud==='check') audCheckServer(); });
-  async function audOnSource(){ const p=currentPack(); audErr=''; audMsg=''; audRefreshUI(); await audLoadLocal(p); if(p!==currentPack()) return; audRefreshUI(); renderSpeakers(); if(audServer===null&&p) audCheckServer(); }
+  async function audOnSource(){
+    const pack=currentPack(), loading=audLoadLocal(pack), request=audLoadRequest;
+    audRefreshUI(); renderSpeakers();
+    await loading;
+    if(request!==audLoadRequest||pack!==currentPack()) return;
+    audRefreshUI(); renderSpeakers();
+    if(audServer===null&&pack) audCheckServer();
+  }
   audScanLocal().then(()=>renderRecords());
   // SPEED: snap old stored rate (0.7/0.9) to the new stops
   { const v=+$('rate').value, st=[0.8,1.0,1.2,1.5]; if(!st.includes(v)){ const n=st.reduce((a,b)=>Math.abs(b-v)<Math.abs(a-v)?b:a); $('rate').value=n; $('rate').oninput({target:$('rate')}); store.set('dkRate',n); } }
