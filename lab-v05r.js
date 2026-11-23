@@ -1097,9 +1097,9 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]'
 document.addEventListener('keydown',ev=>{if(vcardIdx==null||!((view.page==='pack'&&view.mode==='vocab')||view.page==='pocket'))return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')&&document.activeElement.type!=='checkbox')return;
  if(ev.key==='ArrowRight'){ev.preventDefault();vcardGo(1);}else if(ev.key==='ArrowLeft'){ev.preventDefault();vcardGo(-1);}else if(ev.key==='Escape'){vcardClose();}});
 let vdrag=null,vcardDragged=false;
-document.addEventListener('pointerdown',ev=>{const c=ev.target.closest('.vcard');if(!c||ev.button>0)return;vdrag={x:ev.clientX,y:ev.clientY,c,dx:0,lock:null};vcardDragged=false;});
-document.addEventListener('pointermove',ev=>{if(!vdrag)return;const dx=ev.clientX-vdrag.x,dy=ev.clientY-vdrag.y;if(vdrag.lock==null&&(Math.abs(dx)>8||Math.abs(dy)>8))vdrag.lock=Math.abs(dx)>Math.abs(dy)?'x':'y';if(vdrag.lock!=='x')return;vdrag.dx=dx;vcardDragged=true;vdrag.c.style.transition='none';vdrag.c.style.transform=`translateX(${dx}px) rotate(${dx/40}deg)`;});
-function vEnd(){if(!vdrag)return;const {c,dx,lock}=vdrag;vdrag=null;if(lock!=='x'){return;}c.style.transition='';c.style.transform='';if(Math.abs(dx)>70)vcardGo(dx<0?1:-1);setTimeout(()=>{vcardDragged=false;},50);}
+document.addEventListener('pointerdown',ev=>{const c=ev.target.closest('.vcard');if(!c||ev.button>0||vAnim)return;vdrag={x:ev.clientX,y:ev.clientY,c,dx:0,lock:null,t:performance.now(),lx:ev.clientX,lt:performance.now(),v:0};vcardDragged=false;});
+document.addEventListener('pointermove',ev=>{if(!vdrag)return;const dx=ev.clientX-vdrag.x,dy=ev.clientY-vdrag.y;if(vdrag.lock==null&&(Math.abs(dx)>8||Math.abs(dy)>8))vdrag.lock=Math.abs(dx)>Math.abs(dy)?'x':'y';if(vdrag.lock!=='x')return;const now=performance.now(),p=vcPack(),edge=p&&((dx>0&&vcardIdx<=0)||(dx<0&&vcardIdx>=p.items.length-1));vdrag.v=(ev.clientX-vdrag.lx)/Math.max(1,now-vdrag.lt);vdrag.lx=ev.clientX;vdrag.lt=now;const ex=edge?dx*.3:dx;vdrag.dx=dx;vdrag.edge=edge;vcardDragged=true;vdrag.c.style.transition='none';vdrag.c.style.transform=`translateX(${ex}px) rotate(${ex/60}deg)`;vdrag.c.style.opacity=String(1-Math.min(.35,Math.abs(ex)/900));});
+function vEnd(){if(!vdrag)return;const {c,dx,lock,v,edge}=vdrag;vdrag=null;if(lock!=='x'){return;}const fling=Math.abs(dx)>70||(Math.abs(dx)>28&&Math.abs(v)>.45&&Math.sign(v)===Math.sign(dx));if(fling&&!edge){vcardGo(dx<0?1:-1);}else{c.style.transition='transform .32s cubic-bezier(.2,1.3,.4,1),opacity .2s';c.style.transform='';c.style.opacity='';setTimeout(()=>{if(c.isConnected)c.style.transition='';},340);}setTimeout(()=>{vcardDragged=false;},50);}
 document.addEventListener('pointerup',vEnd);document.addEventListener('pointercancel',vEnd);
 document.addEventListener('click',ev=>{if(vcardDragged&&ev.target.closest('.vcard')){ev.stopPropagation();ev.preventDefault();}},true);
 const navigate088=navigate;navigate=function(...a){vcardIdx=null;vcardMore=false;return navigate088(...a);};
@@ -1354,7 +1354,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.5 · 스튜디오 음성'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.6 · 냉장고 달력 · 서진 명함'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
@@ -1586,6 +1586,46 @@ if(new URLSearchParams(location.search).get('autosave')==='1'&&window.parent!==w
   if(/로컬 모드|확인 실패/.test(lastCS)&&Date.now()-t0>2500||Date.now()-t0>15000){clearInterval(tick);post(false,'로그인이 안 돼 있어. 앱 Settings에서 로그인해 줘.');}
  },200);
 }
+
+/* ---------- v1.5.6 · fridge: paper calendar · doodle notes · Seojin's card · kraft ticket ---------- */
+function pcCirc(seed){let x=seed*9301+49297;const rnd=()=>{x=(x*9301+49297)%233280;return x/233280;};const pts=[];
+ for(let i=0;i<15;i++){const a=i/14*Math.PI*2*1.08-.3,r=13*(.92+rnd()*.12);pts.push((13+r*Math.cos(a)).toFixed(1)+','+(13+r*.86*Math.sin(a)).toFixed(1));}
+ return `<svg class="pc-c" viewBox="0 0 26 26" aria-hidden="true" style="transform:translate(-50%,-50%) rotate(${Math.round(rnd()*40-20)}deg)"><polyline points="${pts.join(' ')}"/></svg>`;}
+function pcStudied(a){return !!a&&((a.writing||0)+(a.vocab||0)+(a.studio||0)+(a.pocket||0))>0;}
+function frPaperCal(){const now=new Date(),shown=new Date(now.getFullYear(),now.getMonth()+calendarOffset,1),y=shown.getFullYear(),m=shown.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate(),k=d=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+ let cells='',n=0;for(let i=0;i<first;i++)cells+='<span></span>';
+ for(let d=1;d<=days;d++){const key=k(d),a=db.activity?.[key],done=pcStudied(a),today=calendarOffset===0&&d===now.getDate();if(done)n++;
+  const t=`${key} · 단어 ${a?.vocab||0} · 영작 ${a?.writing||0} · Pocket ${a?.pocket||0} · 쉐도잉 ${a?.studio||0}`;
+  cells+=done?`<span class="pc-d done${today?' today':''}" title="${esc(t)}" role="button" tabindex="0" data-cal="${key}">${d}${pcCirc(d+m*31)}${today?'<i class="pc-u"></i>':''}</span>`:`<span class="pc-d${today?' today':''}" title="${esc(t)}">${d}${today?'<i class="pc-u"></i>':''}</span>`;}
+ let rem;
+ if(calendarOffset===0){const dk=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;let st=0;const c=new Date(now);if(!pcStudied(db.activity?.[dk(c)]))c.setDate(c.getDate()-1);while(st<400&&pcStudied(db.activity?.[dk(c)])){st++;c.setDate(c.getDate()-1);}
+  rem=st>=3?`${st}-day streak · keep it going`:n?`day ${n} of study this month`:'first study day of the month awaits';}
+ else rem=n?`${n} study day${n>1?'s':''} in ${shown.toLocaleDateString('en-GB',{month:'long'})}`:'no study days logged';
+ return `<div class="pcal"><div class="pc-top">${y} · STUDY CALENDAR</div><div class="pc-head"><button class="pc-nav" onclick="changeMonth(-1)" aria-label="이전 달">‹</button><span class="pc-month">${shown.toLocaleDateString('en-GB',{month:'long'})}</span><button class="pc-nav" onclick="changeMonth(1)" aria-label="다음 달">›</button></div>
+  <div class="pc-grid">${['MON','TUE','WED','THU','FRI','SAT','SUN'].map(x=>`<span class="pc-w">${x}</span>`).join('')}${cells}</div>
+  <div class="pc-rem"><b>reminder:</b> <i>${esc(rem)}</i></div></div>`;}
+function sjCard(){const a=levelInfo(),title=oxfordTitle(a.level),next=nextOxford(a.level),got=SEALS.filter(s=>db.achievements[s[0]]).length;
+ const startLv={Fresher:1,Scholar:3,Fellow:6,Don:10,Master:15}[title]||1,start=startLv<=1?0:xpForLevel(startLv);
+ const pct=next?Math.max(0,Math.min(99,Math.floor(100*(a.xp-start)/Math.max(1,xpForLevel(next[1])-start)))):100;
+ return `<div class="sj-card"><span class="fr-peb memo" style="--c1:#5a6b96;--c2:#1f2a44"></span><div class="sj-name">Seojin</div><div class="sj-sub">${esc(title.toUpperCase())} · LIBRARY MEMBER</div>
+  <button class="sj-lv" data-action="level-sheet" aria-label="등급 L${a.level} · ${attr(title)} · 칭호 단계 보기"><b>L${a.level}</b><small>LEVEL</small></button>
+  <div class="sj-foot"><span>${next?`${pct}% TO ${esc(next[0].toUpperCase())}`:'TOP TITLE · MASTER'}</span><button class="sj-seal" data-action="seal-sheet">업적 ${got} / ${SEALS.length} →</button></div></div>`;}
+FR_MSLOTS[4]=[71,252,44,5];FR_MSLOTS[5]=[52,262,46,-9];FR_MSLOTS[6]=[78,312,44,6];FR_MSLOTS[7]=[54,336,46,4];
+const fridgeHTML155=fridgeHTML;
+fridgeHTML=function(calHTML){let h=fridgeHTML155(frPaperCal());
+ const ms=h.indexOf('<div class="fr-memo">'),me=h.indexOf('</div></div>',ms);if(ms>=0&&me>ms)h=h.slice(0,ms)+`<div class="fr-memo sj-wrap">${sjCard()}</div>`+h.slice(me+12);
+ const ss=h.indexOf('<div class="fr-strip">'),pe=h.indexOf('</div>',h.indexOf('<div class="fr-pol">'));
+ if(ss>=0&&pe>ss)h=h.slice(0,ss)+`<div class="fr-doodle fr-dd-ufo"><img src="fridge/doodle_ufo.webp" alt="UFO 낙서 — second-hand witness No.1"><span class="fr-dd-tape tl"></span><span class="fr-dd-tape br"></span></div><div class="fr-doodle fr-dd-duty"><img src="fridge/doodle_duty.webp" alt="FRIDGE DUTY 새 낙서"><span class="fr-peb" style="--c1:#5a6b96;--c2:#1f2a44"></span></div>`+h.slice(pe+6);
+ return h;};
+
+/* ---------- v1.5.6 · WORD CARD: follow the finger, fly out, slide the next one in ---------- */
+let vAnim=false;
+function vcPack(){return view.page==='pocket'?pocketPack(view.ep):db.packs.vocab?.[view.ep];}
+const vcardGo155=vcardGo;
+vcardGo=function(d){const p=vcPack();if(!p||vcardIdx==null||vAnim)return;const j=vcardIdx+d,c=document.querySelector('.vcard');
+ if(j<0||j>=p.items.length||!c||matchMedia('(prefers-reduced-motion: reduce)').matches){if(c){c.style.transition='';c.style.transform='';c.style.opacity='';}return vcardGo155(d);}
+ vAnim=true;c.style.transition='transform .2s cubic-bezier(.4,.1,.8,.6),opacity .2s';c.style.transform=`translateX(${d>0?-115:115}%) rotate(${d>0?-7:7}deg)`;c.style.opacity='0';
+ setTimeout(()=>{vcardIdx=j;render();const n=document.querySelector('.vcard');if(n){n.style.transition='none';n.style.transform=`translateX(${d>0?36:-36}%) scale(.97)`;n.style.opacity='0';void n.offsetWidth;n.style.transition='transform .28s cubic-bezier(.2,.8,.25,1),opacity .22s';n.style.transform='';n.style.opacity='';setTimeout(()=>{if(n.isConnected)n.style.transition='';},300);}vAnim=false;},190);};
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;if(grantLevelMagnets()){save();}refreshSaveUI();};

@@ -616,7 +616,53 @@ tr.date-flash td,.shadow-row.date-flash{background:#f2d35c66;transition:backgrou
  .fridge.v15 .fr-memo .member-head{flex-wrap:wrap;gap:6px}.fridge.v15 .fr-memo .member-head h3{font-size:14px}.fridge.v15 .fr-memo .member-xp{font-size:10px}
 }
 .fridge.v15 .fr-memo .member-badge{font-size:10.5px;padding:4px 7px}
-</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.5.5 · STUDIO</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
+
+/* v1.5.6 · paper calendar · doodles · Seojin's card · kraft ticket */
+.fridge.v15 .fr-cal{position:relative}
+.pcal{position:relative;box-sizing:border-box;padding:32px 16px 14px;background:linear-gradient(135deg,#ece7de,#ded7cb);box-shadow:0 5px 10px #23181533;transform:rotate(-1deg);color:#5a3020}
+.fridge.v15 .fr-cal .fr-peb.cal{left:50%;top:-12px;transform:translateX(-50%);z-index:3}
+.pc-top{text-align:center;font:8.5px Arial,sans-serif;letter-spacing:.34em;color:#8a3a1f}
+.pc-head{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0 10px}
+.pc-month{font:36px/1 'Didot','Bodoni 72',Georgia,serif;letter-spacing:-.02em;color:#1f1a17}
+.pc-nav{all:unset;cursor:pointer;font:13px Georgia,serif;color:#9a8c80;padding:2px 6px}.pc-nav:hover{color:#8a3a1f}
+.pc-grid{display:grid;grid-template-columns:repeat(7,1fr);row-gap:5px}
+.pc-w{text-align:center;font:bold 8.5px Arial,sans-serif;letter-spacing:.1em;color:#8a3a1f}
+.pc-d{position:relative;text-align:center;font:12.5px Georgia,serif;line-height:24px;color:#5a3020}
+.pc-d.done{cursor:pointer}.pc-d.done:focus-visible{outline:1px dashed #8a3a1f;outline-offset:1px}
+.pc-c{position:absolute;left:50%;top:50%;width:26px;height:26px;overflow:visible;pointer-events:none}.pc-c polyline{fill:none;stroke:#8a3a1f;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pc-u{position:absolute;left:50%;bottom:0;width:20px;height:5px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 6'%3E%3Cpath d='M1 4 Q 6 1 11 3.5 T 21 2.5' stroke='%23c2443f' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.pc-rem{margin-top:10px;font:bold 10px 'Courier New',monospace;color:#8a3a1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pc-rem b{border-bottom:1.5px solid #8a3a1f}.pc-rem i{font:italic 10.5px Georgia,serif;font-weight:normal}
+.fridge.v15 .fr-memo.sj-wrap{padding:0;background:none;box-shadow:none;border:0;transform:rotate(-1.5deg)}
+.fridge.v15 .fr-memo.sj-wrap::before,.fridge.v15 .fr-memo.sj-wrap::after{display:none}
+.sj-card{position:relative;aspect-ratio:1.75;box-sizing:border-box;padding:14px 16px;background:#f4f1e8;box-shadow:0 4px 8px #2318152e;color:#3d4252}
+.sj-card .fr-peb{position:absolute;left:50%;top:-12px;transform:translateX(-50%)}
+.sj-name{font:italic 24px/1 'Snell Roundhand','Apple Chancery',Georgia,serif;margin-top:12px;color:#7f93bd}
+.sj-sub{font:7.5px Arial,sans-serif;letter-spacing:.2em;margin-top:6px}
+.sj-lv{all:unset;cursor:pointer;position:absolute;right:18px;top:50%;transform:translateY(-58%);width:46px;height:60px;border:1px solid #7f93bd;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#7f93bd;font:6px Arial,sans-serif;letter-spacing:.14em}
+.sj-lv b{font:17px Georgia,serif;letter-spacing:0;font-weight:normal}.sj-lv:hover{background:#7f93bd14}
+.sj-foot{position:absolute;left:16px;right:16px;bottom:12px;border-top:1px solid #3d425233;padding-top:6px;display:flex;justify-content:space-between;align-items:center;font:7.5px Arial,sans-serif;letter-spacing:.12em}
+.sj-seal{all:unset;cursor:pointer;font:7.5px Arial,sans-serif;letter-spacing:.12em}.sj-seal:hover{text-decoration:underline}
+.fridge.v15 .fr-strip,.fridge.v15 .fr-pol{display:none}
+.fr-doodle{position:absolute;z-index:2;filter:drop-shadow(0 4px 6px #2318154d)}.fr-doodle img{display:block;width:100%;height:auto}
+.fr-doodle .fr-peb{position:absolute;left:50%;top:-12px;transform:translateX(-50%)}
+.fr-dd-ufo{left:6%;top:92px;width:27%;transform:rotate(-3deg)}
+.fr-dd-duty{left:27%;top:236px;width:15.5%;transform:rotate(5deg)}
+.fr-dd-tape{position:absolute;width:62px;height:18px;background:#dccfb4d0;box-shadow:0 1px 2px #0002;transform:rotate(-38deg);z-index:3}.fr-dd-tape.tl{left:-18px;top:2px}.fr-dd-tape.br{right:-18px;bottom:2px}
+.fridge.v15 .fr-ticket .tk-body{background-color:#c8a577;background-image:radial-gradient(#00000012 1px,#0000 1.2px)}
+.fridge.v15 .fr-ticket .tk-main b,.fridge.v15 .fr-ticket .tk-top,.fridge.v15 .fr-ticket .tk-sub,.fridge.v15 .fr-ticket .tk-no{color:#3b2818}.fridge.v15 .fr-ticket .tk-main{border-right-color:#3b281866}
+@media(max-width:899px){
+ .pcal{padding:22px 10px 9px}.pc-top{font-size:5.5px}.pc-head{gap:5px;margin:2px 0 6px}.pc-month{font-size:21px}.pc-nav{font-size:10px;padding:1px 3px}
+ .pc-grid{row-gap:2px}.pc-w{font-size:5.5px;letter-spacing:.04em}.pc-d{font-size:8.5px;line-height:15px}.pc-c{width:16px;height:16px}.pc-c polyline{stroke-width:1.9}.pc-u{width:12px;height:3px}
+ .pc-rem{margin-top:6px;font-size:6.5px}.pc-rem i{font-size:7px}
+ .sj-card{padding:10px 11px}.sj-name{font-size:17px;margin-top:6px}.sj-sub{font-size:5.5px;letter-spacing:.14em;margin-top:4px}
+ .sj-lv{right:11px;width:32px;height:42px;font-size:4.5px}.sj-lv b{font-size:12px}
+ .sj-foot{left:11px;right:11px;bottom:8px;padding-top:4px;font-size:5.5px;letter-spacing:.08em}.sj-seal{font-size:5.5px;letter-spacing:.08em}
+ .fr-dd-ufo{left:5%;top:74px;width:58%}.fr-dd-duty{left:8%;top:244px;width:36%;transform:rotate(-4deg)}
+ .fr-dd-tape{width:48px;height:15px}.fr-dd-tape.tl{left:-14px}.fr-dd-tape.br{right:-14px}
+}
+
+.hardback .ribbon{bottom:-15px;height:15px}
+</style></head><body><div class="shell"><header class="top"><div class="logo">S&G <span class="eyebrow">/ English Lab</span></div><nav class="nav"><button data-nav="home">HOME</button><button data-nav="review">ARCHIVE</button><button data-nav="records">RECORDS</button><button data-nav="settings">SETTINGS</button><button id="cloudSaveTop" type="button" onclick="cloudPushManual()" title="이 기기 기록을 서버에 저장">저장</button></nav></header><div class="cloud-indicator" id="cloudIndicator">CLOUD · 연결 준비 중</div><main id="app"></main><footer class="footer">SAW & GIN ENGLISH LAB · PERSONAL STUDY ARCHIVE · v1.5.6 · FRIDGE NOTES</footer></div><div id="toast" class="toast hidden"></div><div id="cloudOverlay" class="cloud-overlay" style="display:none"><div class="cloud-dialog" id="cloudDialog"></div></div><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window.onSupabaseReady?.()"></script><script>
 const SUPABASE_URL='https://qyrrtzilvdedzttvpn hg.supabase.co'.replace(' ','');
 const SUPABASE_PUBLIC_KEY='sb_publishable_qMf8WTxhz8JdbwiMcsGtSQ_yJY1vw4C';
 let cloudClient=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudUpdatedAt=null;
