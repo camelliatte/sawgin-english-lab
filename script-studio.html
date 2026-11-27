@@ -502,6 +502,30 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .bm-go{display:block;margin:7px 0 0 auto;min-height:0;padding:2px 2px 3px;border:0;border-bottom:1.5px solid #c2443f;border-radius:0;background:transparent;box-shadow:none;font:italic 12.5px Georgia,serif;letter-spacing:.04em;color:#b8383c;cursor:pointer}
 .bm-go:hover{background:transparent;color:#8f2a27}
 @media(max-width:959px){.bmset{right:-10px;opacity:.38}}
+
+/* v1.5.8 albums wheel */
+.crate-box{height:min(760px,100%)}
+@media(max-width:600px){.crate-box{height:100%}}
+.wheel{flex:1;position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;min-height:0}
+.wheel.drag{cursor:grabbing}
+.w-items{position:absolute;inset:0}
+.w-it{position:absolute;left:0;top:0;width:260px;height:90px;display:flex;flex-direction:row-reverse;align-items:center;gap:14px;transform-origin:215px 45px;will-change:transform,opacity;pointer-events:none}
+.w-disc{flex:none;position:relative;width:90px;height:90px;border-radius:50%;background:repeating-radial-gradient(#1d1817 0 2px,#262020 2px 3px);box-shadow:0 2px 6px #0005}
+.w-disc img,.w-disc .w-def{position:absolute;left:25%;top:25%;width:50%;height:50%;border-radius:50%;object-fit:cover}
+.w-disc .w-def{background:#efe6d3;display:flex;align-items:center;justify-content:center;flex-direction:column;font:bold 8px Georgia,serif;color:var(--java);line-height:1.15;text-align:center}
+.w-disc .aud-dot{top:6px;right:6px;width:10px;height:10px}
+.w-tx{flex:1;min-width:0;text-align:right}
+.w-code{font:bold 10.5px 'Courier New',monospace;color:var(--dblue);letter-spacing:.04em}
+.w-title{font:15px Georgia,'Noto Serif KR',serif;color:#231815;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.w-meta{font:10.5px Arial;color:#9a8b7c;margin-top:3px;white-space:nowrap}
+.w-meta b{color:var(--dblue);font:bold 9px Arial;letter-spacing:.1em}
+.w-sel{position:absolute;left:max(44px,calc(100% - 400px));right:14px;top:50%;height:112px;margin-top:-56px;background:#fff;border-radius:56px;box-shadow:0 6px 18px #23181522;pointer-events:none}
+.w-play{position:absolute;left:calc(max(44px,calc(100% - 400px)) + 14px);top:50%;margin-top:-20px;width:40px;height:40px;border-radius:50%;border:0;background:var(--java);color:#f4ead6;font:14px Arial;min-height:0;padding:0 0 0 3px;cursor:pointer;z-index:3}
+.w-scrub{position:absolute;left:4px;top:12px;bottom:12px;width:32px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:4;touch-action:none}
+.w-scrub button{background:none;border:0;padding:0;min-height:0;font:10px Georgia,serif;color:#a69a8b;width:30px;line-height:1.4;cursor:pointer}
+.w-scrub button.off{color:#ddd3c3;pointer-events:none}
+.w-scrub button.on{color:var(--java);font-weight:bold}
+.w-empty{position:absolute;left:0;right:0;top:40%;text-align:center}
 </style></head>
 <body>
 <main>
@@ -553,7 +577,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 </svg></div><div class="desk-paper">
   <div class="desk-head"><button class="menu-close" id="menuClose" aria-label="닫기">✕</button><p class="eyebrow">SCRIPT STUDIO · <span class="pc-only">SETTINGS</span><span class="mobile-only">MENU</span></p><h1><span class="pc-only">Settings.</span><span class="mobile-only">Menu.</span></h1></div>
   <section class="quick mobile-only" id="quick" aria-label="빠른 메뉴">
-   <h4>RECORDS</h4><div class="rec-row q" data-recrow></div><button class="q-crate" data-crate>판 전체 ›</button>
+   <h4>RECORDS</h4><div class="rec-row q" data-recrow></div><button class="q-crate" data-crate>ALBUMS ›</button>
    <h4>PLAY · 재생</h4><div class="snaps" data-snaps></div>
    <div class="ko-seg" id="koSeg"><button data-km="both">의역+직역</button><button data-km="nat">의역</button><button data-km="lit">직역</button><button data-km="off">끔</button></div>
    <h4>LOOP · 구간</h4><div class="q-loop"><button id="qOne">이 줄만</button><button id="qAround">앞뒤 2줄</button><button id="qClear">해제</button></div>
@@ -624,7 +648,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
     <div class="lastsay" data-lastsay></div>
    </div>
    <div class="say-slot" id="saySlot"></div>
-   <div class="records"><span class="rec-v">RECORDS</span><div class="rec-row" data-recrow></div><div class="rec-side"><button class="rec-all" data-crate>판 전체 ›</button><button class="rec-set" id="openSet">Settings</button></div></div>
+   <div class="records"><span class="rec-v">RECORDS</span><div class="rec-row" data-recrow></div><div class="rec-side"><button class="rec-all" data-crate>ALBUMS ›</button><button class="rec-set" id="openSet">Settings</button></div></div>
   </aside>
   <section class="studio-board" aria-label="대본"><i class="brad b1" aria-hidden="true"></i><i class="brad b2" aria-hidden="true"></i><i class="brad b3" aria-hidden="true"></i><div class="studio-paper" id="studioPaper">
   <div class="card" id="list"></div>
@@ -639,7 +663,7 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 <div class="selbar" id="selBar" hidden><a id="selYg" target="_blank" rel="noopener" href="#">🎬 실제 발음</a><button id="selCopy">⧉ 질문 복사</button></div>
 <div id="sayRes"></div>
 <div class="stoast" id="sToast" role="status"></div>
-<div class="crate" id="crate" hidden><div class="crate-box" role="dialog" aria-modal="true" aria-label="레코드 상자"><header><div><p>RECORDS · 레코드 상자</p><h2>Pick a record.</h2></div><button id="crateClose">✕ 닫기</button></header><div class="crate-bar"><div class="crate-tabs" id="crateTabs"></div><span class="sp"></span><button data-csort="num">번호순</button><button data-csort="recent">최근순</button></div><div class="crate-grid" id="crateGrid"></div><p class="crate-note">재킷을 누르면 턴테이블에 올라가. 라벨 이미지가 없는 판은 기본 재킷이야.</p></div></div>
+<div class="crate" id="crate" hidden><div class="crate-box" role="dialog" aria-modal="true" aria-label="앨범"><header><div><p>S&amp;G RECORDS</p><h2>Albums.</h2></div><button id="crateClose">✕ 닫기</button></header><div class="crate-bar"><div class="crate-tabs" id="crateTabs"></div><span class="sp"></span><button data-csort="num">번호순</button><button data-csort="recent">최근순</button></div><div class="wheel" id="crateGrid"><div class="w-sel" aria-hidden="true"></div><div class="w-items" id="wItems"></div><div class="w-scrub" id="wScrub"></div><button class="w-play" id="wPlay" aria-label="턴테이블에 올리기">▶</button><p class="w-empty hint" id="wEmpty" hidden>아직 대사팩이 없어. 앱 Settings에서 가져와 줘.</p></div><p class="crate-note">위아래로 돌려서 고르고 ▶를 누르면 턴테이블에 올라가. 왼쪽 번호를 누르면 그 에피로 바로 가.</p></div></div>
 <div id="dict" aria-live="polite"><div class="inner" id="dictInner"></div></div>
 
 <script src="./script-packs.js"></script>
@@ -1354,9 +1378,62 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const num=id=>epCode(id).replace(/\d+/g,d=>d.padStart(4,'0'))||'~'+id;
     if(crateSort==='recent') list2.sort((a,b)=>{ const ia=recent.indexOf(a), ib=recent.indexOf(b); return (ia<0?1e9:ia)-(ib<0?1e9:ib) || (catalog[b].updatedAt||0)-(catalog[a].updatedAt||0); });
     else list2.sort((a,b)=>num(a).localeCompare(num(b)));
-    $('crateGrid').innerHTML=list2.map(id=>{ const p=catalog[id]; return `<button class="crate-item" data-pick="${esc(id)}">${sleeveHTML(id,id===curId,true)}<span class="ci-t"><span>${esc(p.title||id)}</span>${id===curId?'<small>ON DECK</small>':''}</span><span class="ci-s">${(p.lines||[]).length||''}${(p.lines||[]).length?'줄':''}</span></button>`; }).join('')||'<p class="hint">아직 대사팩이 없어. 앱 Settings에서 가져와 줘.</p>';
+    wList=list2; wCur=curId; wBuild(curId);
   }
-  function openCrate(){ catalog=readCatalog(); renderCrate(); $('crate').hidden=false; }
+
+  // v1.5.8 albums wheel (right-axis)
+  let wList=[], wCur='', wPos=0, wAnim=0, wEls=[];
+  const W_STEP=12*Math.PI/180;
+  function wGeom(){ const el=$('crateGrid'); const W=el.clientWidth, H=el.clientHeight; const R=Math.max(420,H*0.62); return {W,H,R,hx:W-75+R,hy:H/2}; }
+  function wTitle(p,id){ const t=String(p.title||id); return t.replace(/^.*?\bEP\s*\d+(?:[-_]\d+)?\s*[·:|\-–—]\s*/i,'')||t; }
+  function wEpNum(id){ const m=epCode(id).match(/EP(\d+)/); return m?+m[1]:0; }
+  function wItemHTML(id){ const p=catalog[id]||{}, code=epCode(id), src=recSrc(code), n=(p.lines||[]).length;
+    const def=`<span class="w-def"><span>S&amp;G</span><span>${esc(code?epPretty(code):'')}</span></span>`;
+    const lab=src?`<img src="${esc(src)}" alt="" onerror="this.outerHTML=this.dataset.def" data-def='${def.replace(/'/g,'&#39;')}'>`:def;
+    return `<div class="w-it" data-wid="${esc(id)}"><span class="w-disc">${lab}${audBadge(id)}</span><span class="w-tx"><span class="w-code">${esc(code?code.replace('_EP',' EP').replace(/_(\d+)$/,'-$1'):'')}</span><div class="w-title">${esc(wTitle(p,id))}</div><div class="w-meta">${id===wCur?'<b>ON DECK</b> · ':''}${n?n+'줄':''}</div></span></div>`; }
+  function wBuild(curId){
+    $('wItems').innerHTML=wList.map(wItemHTML).join(''); wEls=[...$('wItems').children];
+    $('wEmpty').hidden=!!wList.length; $('wPlay').hidden=!wList.length;
+    const k=wList.indexOf(curId); wPos=k>=0?k:0; cancelAnimationFrame(wAnim);
+    const nums=wList.map(wEpNum), mx=Math.max(0,...nums);
+    $('wScrub').innerHTML=mx?Array.from({length:mx},(_,i)=>`<button data-wep="${i+1}" class="${nums.includes(i+1)?'':'off'}">${String(i+1).padStart(2,'0')}</button>`).join(''):'';
+    requestAnimationFrame(wDraw);
+  }
+  function wDraw(){ if(!wEls.length) return; const g=wGeom();
+    wEls.forEach((el,i)=>{ const d=i-wPos, ad=Math.abs(d);
+      if(ad>7){ el.style.display='none'; return; } el.style.display='';
+      const a=Math.PI-d*W_STEP, x=g.hx+g.R*Math.cos(a), y=g.hy+g.R*Math.sin(a);
+      const sc=ad<1?1-ad*0.25:Math.max(0.5,0.75-(ad-1)*0.06), deg=-d*12;
+      el.style.transform=`translate(${(x-215).toFixed(1)}px,${(y-45).toFixed(1)}px) rotate(${deg.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      el.style.opacity=ad<1?1:Math.max(0.15,1-(ad-0.6)*0.2);
+      el.style.zIndex=10-Math.round(ad);
+      const m=el.querySelector('.w-meta'); if(m) m.style.opacity=Math.max(0,1-ad*2.5);
+    });
+    const ci=Math.round(wPos), ep=wEpNum(wList[ci]||'');
+    $('wScrub').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.wep===ep));
+  }
+  function wClamp(v){ return Math.max(0,Math.min(wList.length-1,v)); }
+  function wGo(t){ t=wClamp(t); cancelAnimationFrame(wAnim); const from=wPos, t0=performance.now(), dur=Math.min(520,180+Math.abs(t-from)*60);
+    const step=now=>{ const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3); wPos=from+(t-from)*e; wDraw(); if(k<1) wAnim=requestAnimationFrame(step); }; wAnim=requestAnimationFrame(step); }
+  (function(){ const el=$('crateGrid'); let sy=0, sp=0, ly=0, lt=0, v=0, moved=false, id=null;
+    el.addEventListener('pointerdown',e=>{ if(e.target.closest('.w-scrub,.w-play')||!wList.length) return; id=e.pointerId; try{el.setPointerCapture(id);}catch(_){}
+      cancelAnimationFrame(wAnim); sy=ly=e.clientY; sp=wPos; lt=performance.now(); v=0; moved=false; el.classList.add('drag'); });
+    el.addEventListener('pointermove',e=>{ if(e.pointerId!==id) return; const g=wGeom(), sp1=g.R*W_STEP; const dy=e.clientY-sy; if(Math.abs(dy)>5) moved=true;
+      let p=sp-dy/sp1; if(p<0) p=p/3; if(p>wList.length-1) p=wList.length-1+(p-wList.length+1)/3; wPos=p;
+      const now=performance.now(); if(now>lt){ v=(-(e.clientY-ly)/sp1)/(now-lt)*1000*0.8+v*0.2; } ly=e.clientY; lt=now; wDraw(); });
+    const end=e=>{ if(e.pointerId!==id) return; id=null; el.classList.remove('drag');
+      if(!moved){ const g=el.getBoundingClientRect(), y=e.clientY-g.top-g.height/2, sp1=wGeom().R*W_STEP; const t=Math.round(wPos+y/sp1);
+        if(t===Math.round(wPos)&&Math.abs(y)<56&&e.type==='pointerup'){ wGo(t); return; } wGo(t); return; }
+      wGo(Math.round(wPos+Math.max(-6,Math.min(6,v*0.25)))); };
+    el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
+    let wt=0; el.addEventListener('wheel',e=>{ if(!wList.length) return; e.preventDefault(); const now=performance.now(); if(now-wt<90) return; wt=now; wGo(Math.round(wPos)+(e.deltaY>0?1:-1)); },{passive:false});
+    $('wScrub').addEventListener('click',e=>{ const b=e.target.closest('[data-wep]'); if(!b) return; const k=wList.findIndex(id=>wEpNum(id)===+b.dataset.wep); if(k>=0) wGo(k); });
+    $('wScrub').addEventListener('pointermove',e=>{ if(!(e.buttons&1)&&e.pointerType==='mouse') return; if(e.pointerType!=='mouse'&&!e.isPrimary) return; const b=document.elementFromPoint(e.clientX,e.clientY); const x=b&&b.closest&&b.closest('[data-wep]'); if(x&&!x.classList.contains('off')){ const k=wList.findIndex(id=>wEpNum(id)===+x.dataset.wep); if(k>=0&&k!==Math.round(wPos)) wGo(k); } });
+    $('wPlay').onclick=()=>{ const id=wList[Math.round(wPos)]; if(id) pickPack(id); };
+    document.addEventListener('keydown',e=>{ if($('crate').hidden||!wList.length) return; if(e.key==='ArrowDown'){ e.preventDefault(); wGo(Math.round(wPos)+1); } else if(e.key==='ArrowUp'){ e.preventDefault(); wGo(Math.round(wPos)-1); } else if(e.key==='Enter'){ e.preventDefault(); $('wPlay').click(); } });
+    window.addEventListener('resize',()=>{ if(!$('crate').hidden) wDraw(); });
+  })();
+  function openCrate(){ catalog=readCatalog(); $('crate').hidden=false; renderCrate(); }
   function closeCrate(){ $('crate').hidden=true; }
   document.addEventListener('click',e=>{ if(e.target.closest('[data-crate]')){ closeMenu(); openCrate(); } const se=e.target.closest('[data-season]'); if(se){ crateSeason=se.dataset.season; renderCrate(); } const so=e.target.closest('[data-csort]'); if(so){ crateSort=so.dataset.csort; store.set('dkCrateSort',crateSort); renderCrate(); } });
   $('crateClose').onclick=closeCrate; $('crate').addEventListener('click',e=>{ if(e.target===$('crate')) closeCrate(); });
