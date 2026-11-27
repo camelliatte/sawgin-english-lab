@@ -1354,7 +1354,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.6 · 냉장고 달력 · 서진 명함'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.7 · 저장 공간 정리'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
@@ -1626,6 +1626,42 @@ vcardGo=function(d){const p=vcPack();if(!p||vcardIdx==null||vAnim)return;const j
  if(j<0||j>=p.items.length||!c||matchMedia('(prefers-reduced-motion: reduce)').matches){if(c){c.style.transition='';c.style.transform='';c.style.opacity='';}return vcardGo155(d);}
  vAnim=true;c.style.transition='transform .2s cubic-bezier(.4,.1,.8,.6),opacity .2s';c.style.transform=`translateX(${d>0?-115:115}%) rotate(${d>0?-7:7}deg)`;c.style.opacity='0';
  setTimeout(()=>{vcardIdx=j;render();const n=document.querySelector('.vcard');if(n){n.style.transition='none';n.style.transform=`translateX(${d>0?36:-36}%) scale(.97)`;n.style.opacity='0';void n.offsetWidth;n.style.transition='transform .28s cubic-bezier(.2,.8,.25,1),opacity .22s';n.style.transform='';n.style.opacity='';setTimeout(()=>{if(n.isConnected)n.style.transition='';},300);}vAnim=false;},190);};
+
+/* ---------- v1.5.7 · recovery copies live in IndexedDB (localStorage ~5MB on iPhone keeps only the live record) ---------- */
+const RIDB_NAME='sawgin-lab-store',RIDB_STORE='recovery';let ridbP=null,recCache=null,recLoading=false;
+function ridb(){if(ridbP)return ridbP;ridbP=new Promise((res,rej)=>{if(!('indexedDB' in window))return rej(Error('no idb'));const q=indexedDB.open(RIDB_NAME,1);q.onupgradeneeded=()=>{const d=q.result;if(!d.objectStoreNames.contains(RIDB_STORE))d.createObjectStore(RIDB_STORE,{keyPath:'key'});};q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);q.onblocked=()=>rej(Error('blocked'));}).catch(e=>{ridbP=null;throw e;});return ridbP;}
+function ridbTx(mode,fn){return ridb().then(d=>new Promise((res,rej)=>{const t=d.transaction(RIDB_STORE,mode),st=t.objectStore(RIDB_STORE);let out;Promise.resolve(fn(st,v=>{out=v;})).catch(rej);t.oncomplete=()=>res(out);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||Error('abort'));}));}
+function ridbAll(){return ridbTx('readonly',(st,set)=>{const q=st.getAll();q.onsuccess=()=>set(q.result||[]);});}
+function ridbGet(k){return ridbTx('readonly',(st,set)=>{const q=st.get(k);q.onsuccess=()=>set(q.result);});}
+function ridbPut(o){return ridbTx('readwrite',st=>{st.put(o);});}
+function ridbDel(keys){return ridbTx('readwrite',st=>{keys.forEach(k=>st.delete(k));});}
+const isLegacyKey=k=>LEGACY_BACKUP_KEYS.includes(k);
+function recSort(list){return list.slice().sort((a,b)=>(isLegacyKey(a.key)?1:0)-(isLegacyKey(b.key)?1:0)||String(b.key).localeCompare(String(a.key)));}
+async function recRefresh(){if(recLoading)return;recLoading=true;try{recCache=recSort(await ridbAll());}catch(e){recCache=[];}recLoading=false;if(view.page==='settings')render();}
+async function recTrim(keep=RECOVERY_LIMIT){const list=recSort(await ridbAll()).filter(x=>!isLegacyKey(x.key));const drop=list.slice(keep).map(x=>x.key);if(drop.length)await ridbDel(drop);return drop.length;}
+async function recMigrate(){const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.startsWith(RECOVERY_PREFIX)||isLegacyKey(k)))keys.push(k);}
+ for(const k of keys){const raw=localStorage.getItem(k);if(raw==null)continue;let reason='',at='';if(!isLegacyKey(k)){try{const o=JSON.parse(raw);reason=o.reason||'';at=o.at||'';}catch{}}else at='';
+  await ridbPut({key:k,reason:isLegacyKey(k)?'옛 업데이트 원본':reason,at,raw});const back=await ridbGet(k);if(back&&back.raw.length===raw.length)localStorage.removeItem(k);}
+ if(keys.some(isLegacyKey)){try{localStorage.setItem('sawgin-legacy-backups-cleared',new Date().toISOString());}catch{}}
+ if(keys.length)await recTrim();}
+let ridbOk=false;
+(async()=>{try{await ridb();ridbOk=true;try{navigator.storage?.persist?.();}catch{}await recMigrate();}catch(e){ridbOk=false;}recRefresh();})();
+const saveRecoverySnapshot157=saveRecoverySnapshot;
+saveRecoverySnapshot=function(reason,data){if(!ridbOk)return saveRecoverySnapshot157(reason,data);
+ const key=RECOVERY_PREFIX+Date.now()+'-'+uid().slice(0,4),at=new Date().toISOString(),raw=JSON.stringify({reason,at,data});
+ ridbPut({key,reason,at,raw}).then(()=>recTrim()).then(recRefresh).catch(()=>{try{saveRecoverySnapshot157(reason,data);}catch{}});return key;};
+cleanOldRecoveries=async function(){if(!ridbOk){toast('이 브라우저는 복구 사본 저장소를 쓸 수 없어.');return;}
+ const list=recSort(await ridbAll()),old=list.filter(x=>!isLegacyKey(x.key)).slice(1),legacy=list.filter(x=>isLegacyKey(x.key));const n=old.length+legacy.length;
+ if(!n)return toast('정리할 오래된 복구 사본이 없어.');
+ if(!confirm(`가장 최근 복구 사본 1개만 남기고 ${n}개를 지울까?\n지금 학습 기록·서버 기록·JSON 백업은 그대로야.`))return;
+ await ridbDel([...old,...legacy].map(x=>x.key));await recRefresh();toast(`복구 사본 ${n}개를 정리했어.`);};
+function lsUsageKB(){let n=0;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);n+=(k.length+(localStorage.getItem(k)||'').length)*2;}return Math.round(n/1024);}
+recoveryHTML=function(){if(recCache==null&&ridbOk&&!recLoading)setTimeout(recRefresh,0);
+ const list=recCache||[],kb=lsUsageKB(),mb=(kb/1024).toFixed(1);
+ const rows=list.map(x=>`<p><button class="smallbtn" data-action="download-recovery" data-key="${attr(x.key)}">${isLegacyKey(x.key)?'옛 업데이트 원본 · '+esc(x.key.replace('sawgin-before-','')):'복구 사본 '+esc(x.at?new Date(x.at).toLocaleString('ko-KR'):x.key.replace(RECOVERY_PREFIX,''))}${x.reason&&!isLegacyKey(x.key)?' · '+esc(x.reason):''}</button></p>`).join('');
+ return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${list.length}개 · 최신 ${RECOVERY_LIMIT}개만 유지해. 사본은 학습 기록과 다른 저장소에 보관해서 기록 저장 공간을 차지하지 않아.</p><p class="sub">학습 기록 저장 공간: 약 ${mb}MB / 5MB${kb>4000?' · <b style="color:#7d1418">거의 찼어</b>':''}</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${rows||(ridbOk?'<p class="sub">아직 복구 사본이 없어.</p>':'<p class="sub">이 브라우저는 별도 저장소를 쓸 수 없어 기존 방식으로 보관해.</p>')}</section>`;};
+document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action="download-recovery"]');if(!b||!ridbOk)return;const k=b.dataset.key;if(localStorage.getItem(k)!=null)return;ev.stopImmediatePropagation();ev.preventDefault();
+ try{const o=await ridbGet(k);if(!o)throw 0;let v;try{v=JSON.parse(o.raw);}catch{v=o.raw;}downloadJSON(v?.data||v,'sawgin-recovery-'+dateKey()+'.json');}catch{alert('복구 사본을 읽지 못했어.');}},true);
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;if(grantLevelMagnets()){save();}refreshSaveUI();};
