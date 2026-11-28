@@ -1354,7 +1354,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.9 · 코르크 보드'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.6.0 · 보드 자석'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
@@ -1721,7 +1721,9 @@ frPickHTML=function(){const all=frItems(),own=new Set(all.map(x=>x.id)),sel=frPi
  <div class="fp-chips">${[['all',`전체 ${nA+nL+nE}/${tot}`],['ach',`업적 ${nA}/${SEALS.length}`],['lv',`레벨 ${nL}/${tL}`],['ep',`기념품 ${nE}/${SOUVENIRS.length}`]].map(([k,l])=>`<button class="${frFilter===k?'on':''}" data-action="fp-filter" data-f="${k}">${l}</button>`).join('')}</div>
  <div class="fp-body">${frFilter==='all'||frFilter==='ach'?`<div class="fp-sec"><span>ACHIEVEMENTS · 업적</span><span>${nA} / ${SEALS.length}</span></div><div class="fp-grid">${achs}</div>`:''}${frFilter==='all'||frFilter==='lv'?`<div class="fp-sec"><span>LEVEL MAGNETS · 레벨 자석</span><span>L${lv} · ${nL} / ${tL}</span></div><div class="fp-grid">${lvs}</div>`:''}${frFilter==='all'||frFilter==='ep'?`<div class="fp-sec"><span>SOUVENIRS · 에피 기념품</span><span>${nE} / ${SOUVENIRS.length}</span></div><div class="fp-grid">${eps}</div><p class="fp-sub" style="margin-top:6px">한 에피소드의 네 권(단어·가이드·Practice·Journal)을 다 끝내면 하나씩 받아.</p>`:''}</div>
  <div class="fp-foot"><button class="linkbtn" data-action="fp-reset">최근 순으로 돌아가기</button><button class="primary" data-action="fp-save">이대로 붙이기</button></div></section>`;};
-document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="fp-toggle"]');if(!b||!frPick||b.disabled)return;ev.stopImmediatePropagation();const id=b.dataset.id,i=frPick.sel.indexOf(id);if(i>=0)frPick.sel.splice(i,1);else if(frPick.sel.length>=FR_MAX2)toast(`최대 ${FR_MAX2}개까지 붙일 수 있어.`);else frPick.sel.push(id);frPickRefresh();},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="fp-toggle"]');if(!b||!frPick||b.disabled)return;ev.stopImmediatePropagation();const id=b.dataset.id,board=frPick.tab==='board';frPick.board=frPick.board||[];
+ const L=board?frPick.board:frPick.sel,O=board?frPick.sel:frPick.board,max=board?BOARD_MAX:FR_MAX2,i=L.indexOf(id);
+ if(i>=0)L.splice(i,1);else if(L.length>=max)toast(board?`보드에는 ${max}개까지 붙일 수 있어.`:`최대 ${max}개까지 붙일 수 있어.`);else{const k=O.indexOf(id);if(k>=0)O.splice(k,1);L.push(id);}frPickRefresh();},true);
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="fr-mag"]');if(!b)return;const id=b.dataset.id||'';if(!id.startsWith('e:'))return;ev.stopImmediatePropagation();const x=frItems().find(i=>i.id===id);if(x)toast(x.label);},true);
 /* fridge: card + ticket on top, magnets packed across both doors */
 function frMag159(x,i){const sz=MAG_SIZE[x.key]||'M';return `<button class="fr-mag2${i>=FR_PHONE2?' pc-only':''}" data-size="${sz}" data-key="${attr(x.key)}" data-action="fr-mag" data-id="${attr(x.id)}" aria-label="${attr(x.label)}"><img src="${attr(x.img)}" alt="" loading="lazy"></button>`;}
@@ -1790,6 +1792,46 @@ journalHome=function(){const eps=journalEpisodes(),ep=currentJournalEpisode();
  `;
  return addAll(base.slice(0,ps)+body+base.slice(pe));};
 document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset.change==='journal-episode'&&t.value==='__all'){ev.stopImmediatePropagation();journalEpisode='__all';render();}},true);
+
+/* ---------- v1.6.0 · cork board: calendar centre, magnets on the board (picked from the EDIT ticket, no pins) ---------- */
+const BOARD_MAX=4,BOARD_PHONE=2;
+function boardIds(){const b=db.settings.boardMagnets;return Array.isArray(b)?b:[];}
+function boardShown(){const by=Object.fromEntries(frItems().map(x=>[x.id,x]));return boardIds().map(id=>by[id]).filter(Boolean).slice(0,BOARD_MAX);}
+frShown=function(){const bset=new Set(boardIds()),all=frItems().filter(x=>!bset.has(x.id)),by=Object.fromEntries(all.map(x=>[x.id,x])),custom=db.settings.fridgeMagnets;if(Array.isArray(custom))return custom.map(id=>by[id]).filter(Boolean).slice(0,FR_MAX2);return all.sort((a,b)=>b.ts-a.ts).slice(0,FR_MAX2);};
+const frPickOpen160=frPickOpen;
+frPickOpen=function(){frPickOpen160();if(!frPick)return;frPick.board=boardIds().slice();frPick.tab='fridge';frPickRefresh();};
+const frPickHTML160=frPickHTML;
+frPickHTML=function(){const board=frPick.tab==='board',real=frPick.sel;frPick.board=frPick.board||[];if(board)frPick.sel=frPick.board;let out;try{out=frPickHTML160();}finally{frPick.sel=real;}
+ const other=board?real:frPick.board;for(const id of other)out=out.replace(`data-id="${attr(id)}"`,`data-id="${attr(id)}" data-else="${board?'냉장고':'보드'}"`);
+ if(board)frPick.board.forEach((id,i)=>{if(i>=BOARD_PHONE)out=out.replace(new RegExp(`class="fp-cell on"( data-action="fp-toggle" data-id="${attr(id).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}")`),'class="fp-cell on2"$1');});
+ const tabs=`<div class="fp-tabs" role="tablist"><button role="tab" aria-selected="${!board}" data-action="fp-tab" data-tab="fridge">냉장고 <small>${real.length}</small></button><button role="tab" aria-selected="${board}" data-action="fp-tab" data-tab="board">코르크 보드 <small>${frPick.board.length} / ${BOARD_MAX}</small></button></div>`;
+ out=out.replace(/<p class="fp-sub">[\s\S]*?<\/p>/,board?`${tabs}<p class="fp-sub">누른 순서대로 코르크 보드에 붙어. <b>1~${BOARD_PHONE}</b> 폰·PC · <b class="lt">${BOARD_PHONE+1}~${BOARD_MAX}</b> PC에서만 · 냉장고에 붙은 자석을 고르면 보드로 옮겨져</p>`:m=>tabs+m.replace('다시 누르면 빠져','다시 누르면 빠져 · 보드에 붙은 자석을 고르면 냉장고로 옮겨져'));
+ if(board)out=out.replace('최근 순으로 돌아가기','보드 비우기');
+ return out;};
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b||!frPick)return;const a=b.dataset.action;
+ if(a==='fp-tab'){ev.stopImmediatePropagation();frPick.tab=b.dataset.tab==='board'?'board':'fridge';frPickRefresh();}
+ else if(a==='fp-save'){db.settings.boardMagnets=[...(frPick.board||[])];}
+ else if(a==='fp-reset'&&frPick.tab==='board'){ev.stopImmediatePropagation();db.settings.boardMagnets=[];save();frPickClose();render();toast('보드에 붙인 자석을 다 뗐어.');}},true);
+const fridgeHTML160=fridgeHTML;
+fridgeHTML=function(){const nb=boardShown().length;let out=fridgeHTML160.apply(this,arguments);if(nb)out=out.replace(/(<span class="tk-sub">MAGNETS [^<]*)<\/span>/,`$1 · BOARD ${nb}</span>`);return out;};
+const corkHTML160=corkHTML;
+corkHTML=function(){const mags=boardShown().map((x,i)=>frMag159(x,i).replace('class="fr-mag2 pc-only"','class="fr-mag2"').replace('class="fr-mag2"',`class="fr-mag2 ck-mag${i>=BOARD_PHONE?' pc-only':''}"`)).join('');
+ return corkHTML160().replace(/<\/section>$/,`<div class="ck-maglayer">${mags}</div></section>`);};
+function corkLayout(){const ck=document.querySelector('.cork');if(!ck)return;const layer=ck.querySelector('.ck-maglayer');if(!layer||!layer.children.length)return;
+ const C=ck.getBoundingClientRect();if(!C.width)return;const bw=11,phone=C.width<600,k=phone?.8:1,pad=8,gap=6;
+ const R={x:bw+pad,y:bw+pad,w:C.width-2*bw-2*pad,h:C.height-2*bw-2*pad};
+ const obs=[...ck.querySelectorAll(':scope > .ck')].map(el=>{const t=el.querySelector('.ck-in > *,.fr-lp,.ck-polaroid')||el;const r=t.getBoundingClientRect();return {x:r.left-C.left-gap,y:r.top-C.top-gap,w:r.width+2*gap,h:r.height+2*gap};});
+ const hit=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h,placed=[];
+ const mags=[...layer.querySelectorAll('.fr-mag2')].filter(m=>getComputedStyle(m).display!=='none');
+ const order=mags.map((m,i)=>({m,i,s:Math.round(MAG_PX[m.dataset.size||'M']*k)})).sort((a,b)=>b.s-a.s||a.i-b.i);
+ for(const o of order){const rnd=frRng(frHash('board:'+(o.m.dataset.id||'')+':'+Math.round(C.width)));const s=o.s,c=[];
+  for(let y=R.y;y<=R.y+R.h-s;y+=6)for(let x=R.x;x<=R.x+R.w-s;x+=6)c.push([x,y]);
+  for(let i=c.length-1;i>0;i--){const q=Math.floor(rnd()*(i+1));[c[i],c[q]]=[c[q],c[i]];}
+  let spot=null;for(const [x,y] of c){const r={x:x-gap,y:y-gap,w:s+2*gap,h:s+2*gap};if(obs.some(b=>hit(r,b))||placed.some(b=>hit(r,b)))continue;spot={x,y};break;}
+  if(!spot){o.m.style.visibility='hidden';continue;}placed.push({x:spot.x,y:spot.y,w:s,h:s});
+  Object.assign(o.m.style,{left:spot.x+'px',top:spot.y+'px',width:s+'px',height:s+'px',visibility:'visible'});o.m.style.setProperty('--r',Math.round((rnd()*2-1)*12)+'deg');}}
+const frLayout160=frLayout;
+frLayout=function(){frLayout160();corkLayout();};
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;if(grantLevelMagnets()){save();}refreshSaveUI();};
