@@ -1354,7 +1354,7 @@ pickVoice=function(voices,lang){const uri=voicePref()[lang];if(uri){const v=voic
 function voiceOptions(lang){const s=window.speechSynthesis;if(!s)return '';const want=lang.toLowerCase(),list=s.getVoices().filter(v=>String(v.lang||'').toLowerCase().replace('_','-')===want).sort((a,b)=>{const q=v=>/natural|neural|premium|enhanced/i.test(v.name)?2:/google/i.test(v.name)?1:0;return q(b)-q(a)||a.name.localeCompare(b.name);});const cur=voicePref()[lang]||'';return `<option value="">자동 (기기 기본)</option>`+list.map(v=>`<option value="${attr(v.voiceURI)}"${v.voiceURI===cur?' selected':''}>${esc(v.name)}</option>`).join('')+(cur&&!list.some(v=>v.voiceURI===cur)?`<option value="${attr(cur)}" selected>저장한 음성 (불러오는 중)</option>`:'');}
 function voiceSettingsHTML(){return `<section class="sheet voice-settings" id="voiceSettings"><h3>발음 음성</h3><p class="sub">단어장·시험·Pocket·책갈피의 🔊 버튼에 쓸 음성이야. 이 기기에만 저장되고 동기화하지 않아. 스크립트 스튜디오의 역할 음성은 스튜디오에서 따로 골라.</p>${['en-GB','en-US'].map(l=>`<div class="voice-row"><label>${l==='en-GB'?'🇬🇧 GB':'🇺🇸 US'}<select data-voice-pref="${l}">${voiceOptions(l)}</select></label><button class="smallbtn" data-action="speak" data-word="${l==='en-GB'?'Fancy a cup of tea?':'Do you want some coffee?'}" data-lang="${l}">🔊 들어보기</button></div>`).join('')}</section>`;}
 const settings099=settings;
-settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.8 · ALBUMS 휠'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
+settings=function(){const html=settings099().replace(/v0\.9\.8 · [^<']*/,'v1.5.9 · 코르크 보드'),anchor='<section class="sheet legacy-backups"';return html.includes(anchor)?html.replace(anchor,voiceSettingsHTML()+anchor):html+voiceSettingsHTML();};
 document.addEventListener('change',ev=>{const l=ev.target.dataset?.voicePref;if(!l)return;setVoicePref(l,ev.target.value);toast('발음 음성을 이 기기에 저장했어.');});
 if(window.speechSynthesis)window.speechSynthesis.addEventListener?.('voiceschanged',()=>{document.querySelectorAll('[data-voice-pref]').forEach(sel=>{if(document.activeElement!==sel)sel.innerHTML=voiceOptions(sel.dataset.voicePref);});});
 
@@ -1662,6 +1662,134 @@ recoveryHTML=function(){if(recCache==null&&ridbOk&&!recLoading)setTimeout(recRef
  return `<section class="sheet"><h3>자동 복구 사본</h3><p class="sub">복구 사본 ${list.length}개 · 최신 ${RECOVERY_LIMIT}개만 유지해. 사본은 학습 기록과 다른 저장소에 보관해서 기록 저장 공간을 차지하지 않아.</p><p class="sub">학습 기록 저장 공간: 약 ${mb}MB / 5MB${kb>4000?' · <b style="color:#7d1418">거의 찼어</b>':''}</p><button class="secondary" onclick="cleanOldRecoveries()">오래된 복구 사본 정리</button><p class="sub">업데이트 전·팩 갱신·삭제·서버 기록 교체 전에 이 기기에 남긴 사본이야. 브라우저 데이터를 지우면 함께 사라지니 필요한 사본은 내려받아 둬.</p>${rows||(ridbOk?'<p class="sub">아직 복구 사본이 없어.</p>':'<p class="sub">이 브라우저는 별도 저장소를 쓸 수 없어 기존 방식으로 보관해.</p>')}</section>`;};
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action="download-recovery"]');if(!b||!ridbOk)return;const k=b.dataset.key;if(localStorage.getItem(k)!=null)return;ev.stopImmediatePropagation();ev.preventDefault();
  try{const o=await ridbGet(k);if(!o)throw 0;let v;try{v=JSON.parse(o.raw);}catch{v=o.raw;}downloadJSON(v?.data||v,'sawgin-recovery-'+dateKey()+'.json');}catch{alert('복구 사본을 읽지 못했어.');}},true);
+
+/* ---------- v1.5.9 · cork board · fridge magnets (own sizes, packed) · 8 achievements · episode souvenirs · journal all episodes ---------- */
+SEALS.splice(SEALS.findIndex(s=>s[0]==='sealed-letter'),0,
+ ['due-date','Due Date','7일 연속 공부','D'],['shelf-life','Shelf Life','학습팩 5개 완료','S'],['full-orbit','Full Orbit','한 달에 15일 이상 공부','O'],['mind-the-gap','Mind the Gap','3일 넘게 쉬었다가 다시 공부','M'],
+ ['tea-first','Tea First','오전(12시 전)에 공부','T'],['night-owl','Night Owl','자정 넘어서 공부','N'],['postcard-home','Postcard Home','Journal 글 5편 제출','P'],['stubborn-badger','Stubborn Badger','같은 Practice 문제를 고쳐 써서 세 번째 답안 이상에서 correct','B']);
+const SOUVENIRS=[['deco-oxford-shield','옥스퍼드 방패'],['deco-fish-chips-2','Fish & Chips!'],['deco-full-english','잉글리시 브렉퍼스트'],['deco-goose','거위'],['deco-tile','꽃 타일'],['deco-triceratops','트리케라톱스'],['deco-fox','나무 여우']];
+const MAG_SIZE={'deco-phonebox':'L','deco-postbox':'L','deco-bus':'L','deco-teapot':'L','night-owl':'L','deco-full-english':'L','shelf-life':'L','deco-fox':'L','tea-first':'L','deco-oxford-shield':'L',
+ 'deco-stamp-rose':'S','deco-wax-sg':'S','deco-scone':'S','deco-flatwhite':'S','deco-goose':'S','deco-tile':'S','due-date':'S','deco-porkpie':'S'};
+const MAG_PX={L:78,M:58,S:40},FR_MAX2=18,FR_PHONE2=10;
+const FR_TOTAL=()=>SEALS.length+Object.keys(LV_MAGNETS).length+SOUVENIRS.length;
+const hydrate159=hydrate;
+hydrate=function(s){s=hydrate159(s);for(const k of ['souvenirs','reviseCounts'])if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]={};return s;};
+for(const k of ['souvenirs','reviseCounts'])if(!db[k]||typeof db[k]!=='object'||Array.isArray(db[k]))db[k]={};
+function dk159(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function studiedDays(){return Object.keys(db.activity||{}).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&pcStudied(db.activity[k])).sort();}
+function dayNum(k){const [y,m,d]=k.split('-').map(Number);return Math.round(Date.UTC(y,m-1,d)/864e5);}
+function packDone(mode,key){const p=db.packs[mode]?.[key];if(!p||!p.items?.length)return false;
+ if(mode==='journal'){const xs=p.items.filter(visiblePrompt);return xs.length>0&&xs.every(x=>{const e=findEntryFor(x.id,'essay');return !!e&&(e.submissions||[]).length>0;});}
+ const [d,t]=count(mode,key);return t>0&&d===t;}
+function episodeDone(ep){const modes=['vocab','guide','writing','journal'];return modes.every(m=>{const ks=Object.keys(db.packs[m]||{}).filter(k=>db.packs[m][k].episode===ep);return ks.length&&ks.every(k=>packDone(m,k));});}
+function grantSouvenirs(){const fresh=[];const used=new Set(Object.values(db.souvenirs).map(v=>v&&v.key));const eps=new Set();for(const m of ['vocab','guide','writing','journal'])for(const p of Object.values(db.packs[m]||{}))if(p?.episode)eps.add(p.episode);
+ for(const ep of [...eps].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}))){if(db.souvenirs[ep]||!episodeDone(ep))continue;const s=SOUVENIRS.find(x=>!used.has(x[0]));if(!s)break;used.add(s[0]);db.souvenirs[ep]={key:s[0],at:dateKey(),ts:Date.now()};fresh.push(s[1]);}
+ if(fresh.length&&v08Ready)setTimeout(()=>toast('에피 기념품 · '+fresh.join(', ')),1800);}
+const lockRewards159=lockRewards;
+lockRewards=function(){const r=lockRewards159.apply(this,arguments);const A=db.achievements,d=dateKey(),mine=[],give=k=>{if(!A[k]){A[k]={at:d,ts:Date.now()};mine.push(k);}};
+ const days=studiedDays(),nums=days.map(dayNum);
+ let run=0,best=0;for(let i=0;i<nums.length;i++){run=i&&nums[i]===nums[i-1]+1?run+1:1;best=Math.max(best,run);}if(best>=7)give('due-date');
+ const byMonth={};days.forEach(k=>{byMonth[k.slice(0,7)]=(byMonth[k.slice(0,7)]||0)+1;});if(Object.values(byMonth).some(n=>n>=15))give('full-orbit');
+ for(let i=1;i<nums.length;i++)if(nums[i]-nums[i-1]>=4){give('mind-the-gap');break;}
+ let done=0;for(const m of ['vocab','guide','writing','journal'])for(const k of Object.keys(db.packs[m]||{}))if(packDone(m,k))done++;if(done>=5)give('shelf-life');
+ if(Object.values(db.journalEntries||{}).filter(e=>(e.submissions||[]).length).length>=5)give('postcard-home');
+ for(const e of db.studioLog||[]){const t=Number(e.at)||0;if(!t)continue;const hr=new Date(t).getHours();if(hr<5)give('night-owl');else if(hr<12)give('tea-first');}
+ if(Object.entries(db.reviseCounts||{}).some(([id,v])=>v&&v.n>=2&&db.feedback[id]?.verdict==='correct'))give('stubborn-badger');
+ grantSouvenirs();if(mine.length)announceSeal(mine);return r;};
+const activity159=activity;
+activity=function(type){const r=activity159.apply(this,arguments);const hr=new Date().getHours();if(hr<5)earnSeal('night-owl');else if(hr<12)earnSeal('tea-first');return r;};
+if(typeof pocketRecord==='function'){const pr159=pocketRecord;pocketRecord=function(){const hr=new Date().getHours();if(hr<5)earnSeal('night-owl');else if(hr<12)earnSeal('tea-first');return pr159.apply(this,arguments);};}
+const importFeedback159=importFeedback;
+importFeedback=function(){const before=JSON.parse(JSON.stringify(db.feedback||{}));const r=importFeedback159.apply(this,arguments);let ch=false;
+ for(const [id,f] of Object.entries(db.feedback||{})){if(!db.answers[id]||!f)continue;const b=before[id];if(b&&b.at===f.at&&b.verdict===f.verdict&&b.answer===f.answer)continue;
+  if(f.verdict==='revise'){const c=db.reviseCounts[id]??={n:0,last:''};if(c.last!==f.answer){c.n++;c.last=f.answer||'';ch=true;}}}
+ if(ch){lockRewards();save();}return r;};
+/* fridge items + picker */
+frItems=function(){const out=[];SEALS.forEach(s=>{const v=db.achievements[s[0]];if(v)out.push({id:'a:'+s[0],key:s[0],kind:'ach',img:'fridge/badges/'+s[0]+'.webp',label:s[1],ts:Number(v.ts)||Date.parse(sealDate(v))||0});});
+ Object.entries(db.levelMagnets||{}).forEach(([L,v])=>{const m=LV_MAGNETS[L];if(m)out.push({id:'l:'+L,key:m[0],kind:'lv',img:'fridge/badges/'+m[0]+'.webp',label:'L'+L+' · '+m[1],ts:Number(v.ts)||0});});
+ Object.entries(db.souvenirs||{}).forEach(([ep,v])=>{const s=SOUVENIRS.find(x=>x[0]===v?.key);if(s)out.push({id:'e:'+ep,key:s[0],kind:'ep',img:'fridge/badges/'+s[0]+'.webp',label:epDash(ep)+' 기념품 · '+s[1],ts:Number(v.ts)||0});});return out;};
+frShown=function(){const all=frItems(),by=Object.fromEntries(all.map(x=>[x.id,x])),custom=db.settings.fridgeMagnets;if(Array.isArray(custom))return custom.map(id=>by[id]).filter(Boolean).slice(0,FR_MAX2);return all.sort((a,b)=>b.ts-a.ts).slice(0,FR_MAX2);};
+frPickHTML=function(){const all=frItems(),own=new Set(all.map(x=>x.id)),sel=frPick.sel,custom=Array.isArray(db.settings.fridgeMagnets),since=Number(db.settings.fridgeAt)||0,lv=levelInfo().level;
+ const cell=(id,img,label,owned,secret)=>{const n=sel.indexOf(id)+1,isNew=custom&&owned&&(all.find(x=>x.id===id)?.ts||0)>since&&!n;return `<button class="fp-cell${owned?'':' locked'}${n?(n<=FR_PHONE2?' on':' on2'):''}" ${owned?`data-action="fp-toggle" data-id="${attr(id)}"`:'disabled'} aria-label="${attr(owned?label:'아직 없음')}"><span class="fp-img"><img src="${attr(img)}" alt="" loading="lazy">${n?`<b class="fp-n">${n}</b>`:''}${isNew?'<i class="fp-new">NEW</i>':''}</span><span class="fp-l">${esc(secret&&!owned?'???':label)}</span></button>`;};
+ const achs=SEALS.map(s=>cell('a:'+s[0],'fridge/badges/'+s[0]+'.webp',s[1],own.has('a:'+s[0]),s[0] in SEAL_SECRET)).join('');
+ const lvs=Object.entries(LV_MAGNETS).map(([L,m])=>cell('l:'+L,'fridge/badges/'+m[0]+'.webp','L'+L+' · '+m[1],own.has('l:'+L))).join('');
+ const sv=Object.entries(db.souvenirs||{}),svByKey=Object.fromEntries(sv.map(([ep,v])=>[v?.key,ep]));
+ const eps=SOUVENIRS.map(([k,l])=>{const ep=svByKey[k];return cell(ep?'e:'+ep:'x:'+k,'fridge/badges/'+k+'.webp',ep?epDash(ep)+' · '+l:l,!!ep);}).join('');
+ const nA=SEALS.filter(s=>own.has('a:'+s[0])).length,nL=Object.keys(LV_MAGNETS).filter(L=>own.has('l:'+L)).length,nE=sv.length,tot=FR_TOTAL(),tL=Object.keys(LV_MAGNETS).length;
+ return `<section class="fp-sheet" role="dialog" aria-modal="true" aria-label="자석 고르기"><span class="sheet-grip" aria-hidden="true"></span><div class="fp-head"><div><span class="eyebrow">FRIDGE · MAGNETS</span><strong>자석 고르기</strong></div><button class="sheet-close" data-action="fp-close" aria-label="닫기">✕</button></div>
+ <p class="fp-sub">누른 순서대로 냉장고에 붙어. <b>1~${FR_PHONE2}</b> 폰·PC · <b class="lt">${FR_PHONE2+1}~${FR_MAX2}</b> PC에서만 · 다시 누르면 빠져</p>
+ <div class="fp-chips">${[['all',`전체 ${nA+nL+nE}/${tot}`],['ach',`업적 ${nA}/${SEALS.length}`],['lv',`레벨 ${nL}/${tL}`],['ep',`기념품 ${nE}/${SOUVENIRS.length}`]].map(([k,l])=>`<button class="${frFilter===k?'on':''}" data-action="fp-filter" data-f="${k}">${l}</button>`).join('')}</div>
+ <div class="fp-body">${frFilter==='all'||frFilter==='ach'?`<div class="fp-sec"><span>ACHIEVEMENTS · 업적</span><span>${nA} / ${SEALS.length}</span></div><div class="fp-grid">${achs}</div>`:''}${frFilter==='all'||frFilter==='lv'?`<div class="fp-sec"><span>LEVEL MAGNETS · 레벨 자석</span><span>L${lv} · ${nL} / ${tL}</span></div><div class="fp-grid">${lvs}</div>`:''}${frFilter==='all'||frFilter==='ep'?`<div class="fp-sec"><span>SOUVENIRS · 에피 기념품</span><span>${nE} / ${SOUVENIRS.length}</span></div><div class="fp-grid">${eps}</div><p class="fp-sub" style="margin-top:6px">한 에피소드의 네 권(단어·가이드·Practice·Journal)을 다 끝내면 하나씩 받아.</p>`:''}</div>
+ <div class="fp-foot"><button class="linkbtn" data-action="fp-reset">최근 순으로 돌아가기</button><button class="primary" data-action="fp-save">이대로 붙이기</button></div></section>`;};
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="fp-toggle"]');if(!b||!frPick||b.disabled)return;ev.stopImmediatePropagation();const id=b.dataset.id,i=frPick.sel.indexOf(id);if(i>=0)frPick.sel.splice(i,1);else if(frPick.sel.length>=FR_MAX2)toast(`최대 ${FR_MAX2}개까지 붙일 수 있어.`);else frPick.sel.push(id);frPickRefresh();},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action="fr-mag"]');if(!b)return;const id=b.dataset.id||'';if(!id.startsWith('e:'))return;ev.stopImmediatePropagation();const x=frItems().find(i=>i.id===id);if(x)toast(x.label);},true);
+/* fridge: card + ticket on top, magnets packed across both doors */
+function frMag159(x,i){const sz=MAG_SIZE[x.key]||'M';return `<button class="fr-mag2${i>=FR_PHONE2?' pc-only':''}" data-size="${sz}" data-key="${attr(x.key)}" data-action="fr-mag" data-id="${attr(x.id)}" aria-label="${attr(x.label)}"><img src="${attr(x.img)}" alt="" loading="lazy"></button>`;}
+fridgeHTML=function(){const shown=frShown(),n=frItems().length;
+ return `<section class="fridge v15 v159" aria-label="냉장고"><div class="fr-door fr-top"><span class="fr-logo">S&amp;G</span>
+  <div class="fr-memo sj-wrap">${sjCard()}</div>
+  <button class="fr-ticket" data-action="fr-pick" aria-label="자석 고르기"><span class="tk-body"><span class="tk-main"><span class="tk-top">ADMIT ONE · FRIDGE</span><b>EDIT</b><span class="tk-sub">MAGNETS ${n} / ${FR_TOTAL()}</span></span><span class="tk-no">No.${String(n).padStart(4,'0')}</span></span><span class="fr-peb tk-peb" style="--c1:#c2cdb4;--c2:#5f6f55"></span></button>
+  <span class="fr-handle"></span></div>
+  <div class="fr-groove"></div>
+  <div class="fr-door fr-bot"><span class="fr-handle"></span>
+   <div class="fr-doodle fr-dd-ufo"><img src="fridge/doodle_ufo.webp" alt="UFO 낙서 — second-hand witness No.1"><span class="fr-dd-tape tl"></span><span class="fr-dd-tape br"></span></div><div class="fr-doodle fr-dd-duty"><img src="fridge/doodle_duty.webp" alt="FRIDGE DUTY 새 낙서"><span class="fr-peb" style="--c1:#5a6b96;--c2:#1f2a44"></span></div>
+  </div><div class="fr-maglayer">${shown.map(frMag159).join('')}</div></section>`;};
+function frHash(str){let x=2166136261;for(let i=0;i<str.length;i++){x^=str.charCodeAt(i);x=Math.imul(x,16777619);}return x>>>0;}
+function frRng(seed){let x=seed||1;return ()=>{x^=x<<13;x>>>=0;x^=x>>17;x^=x<<5;x>>>=0;return x/4294967296;};}
+function frLayout(){const fr=document.querySelector('.fridge.v159');if(!fr)return;const layer=fr.querySelector('.fr-maglayer');if(!layer)return;
+ const F=fr.getBoundingClientRect();if(!F.width)return;const rel=e=>{const r=e.getBoundingClientRect();return {x:r.left-F.left,y:r.top-F.top,w:r.width,h:r.height};};
+ const phone=F.width<600,k=phone?.8:1,pad=phone?10:16,gap=phone?5:7;
+ const doors=[...fr.querySelectorAll('.fr-door')].map(rel);
+ const obs=[...fr.querySelectorAll('.sj-wrap,.fr-ticket,.fr-doodle,.fr-handle,.fr-logo')].map(rel).map(o=>({x:o.x-8,y:o.y-8,w:o.w+16,h:o.h+16}));
+ const mags=[...layer.querySelectorAll('.fr-mag2')].filter(m=>getComputedStyle(m).display!=='none');
+ const placed=[],used=doors.map(()=>0),hit=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
+ const order=mags.map((m,i)=>({m,i,s:Math.round(MAG_PX[m.dataset.size||'M']*k)})).sort((a,b)=>b.s-a.s||a.i-b.i);
+ for(const o of order){const rnd=frRng(frHash((o.m.dataset.id||'')+':'+Math.round(F.width)));const s=o.s;let spot=null;
+  const di=doors.map((d,i)=>i).sort((a,b)=>used[a]/(doors[a].w*doors[a].h)-used[b]/(doors[b].w*doors[b].h));
+  for(const d of di){const D=doors[d],c=[];for(let y=D.y+pad;y<=D.y+D.h-pad-s;y+=8)for(let x=D.x+pad;x<=D.x+D.w-pad-s;x+=8)c.push([x,y]);
+   for(let i=c.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[c[i],c[j]]=[c[j],c[i]];}
+   for(const [x,y] of c){const r={x:x-gap,y:y-gap,w:s+2*gap,h:s+2*gap};if(obs.some(b=>hit(r,b))||placed.some(b=>hit(r,b)))continue;spot={x,y,d};break;}
+   if(spot)break;}
+  if(!spot){o.m.style.visibility='hidden';continue;}
+  placed.push({x:spot.x,y:spot.y,w:s,h:s});used[spot.d]+=s*s;const rot=Math.round((rnd()*2-1)*12);
+  Object.assign(o.m.style,{left:spot.x+'px',top:spot.y+'px',width:s+'px',height:s+'px',visibility:'visible'});o.m.style.setProperty('--r',rot+'deg');}
+}
+const render159=render;
+render=function(){const r=render159.apply(this,arguments);if(view.page==='home'||!view.page)requestAnimationFrame(frLayout);return r;};
+let frLayoutT=0;window.addEventListener('resize',()=>{clearTimeout(frLayoutT);frLayoutT=setTimeout(frLayout,120);});
+/* cork board */
+const POL_WORD={vocab:'words',guide:'guide',writing:'practice',journal:'journal'};
+function corkPolaroid(){let best=null;for(const [mode,m] of Object.entries(db.settings.bookMemory||{})){const p=db.packs[mode]?.[m?.pack];if(p&&BOOKS[mode]&&(!best||(m.at||0)>(best.m.at||0)))best={mode,m,p};}
+ if(!best)return `<button class="ck-polaroid" data-action="book" data-mode="vocab" aria-label="첫 학습팩 열기"><span class="ck-photo ck-fallback" style="--bk:${BOOK_SPINE.vocab}"><b>VOCABULARY</b><small>START HERE</small></span><span class="ck-cap">start here</span></button>`;
+ const ep=best.p.episode,kind=best.mode==='vocab'?'vocab':'writing',e=encodeURIComponent(ep),code=epDash(ep);
+ return `<button class="ck-polaroid" data-action="open-book-pack" data-mode="${best.mode}" data-pack="${attr(best.m.pack)}" aria-label="이어하기 · ${attr(BOOKS[best.mode])} ${attr(code)}"><span class="ck-photo ck-fallback" style="--bk:${BOOK_SPINE[best.mode]||'#4a2e27'}"><b>${esc(BOOK_CAPS[best.mode]||'')}</b><small>${esc(code)}</small><img src="covers/${e}_${kind}.webp" data-alt="covers/${e}.webp" alt="" loading="lazy" decoding="async" onerror="shelfCoverFallback(this)"></span><span class="ck-cap">${esc(code)} · ${POL_WORD[best.mode]||'now'}</span></button>`;}
+function corkHTML(){const s=todaySlip()||`<div class="memo-slip ck-noslip"><span class="memo-holes" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="memo-main"><span class="memo-eyebrow">TODAY'S SLIP</span><span class="memo-mean">책갈피한 단어가 생기면 여기에 한 장씩 꽂혀.</span></div></div>`;
+ const pin='<i class="ck-pin" aria-hidden="true"></i>';
+ return `<section class="cork" aria-label="코르크 보드"><div class="ck ck-slip">${pin}<div class="ck-in">${s}</div></div><div class="ck ck-cal">${pin}<div class="ck-in">${frPaperCal()}</div></div><div class="ck ck-lp">${frLP()}</div><div class="ck ck-pol">${pin}${corkPolaroid()}</div><div class="ck ck-rc">${pin}<div class="ck-in">${frReceipt()}</div></div></section>`;}
+const home159=home;
+home=function(){let out=home159();const r=resumeFolder(),s=todaySlip(),pair=`<div class="home-pair">${r}${s}</div>`;
+ if(s&&out.includes(pair))return out.replace(pair,corkHTML());if(out.includes(r))return out.replace(r,corkHTML());return out;};
+/* journal: all episodes (default) */
+currentJournalEpisode=function(){const eps=journalEpisodes();if(journalEpisode&&journalEpisode!=='__all'&&eps.includes(journalEpisode))return journalEpisode;return null;};
+const journalHome159=journalHome;
+journalHome=function(){const eps=journalEpisodes(),ep=currentJournalEpisode();
+ const addAll=html=>html.replace('<select data-change="journal-episode">',`<select data-change="journal-episode"><option value="__all" ${ep?'':'selected'}>모든 에피소드</option>`);
+ if(ep||!eps.length)return addAll(journalHome159());
+ const base=journalHome159();
+ const all=[];eps.forEach(e=>journalPrompts(e).forEach(r=>all.push({...r,ep:e})));const ids=new Set(all.map(r=>r.x.id));
+ const rows=all.map(r=>{const en=findEntryFor(r.x.id,'essay');return {r,k:entryStatus(en),no:epDash(r.ep)};});
+ const row=o=>tocRow(o.no,o.r.x['제목']||o.r.x.localId,o.k,`data-action="toc-open" data-pack="${attr(o.r.key)}" data-item="${attr(o.r.x.id)}"`).replace('class="toc-row"','class="toc-row ep"');
+ const todo=rows.filter(o=>o.k==='todo'||o.k==='writing').map(row),done=rows.filter(o=>o.k==='check'||o.k==='stamp').map(row);
+ const mine=Object.values(db.journalEntries||{}).filter(e=>!ids.has(e.source)).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(e=>tocRow(e.episodes?.[0]?epDash(e.episodes[0]):(e.date||'').slice(5).replace('-','.'),e.title||'제목 없는 글',entryStatus(e),`data-action="edit-entry" data-entry="${attr(e.id)}"`).replace('class="toc-row"','class="toc-row ep"'));
+ const today=new Date();
+ const ps=base.indexOf('<div class="pad-meta">'),pe=base.indexOf('</section></div>',ps);if(ps<0||pe<0)return addAll(base);
+ const body=`<div class="pad-meta"><span>${today.toLocaleDateString('en-GB',{month:'short',year:'numeric'})} · ALL EPISODES</span><i>${done.length} / ${all.length} done</i></div>
+ <div class="pad-title"><strong>THE [CONTENTS]</strong><span>What I'm writing, finishing &amp; getting corrected</span></div>
+ ${tocSection('todo','TO WRITE','TODO','tab-todo',todo,'모든 글감을 다 썼어!')+tocSection('done','DONE','DONE','tab-done',done,'아직 제출한 글이 없어.')}
+ ${tocSection('mine','MY PAGES','MINE','tab-mine',mine,'자유 글과 Guide 글이 여기 모여.')}
+ `;
+ return addAll(base.slice(0,ps)+body+base.slice(pe));};
+document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset.change==='journal-episode'&&t.value==='__all'){ev.stopImmediatePropagation();journalEpisode='__all';render();}},true);
 
 const start071=start05;
 start05=function(){start071();v08Ready=true;if(grantLevelMagnets()){save();}refreshSaveUI();};
