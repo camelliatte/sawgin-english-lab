@@ -569,6 +569,10 @@ body.loop-picking .studio-paper{outline:2px dashed var(--blu);outline-offset:4px
 .wb-meta{font:12px Arial;color:#cdb79c;margin-top:8px}
 .wb-go{all:unset;cursor:pointer;display:inline-block;margin-top:16px;font:bold 12px 'Courier New',monospace;letter-spacing:.14em;color:#fbf2e2;border-bottom:1.5px solid #fbf2e2;padding-bottom:2px}
 .wb-go:focus-visible,.wb-disc:focus-visible{outline:2px solid #fbf2e2;outline-offset:4px}
+
+/* v1.6.0b big record stays put: one-line title */
+.wb-title{font-size:20px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-meta,.wb-code{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style></head>
 <body>
 <main>
@@ -1461,7 +1465,7 @@ Oliver: Cheers, Emma. You're a lifesaver.`;
     const def=`<span class="w-def"><span>S&amp;G</span><span>${esc(code?epPretty(code):'')}</span></span>`;
     const lab=src?`<img src="${esc(src)}" alt="" onerror="this.outerHTML=this.dataset.def" data-def='${def.replace(/'/g,'&#39;')}'>`:def;
     const aud=audBadge(id), has=/aud-dot on/.test(aud)?'녹음 음성 받음':/aud-dot/.test(aud)?'녹음 음성 있음 · 아직 안 받음':'기기 음성';
-    box.innerHTML=`<button class="wb-disc" data-wpick aria-label="턴테이블에 올리기 · ${esc(wTitle(p,id))}"><span class="w-disc">${lab}</span></button><div class="wb-code">${esc(code?code.replace('_EP',' EP').replace(/_(\d+)$/,'-$1'):'')}</div><div class="wb-title">${esc(wTitle(p,id))}</div><div class="wb-meta">${n?n+'줄 · ':''}${has}${id===wCur?' · ON DECK':''}</div><button class="wb-go" data-wpick>PLAY →</button>`; }
+    box.innerHTML=`<button class="wb-disc" data-wpick aria-label="턴테이블에 올리기 · ${esc(wTitle(p,id))}"><span class="w-disc">${lab}</span></button><div class="wb-code">${esc(code?code.replace('_EP',' EP').replace(/_(\d+)$/,'-$1'):'')}</div><div class="wb-title" title="${esc(wTitle(p,id))}">${esc(wTitle(p,id))}</div><div class="wb-meta">${n?n+'줄 · ':''}${has}${id===wCur?' · ON DECK':''}</div><button class="wb-go" data-wpick>PLAY →</button>`; }
   function wClamp(v){ return Math.max(0,Math.min(wList.length-1,v)); }
   function wGo(t){ t=wClamp(t); cancelAnimationFrame(wAnim); const from=wPos, t0=performance.now(), dur=Math.min(520,180+Math.abs(t-from)*60);
     const step=now=>{ const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3); wPos=from+(t-from)*e; wDraw(); if(k<1) wAnim=requestAnimationFrame(step); }; wAnim=requestAnimationFrame(step); }
